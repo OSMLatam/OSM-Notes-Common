@@ -131,6 +131,7 @@ logError "Something went wrong"
 ## Version Compatibility
 
 This library requires:
+
 - **Bash** 4.0 or higher
 - **Linux** operating system
 - Standard UNIX utilities (grep, awk, sed, etc.)
@@ -194,4 +195,3 @@ For issues or questions:
 ---
 
 **Version:** 2025-10-13
-
