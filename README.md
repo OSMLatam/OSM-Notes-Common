@@ -5,7 +5,8 @@ Shared functions and utilities for OSM Notes processing projects.
 ## Overview
 
 This repository contains common Bash functions and utilities shared between:
-- [OSM-Notes-profile](https://github.com/angoca/OSM-Notes-profile) - Ingestion and WMS
+
+- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Ingestion and WMS
 - [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and Analytics
 
 ## Components
@@ -51,7 +52,7 @@ This repository is designed to be used as a Git submodule.
 
 ```bash
 # In your project directory
-git submodule add https://github.com/angoca/OSM-Notes-Common.git lib/osm-common
+git submodule add https://github.com/OSMLatam/OSM-Notes-Common.git lib/osm-common
 
 # Commit the submodule
 git commit -m "Add OSM-Notes-Common as submodule"
@@ -146,6 +147,7 @@ This library requires:
 ### Testing
 
 Before committing changes, ensure:
+
 - All functions are documented
 - No breaking changes to public APIs
 - shellcheck passes: `shellcheck -x -o all *.sh`
@@ -154,6 +156,7 @@ Before committing changes, ensure:
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/):
+
 - **Major version**: Breaking changes
 - **Minor version**: New features (backward compatible)
 - **Patch version**: Bug fixes
@@ -173,13 +176,14 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 ## Support
 
 For issues or questions:
+
 - Create an issue in this repository
 - Check documentation in dependent projects
-- Contact: angoca@yahoo.com
+- Contact: @angoca in Telegram o social networks.
 
 ## Related Projects
 
-- [OSM-Notes-profile](https://github.com/angoca/OSM-Notes-profile) - Notes ingestion and WMS
+- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion and WMS
 - [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and analytics
 
 ## Acknowledgments
