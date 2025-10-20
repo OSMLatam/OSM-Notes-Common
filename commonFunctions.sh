@@ -73,6 +73,9 @@ if [[ -z "${SCRIPT_BASE_DIRECTORY:-}" ]]; then
  CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
  if [[ "${CURRENT_DIR}" == */bin ]]; then
   SCRIPT_BASE_DIRECTORY="$(cd "${CURRENT_DIR}/.." && pwd)"
+ elif [[ "${CURRENT_DIR}" == */lib/osm-common ]]; then
+  # We're in lib/osm-common, go up two levels to project root
+  SCRIPT_BASE_DIRECTORY="$(cd "${CURRENT_DIR}/../.." && pwd)"
  else
   SCRIPT_BASE_DIRECTORY="$(cd "${CURRENT_DIR}/../.." && pwd)"
  fi
@@ -195,33 +198,6 @@ function __checkPrereqs_functions {
 
  __logi "All required functions are available."
  __log_finish
-}
-
-# Check base tables
-function __checkBaseTables {
- __log_start
- __logd "Checking base tables."
-
- # Validate that POSTGRES_11_CHECK_BASE_TABLES is defined
- if [[ -z "${POSTGRES_11_CHECK_BASE_TABLES:-}" ]]; then
-  __loge "ERROR: POSTGRES_11_CHECK_BASE_TABLES variable is not defined. This variable should be defined in the calling script"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- # Validate that the SQL file exists
- if [[ ! -f "${POSTGRES_11_CHECK_BASE_TABLES}" ]]; then
-  __loge "ERROR: SQL file not found: ${POSTGRES_11_CHECK_BASE_TABLES}"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- if ! psql -d "${DBNAME}" -f "${POSTGRES_11_CHECK_BASE_TABLES}" 2> /dev/null; then
-  __logw "Base tables are missing. They will be created."
-  __log_finish
-  return 1
- fi
- __logi "Base tables exist."
- __log_finish
- return 0
 }
 
 # Drop generic objects
