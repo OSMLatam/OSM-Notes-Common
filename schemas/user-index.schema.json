@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User Index Entry",
+  "description": "Individual user entry in the users index file",
+  "type": "object",
+  "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
+  "properties": {
+    "user_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "OSM user ID"
+    },
+    "username": {
+      "type": "string",
+      "minLength": 1,
+      "description": "OSM username"
+    },
+    "history_whole_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes opened by user (all time)"
+    },
+    "history_whole_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes closed by user (all time)"
+    },
+    "history_year_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in current year"
+    },
+    "history_year_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in current year"
+    }
+  }
+}
+

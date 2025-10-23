@@ -1,0 +1,759 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Country Profile",
+  "description": "Complete country profile with statistics and activity data",
+  "type": "object",
+  "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
+  "properties": {
+    "dimension_country_id": {
+      "type": "integer",
+      "description": "Internal dimension ID"
+    },
+    "country_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "OSM relation ID for the country"
+    },
+    "country_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Country name in local language"
+    },
+    "country_name_es": {
+      "type": "string",
+      "description": "Country name in Spanish"
+    },
+    "country_name_en": {
+      "type": "string",
+      "description": "Country name in English"
+    },
+    "date_starting_creating_notes": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Date when first note was created in country"
+    },
+    "date_starting_solving_notes": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Date when first note was solved in country"
+    },
+    "first_open_note_id": {
+      "type": "integer",
+      "description": "ID of first note opened"
+    },
+    "first_commented_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of first note commented on"
+    },
+    "first_closed_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of first note closed"
+    },
+    "first_reopened_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of first note reopened"
+    },
+    "last_year_activity": {
+      "type": "string",
+      "pattern": "^[01]+$",
+      "description": "Binary string representing last year activity (365 bits)"
+    },
+    "lastest_open_note_id": {
+      "type": "integer",
+      "description": "ID of latest note opened"
+    },
+    "lastest_commented_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of latest note commented on"
+    },
+    "lastest_closed_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of latest note closed"
+    },
+    "lastest_reopened_note_id": {
+      "type": ["integer", "null"],
+      "description": "ID of latest note reopened"
+    },
+    "dates_most_open": {
+      "type": ["array", "null"],
+      "description": "Array of dates with most notes opened",
+      "items": {
+        "type": "object",
+        "required": ["date", "quantity"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "dates_most_closed": {
+      "type": ["array", "null"],
+      "description": "Array of dates with most notes closed",
+      "items": {
+        "type": "object",
+        "required": ["date", "quantity"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "hashtags": {
+      "type": ["array", "null"],
+      "description": "Array of hashtags used"
+    },
+    "users_open_notes": {
+      "type": ["array", "null"],
+      "description": "Users who opened notes in country",
+      "items": {
+        "type": "object",
+        "required": ["rank", "username", "quantity"],
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "username": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "users_solving_notes": {
+      "type": ["array", "null"],
+      "description": "Users who solved notes in country",
+      "items": {
+        "type": "object",
+        "required": ["rank", "username", "quantity"],
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "username": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "users_open_notes_current_month": {
+      "type": ["array", "null"]
+    },
+    "users_solving_notes_current_month": {
+      "type": ["array", "null"]
+    },
+    "users_open_notes_current_day": {
+      "type": ["array", "null"]
+    },
+    "users_solving_notes_current_day": {
+      "type": ["array", "null"]
+    },
+    "working_hours_of_week_opening": {
+      "type": ["array", "null"],
+      "description": "Working hours pattern for opening notes",
+      "items": {
+        "type": "object",
+        "required": ["day_of_week", "hour_of_day", "count"],
+        "properties": {
+          "day_of_week": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "0=Sunday, 6=Saturday"
+          },
+          "hour_of_day": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "working_hours_of_week_commenting": {
+      "type": ["array", "null"],
+      "description": "Working hours pattern for commenting",
+      "items": {
+        "type": "object",
+        "required": ["day_of_week", "hour_of_day", "count"],
+        "properties": {
+          "day_of_week": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "hour_of_day": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "working_hours_of_week_closing": {
+      "type": ["array", "null"],
+      "description": "Working hours pattern for closing notes",
+      "items": {
+        "type": "object",
+        "required": ["day_of_week", "hour_of_day", "count"],
+        "properties": {
+          "day_of_week": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "hour_of_day": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "history_whole_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes opened (all time)"
+    },
+    "history_whole_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes commented (all time)"
+    },
+    "history_whole_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes closed (all time)"
+    },
+    "history_whole_closed_with_comment": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "history_whole_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total notes reopened (all time)"
+    },
+    "history_year_open": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_year_commented": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_year_closed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_year_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_year_reopened": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_month_open": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_month_commented": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_month_closed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_month_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_month_reopened": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_day_open": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_day_commented": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_day_closed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_day_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_day_reopened": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history_2013_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2013"
+    },
+    "history_2013_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2013"
+    },
+    "history_2013_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2013"
+    },
+    "history_2013_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2013"
+    },
+    "history_2013_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2013"
+    },
+    "history_2014_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2014"
+    },
+    "history_2014_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2014"
+    },
+    "history_2014_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2014"
+    },
+    "history_2014_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2014"
+    },
+    "history_2014_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2014"
+    },
+    "history_2015_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2015"
+    },
+    "history_2015_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2015"
+    },
+    "history_2015_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2015"
+    },
+    "history_2015_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2015"
+    },
+    "history_2015_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2015"
+    },
+    "history_2016_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2016"
+    },
+    "history_2016_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2016"
+    },
+    "history_2016_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2016"
+    },
+    "history_2016_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2016"
+    },
+    "history_2016_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2016"
+    },
+    "history_2017_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2017"
+    },
+    "history_2017_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2017"
+    },
+    "history_2017_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2017"
+    },
+    "history_2017_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2017"
+    },
+    "history_2017_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2017"
+    },
+    "history_2018_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2018"
+    },
+    "history_2018_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2018"
+    },
+    "history_2018_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2018"
+    },
+    "history_2018_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2018"
+    },
+    "history_2018_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2018"
+    },
+    "history_2019_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2019"
+    },
+    "history_2019_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2019"
+    },
+    "history_2019_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2019"
+    },
+    "history_2019_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2019"
+    },
+    "history_2019_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2019"
+    },
+    "history_2020_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2020"
+    },
+    "history_2020_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2020"
+    },
+    "history_2020_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2020"
+    },
+    "history_2020_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2020"
+    },
+    "history_2020_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2020"
+    },
+    "history_2021_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2021"
+    },
+    "history_2021_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2021"
+    },
+    "history_2021_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2021"
+    },
+    "history_2021_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2021"
+    },
+    "history_2021_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2021"
+    },
+    "history_2022_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2022"
+    },
+    "history_2022_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2022"
+    },
+    "history_2022_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2022"
+    },
+    "history_2022_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2022"
+    },
+    "history_2022_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2022"
+    },
+    "history_2023_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2023"
+    },
+    "history_2023_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2023"
+    },
+    "history_2023_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2023"
+    },
+    "history_2023_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2023"
+    },
+    "history_2023_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2023"
+    },
+    "history_2024_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2024"
+    },
+    "history_2024_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2024"
+    },
+    "history_2024_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2024"
+    },
+    "history_2024_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2024"
+    },
+    "history_2024_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2024"
+    },
+    "history_2025_open": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes opened in 2025"
+    },
+    "history_2025_commented": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes commented in 2025"
+    },
+    "history_2025_closed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed in 2025"
+    },
+    "history_2025_closed_with_comment": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes closed with comment in 2025"
+    },
+    "history_2025_reopened": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Notes reopened in 2025"
+    },
+    "ranking_users_opening_2013": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2013"
+    },
+    "ranking_users_closing_2013": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2013"
+    },
+    "ranking_users_opening_2014": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2014"
+    },
+    "ranking_users_closing_2014": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2014"
+    },
+    "ranking_users_opening_2015": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2015"
+    },
+    "ranking_users_closing_2015": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2015"
+    },
+    "ranking_users_opening_2016": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2016"
+    },
+    "ranking_users_closing_2016": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2016"
+    },
+    "ranking_users_opening_2017": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2017"
+    },
+    "ranking_users_closing_2017": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2017"
+    },
+    "ranking_users_opening_2018": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2018"
+    },
+    "ranking_users_closing_2018": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2018"
+    },
+    "ranking_users_opening_2019": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2019"
+    },
+    "ranking_users_closing_2019": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2019"
+    },
+    "ranking_users_opening_2020": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2020"
+    },
+    "ranking_users_closing_2020": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2020"
+    },
+    "ranking_users_opening_2021": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2021"
+    },
+    "ranking_users_closing_2021": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2021"
+    },
+    "ranking_users_opening_2022": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2022"
+    },
+    "ranking_users_closing_2022": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2022"
+    },
+    "ranking_users_opening_2023": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2023"
+    },
+    "ranking_users_closing_2023": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2023"
+    },
+    "ranking_users_opening_2024": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2024"
+    },
+    "ranking_users_closing_2024": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2024"
+    },
+    "ranking_users_opening_2025": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes opened in 2025"
+    },
+    "ranking_users_closing_2025": {
+      "type": ["array", "null"],
+      "description": "Ranking of users by notes closed in 2025"
+    }
+  }
+}
+
