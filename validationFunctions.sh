@@ -2,20 +2,23 @@
 
 # Validation Functions for OSM-Notes-profile
 # This file contains validation functions for various data types.
+#
 # Author: Andres Gomez (AngocA)
-# Version: 2025-08-13
+# Version: 2025-10-14
 
 # Define version variable
 VERSION="2025-08-13"
 
 # shellcheck disable=SC2317,SC2155,SC2034
+
 # Note: This file expects to be sourced after commonFunctions.sh which provides logging functions
 # If sourced directly, ensure commonFunctions.sh is loaded first
 
 # Load common functions if not already loaded
 # Set SCRIPT_BASE_DIRECTORY if not already set
 if [[ -z "${SCRIPT_BASE_DIRECTORY:-}" ]]; then
- SCRIPT_BASE_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ # We're in lib/osm-common, so we need to go up two levels to reach project root
+ SCRIPT_BASE_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 fi
 
 # Don't set LOGGER_UTILITY here - let commonFunctions.sh handle it
@@ -363,6 +366,7 @@ function __validate_sql_structure() {
  grep -v '^[[:space:]]*--' "${SQL_FILE}" | sed 's/--.*$//' > "${TEMP_SQL}"
  OPEN_PARENS=$(grep -o '(' "${TEMP_SQL}" | wc -l)
  CLOSE_PARENS=$(grep -o ')' "${TEMP_SQL}" | wc -l)
+ rm -f "${TEMP_SQL}"
 
  if [[ "${OPEN_PARENS}" -ne "${CLOSE_PARENS}" ]]; then
   __loge "ERROR: Unbalanced parentheses in SQL file: ${SQL_FILE}"

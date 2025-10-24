@@ -180,7 +180,7 @@ For issues or questions:
 
 - Create an issue in this repository
 - Check documentation in dependent projects
-- Contact: @angoca in Telegram o social networks.
+- Contact: @angoca in Telegram and several social network
 
 ## Related Projects
 

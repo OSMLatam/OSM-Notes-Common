@@ -28,5 +28,3 @@ Desktop.ini
 # Test outputs
 test_output/
 
-node_modules/
-package-lock.json

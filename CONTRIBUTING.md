@@ -1,7 +1,8 @@
-# Contributing to OSM-Notes-profile
+# Contributing to OSM-Notes-Ingestion
 
-Thank you for your interest in contributing to the OSM-Notes-profile project! This document provides
-comprehensive guidelines for contributing to this OpenStreetMap notes analysis system.
+Thank you for your interest in contributing to the OSM-Notes-Ingestion project!
+This document provides comprehensive guidelines for contributing to this
+OpenStreetMap notes analysis system.
 
 ## Table of Contents
 
@@ -169,10 +170,10 @@ Familiarize yourself with the project structure:
    ```bash
    # Run basic tests
    ./tests/run_tests_simple.sh
-
+   
    # Run enhanced tests
    ./tests/run_enhanced_tests.sh
-
+   
    # Run advanced tests
    ./tests/advanced/run_advanced_tests.sh
    ```
@@ -181,8 +182,7 @@ Familiarize yourself with the project structure:
 
 ### Overview
 
-All contributions must include comprehensive testing. The project uses **78 BATS testing suites**
-covering all system components, including the new DWH enhanced features.
+All contributions must include comprehensive testing. The project uses **78 BATS testing suites** covering all system components, including the new DWH enhanced features.
 
 ### Test Categories
 
@@ -404,16 +404,14 @@ The project uses a consolidation strategy to eliminate code duplication and impr
 #### 1. Parallel Processing Functions (`bin/parallelProcessingFunctions.sh`)
 
 - **Purpose**: Centralizes all XML parallel processing functions
-- **Functions**: `__processXmlPartsParallel`, `__splitXmlForParallelSafe`, `__processApiXmlPart`,
-  `__processPlanetXmlPart`
+- **Functions**: `__processXmlPartsParallel`, `__splitXmlForParallelSafe`, `__processApiXmlPart`, `__processPlanetXmlPart`
 - **Usage**: All scripts that need parallel processing should source this file
 - **Fallback**: Legacy scripts maintain compatibility through wrapper functions
 
 #### 2. Validation Functions (`bin/consolidatedValidationFunctions.sh`)
 
 - **Purpose**: Centralizes all validation functions for XML, CSV, coordinates, and databases
-- **Functions**: `__validate_xml_with_enhanced_error_handling`, `__validate_csv_structure`,
-  `__validate_coordinates`
+- **Functions**: `__validate_xml_with_enhanced_error_handling`, `__validate_csv_structure`, `__validate_coordinates`
 - **Usage**: All validation operations should use these consolidated functions
 - **Fallback**: Legacy scripts maintain compatibility through wrapper functions
 
@@ -628,8 +626,7 @@ git update-index --no-assume-unchanged etc/etl.properties
 git update-index --no-assume-unchanged etc/wms.properties.sh
 ```
 
-This allows you to customize database settings, user names, ETL configurations, or WMS settings
-without affecting the repository.
+This allows you to customize database settings, user names, ETL configurations, or WMS settings without affecting the repository.
 
 ## Version Control
 
@@ -637,9 +634,9 @@ without affecting the repository.
 
 - **main**: Production-ready code
 - **develop**: Integration branch
-- **feature/\***: New features
-- **bugfix/\***: Bug fixes
-- **hotfix/\***: Critical fixes
+- **feature/***: New features
+- **bugfix/***: Bug fixes
+- **hotfix/***: Critical fixes
 
 ### Release Process
 
@@ -651,7 +648,7 @@ without affecting the repository.
 
 ---
 
-**Thank you for contributing to OSM-Notes-profile!**
+**Thank you for contributing to OSM-Notes-Ingestion!**
 
-Your contributions help make OpenStreetMap notes analysis more accessible and powerful for the
-community.
+Your contributions help make OpenStreetMap notes analysis more accessible and
+powerful for the community.
