@@ -3,6 +3,7 @@
   "title": "Country Index Entry",
   "description": "Individual country entry in the countries index file",
   "type": "object",
+  "additionalProperties": true,
   "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
   "properties": {
     "country_id": {

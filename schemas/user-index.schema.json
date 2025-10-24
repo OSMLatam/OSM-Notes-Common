@@ -3,6 +3,7 @@
   "title": "User Index Entry",
   "description": "Individual user entry in the users index file",
   "type": "object",
+  "additionalProperties": true,
   "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
   "properties": {
     "user_id": {

@@ -3,6 +3,7 @@
   "title": "Country Profile",
   "description": "Complete country profile with statistics and activity data",
   "type": "object",
+  "additionalProperties": true,
   "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
   "properties": {
     "dimension_country_id": {

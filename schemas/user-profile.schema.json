@@ -3,6 +3,7 @@
   "title": "User Profile",
   "description": "Complete user profile with statistics and activity data",
   "type": "object",
+  "additionalProperties": true,
   "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
   "properties": {
     "dimension_user_id": {
