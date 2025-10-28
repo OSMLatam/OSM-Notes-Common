@@ -18,7 +18,7 @@
 # - Test-friendly design
 #
 # Author: Andres Gomez (AngocA) - Enhanced version
-# Version: 2025-08-17
+# Version: 2025-10-28
 # Based on: Dushyanth Jyothi's bash-logger
 
 # === CONSTANTS AND CONFIGURATION ===
@@ -441,6 +441,11 @@ __log_finish() {
  # Store run time for this function
  __logger_run_times["${function_name}"]="${execution_time}"
 
+ # Format time as hours:minutes:seconds
+ local hours=$((execution_time / 3600))
+ local minutes=$(((execution_time % 3600) / 60))
+ local seconds=$((execution_time % 60))
+
  # Log the finish with special format and timing
  local message="|-- FINISHED ${function_name^^} IN ${script_name^^}"
  local caller_info
@@ -451,7 +456,7 @@ __log_finish() {
  __output_log "$formatted_message"
 
  # Add timing information in the format expected by tests
- local timing_message="|-- Took: 0h:0m:${execution_time}s"
+ local timing_message="|-- Took: ${hours}h:${minutes}m:${seconds}s"
  __output_log "$timing_message"
 
  # Add empty line after finish message as expected by tests
