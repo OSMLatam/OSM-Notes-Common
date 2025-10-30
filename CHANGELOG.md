@@ -33,7 +33,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Enhanced XML validation functions for handling large files efficiently
-- `__validate_xml_with_enhanced_error_handling`: Main validation function with automatic strategy selection
+- `__validate_xml_with_enhanced_error_handling`: Main validation function with automatic strategy
+  selection
 - `__validate_xml_basic`: Basic XML structure validation without schema
 - `__validate_xml_structure_only`: Lightweight structure validation for very large files
 - Automatic file size detection and validation strategy selection

@@ -5,12 +5,12 @@
 
 ## Tabla Resumen - Tipos de Ejecución
 
-| Tipo de Ejecución | Requisitos | Scripts | Descripción |
-|-------------------|------------|---------|-------------|
-| **Local (Host)** | PostgreSQL local, BATS, herramientas XML | `run_all_tests.sh --mode host` | Ejecución directa en el sistema host |
-| **Docker** | Docker, Docker Compose | `run_all_tests.sh --mode docker` | Ejecución en contenedores aislados |
-| **GitHub Actions** | GitHub repository, workflows configurados | `.github/workflows/*.yml` | Ejecución automática en CI/CD |
-| **Mock** | BATS, comandos mock | `run_all_tests.sh --mode mock` | Ejecución sin dependencias externas |
+| Tipo de Ejecución  | Requisitos                                | Scripts                          | Descripción                          |
+| ------------------ | ----------------------------------------- | -------------------------------- | ------------------------------------ |
+| **Local (Host)**   | PostgreSQL local, BATS, herramientas XML  | `run_all_tests.sh --mode host`   | Ejecución directa en el sistema host |
+| **Docker**         | Docker, Docker Compose                    | `run_all_tests.sh --mode docker` | Ejecución en contenedores aislados   |
+| **GitHub Actions** | GitHub repository, workflows configurados | `.github/workflows/*.yml`        | Ejecución automática en CI/CD        |
+| **Mock**           | BATS, comandos mock                       | `run_all_tests.sh --mode mock`   | Ejecución sin dependencias externas  |
 
 ---
 
@@ -18,21 +18,21 @@
 
 ### Resumen de Cobertura
 
-| Suite de Pruebas | Archivos | Tests | Local | Docker | GitHub | Mock | Tiempo Estimado |
-|------------------|----------|-------|-------|--------|--------|------|-----------------|
-| **Unit Tests (Bash)** | 86 | ~946 | ✅ | ✅ | ✅ | ✅ | 15-30 min |
-| **Unit Tests (SQL)** | 6 | ~120 | ✅ | ✅ | ✅ | ❌ | 5-10 min |
-| **Integration Tests** | 8 | 68 | ✅ | ✅ | ✅ | ⚠️ | 10-20 min |
-| **Parallel Processing** | 1 | 21 | ✅ | ✅ | ✅ | ✅ | 5-10 min |
-| **DWH Enhanced** | 4 | ~45 | ✅ | ✅ | ✅ | ❌ | 8-15 min |
-| **Advanced - Coverage** | - | - | ✅ | ✅ | ✅ | ❌ | 10-15 min |
-| **Advanced - Security** | - | - | ✅ | ✅ | ✅ | ✅ | 3-5 min |
-| **Advanced - Quality** | - | - | ✅ | ✅ | ✅ | ✅ | 5-10 min |
-| **Advanced - Performance** | - | - | ✅ | ✅ | ✅ | ⚠️ | 5-10 min |
-| **Docker Integration** | 15+ | varies | ❌ | ✅ | ✅ | ❌ | 10-20 min |
-| **WMS Tests** | 3 | ~20 | ✅ | ✅ | ✅ | ⚠️ | 5-8 min |
-| **XSLT Tests** | 5 | ~35 | ✅ | ✅ | ✅ | ✅ | 3-5 min |
-| **TOTAL** | **128+** | **~1,290+** | - | - | - | - | **84-163 min** |
+| Suite de Pruebas           | Archivos | Tests       | Local | Docker | GitHub | Mock | Tiempo Estimado |
+| -------------------------- | -------- | ----------- | ----- | ------ | ------ | ---- | --------------- |
+| **Unit Tests (Bash)**      | 86       | ~946        | ✅    | ✅     | ✅     | ✅   | 15-30 min       |
+| **Unit Tests (SQL)**       | 6        | ~120        | ✅    | ✅     | ✅     | ❌   | 5-10 min        |
+| **Integration Tests**      | 8        | 68          | ✅    | ✅     | ✅     | ⚠️   | 10-20 min       |
+| **Parallel Processing**    | 1        | 21          | ✅    | ✅     | ✅     | ✅   | 5-10 min        |
+| **DWH Enhanced**           | 4        | ~45         | ✅    | ✅     | ✅     | ❌   | 8-15 min        |
+| **Advanced - Coverage**    | -        | -           | ✅    | ✅     | ✅     | ❌   | 10-15 min       |
+| **Advanced - Security**    | -        | -           | ✅    | ✅     | ✅     | ✅   | 3-5 min         |
+| **Advanced - Quality**     | -        | -           | ✅    | ✅     | ✅     | ✅   | 5-10 min        |
+| **Advanced - Performance** | -        | -           | ✅    | ✅     | ✅     | ⚠️   | 5-10 min        |
+| **Docker Integration**     | 15+      | varies      | ❌    | ✅     | ✅     | ❌   | 10-20 min       |
+| **WMS Tests**              | 3        | ~20         | ✅    | ✅     | ✅     | ⚠️   | 5-8 min         |
+| **XSLT Tests**             | 5        | ~35         | ✅    | ✅     | ✅     | ✅   | 3-5 min         |
+| **TOTAL**                  | **128+** | **~1,290+** | -     | -      | -      | -    | **84-163 min**  |
 
 **Leyenda:**
 
@@ -46,72 +46,72 @@
 
 ### Categorías de Pruebas Unitarias
 
-| Categoría | Archivos | Tests Aprox. | Descripción |
-|-----------|----------|--------------|-------------|
-| **ProcessAPI** | 7 | ~85 | Procesamiento de API incremental |
-| **ProcessPlanet** | 6 | ~75 | Procesamiento de Planet dump completo |
-| **Parallel Processing** | 6 | ~68 | Procesamiento paralelo y optimización |
-| **XML Processing** | 9 | ~95 | Validación y transformación XML/XSLT |
-| **Validation** | 12 | ~140 | Validación de datos (coordenadas, fechas, etc.) |
-| **Error Handling** | 8 | ~82 | Manejo de errores y recuperación |
-| **Cleanup** | 7 | ~60 | Limpieza y mantenimiento |
-| **WMS** | 3 | ~28 | Web Map Service integration |
-| **Monitoring** | 5 | ~48 | Monitoreo y verificación |
-| **Database** | 4 | ~50 | Variables y funciones de base de datos |
-| **Integration** | 10 | ~115 | Pruebas de integración de scripts |
-| **Quality & Format** | 9 | ~100 | Calidad de código y formato |
-| **TOTAL** | **86** | **~946** | |
+| Categoría               | Archivos | Tests Aprox. | Descripción                                     |
+| ----------------------- | -------- | ------------ | ----------------------------------------------- |
+| **ProcessAPI**          | 7        | ~85          | Procesamiento de API incremental                |
+| **ProcessPlanet**       | 6        | ~75          | Procesamiento de Planet dump completo           |
+| **Parallel Processing** | 6        | ~68          | Procesamiento paralelo y optimización           |
+| **XML Processing**      | 9        | ~95          | Validación y transformación XML/XSLT            |
+| **Validation**          | 12       | ~140         | Validación de datos (coordenadas, fechas, etc.) |
+| **Error Handling**      | 8        | ~82          | Manejo de errores y recuperación                |
+| **Cleanup**             | 7        | ~60          | Limpieza y mantenimiento                        |
+| **WMS**                 | 3        | ~28          | Web Map Service integration                     |
+| **Monitoring**          | 5        | ~48          | Monitoreo y verificación                        |
+| **Database**            | 4        | ~50          | Variables y funciones de base de datos          |
+| **Integration**         | 10       | ~115         | Pruebas de integración de scripts               |
+| **Quality & Format**    | 9        | ~100         | Calidad de código y formato                     |
+| **TOTAL**               | **86**   | **~946**     |                                                 |
 
 ### Top 20 Suites de Pruebas Unitarias (por cantidad de tests)
 
-| # | Archivo | Tests | Categoría | Prioridad |
-|---|---------|-------|-----------|-----------|
-| 1 | `bash_logger_enhanced.test.bats` | 18 | Logging | Alta |
-| 2 | `cleanupAll_integration.test.bats` | 16 | Cleanup | Alta |
-| 3 | `date_validation.test.bats` | 15 | Validation | Alta |
-| 4 | `database_variables.test.bats` | 15 | Database | Media |
-| 5 | `binary_division_performance.test.bats` | 14 | Performance | Media |
-| 6 | `coordinate_validation_enhanced.test.bats` | 11 | Validation | Alta |
-| 7 | `centralized_validation.test.bats` | 10 | Validation | Alta |
-| 8 | `cleanupAll.test.bats` | 10 | Cleanup | Alta |
-| 9 | `checksum_validation.test.bats` | 9 | Validation | Media |
-| 10 | `csv_enum_validation.test.bats` | 9 | XSLT | Alta |
-| 11 | `date_validation_integration.test.bats` | 8 | Validation | Alta |
-| 12 | `boundary_validation.test.bats` | 7 | Validation | Media |
-| 13 | `cleanup_order.test.bats` | 7 | Cleanup | Media |
-| 14 | `api_download_verification.test.bats` | 6 | ProcessAPI | Alta |
-| 15 | `clean_flag_handling.test.bats` | 6 | Cleanup | Media |
-| 16 | `clean_flag_exit_trap.test.bats` | 5 | Cleanup | Media |
-| 17 | `clean_flag_simple.test.bats` | 5 | Cleanup | Media |
-| 18 | `cleanup_behavior.test.bats` | 5 | Cleanup | Media |
-| 19 | `cleanup_dependency_fix.test.bats` | 4 | Cleanup | Media |
-| 20 | `cleanup_behavior_simple.test.bats` | 3 | Cleanup | Media |
+| #   | Archivo                                    | Tests | Categoría   | Prioridad |
+| --- | ------------------------------------------ | ----- | ----------- | --------- |
+| 1   | `bash_logger_enhanced.test.bats`           | 18    | Logging     | Alta      |
+| 2   | `cleanupAll_integration.test.bats`         | 16    | Cleanup     | Alta      |
+| 3   | `date_validation.test.bats`                | 15    | Validation  | Alta      |
+| 4   | `database_variables.test.bats`             | 15    | Database    | Media     |
+| 5   | `binary_division_performance.test.bats`    | 14    | Performance | Media     |
+| 6   | `coordinate_validation_enhanced.test.bats` | 11    | Validation  | Alta      |
+| 7   | `centralized_validation.test.bats`         | 10    | Validation  | Alta      |
+| 8   | `cleanupAll.test.bats`                     | 10    | Cleanup     | Alta      |
+| 9   | `checksum_validation.test.bats`            | 9     | Validation  | Media     |
+| 10  | `csv_enum_validation.test.bats`            | 9     | XSLT        | Alta      |
+| 11  | `date_validation_integration.test.bats`    | 8     | Validation  | Alta      |
+| 12  | `boundary_validation.test.bats`            | 7     | Validation  | Media     |
+| 13  | `cleanup_order.test.bats`                  | 7     | Cleanup     | Media     |
+| 14  | `api_download_verification.test.bats`      | 6     | ProcessAPI  | Alta      |
+| 15  | `clean_flag_handling.test.bats`            | 6     | Cleanup     | Media     |
+| 16  | `clean_flag_exit_trap.test.bats`           | 5     | Cleanup     | Media     |
+| 17  | `clean_flag_simple.test.bats`              | 5     | Cleanup     | Media     |
+| 18  | `cleanup_behavior.test.bats`               | 5     | Cleanup     | Media     |
+| 19  | `cleanup_dependency_fix.test.bats`         | 4     | Cleanup     | Media     |
+| 20  | `cleanup_behavior_simple.test.bats`        | 3     | Cleanup     | Media     |
 
 ---
 
 ## Detalle de Suites de Pruebas de Integración
 
-| # | Archivo | Tests | Descripción | Componentes |
-|---|---------|-------|-------------|-------------|
-| 1 | `boundary_processing_error_integration.test.bats` | 16 | Procesamiento de boundaries con errores | ProcessPlanet, Boundaries |
-| 2 | `wms_integration.test.bats` | 10 | Integración con WMS | WMS, GeoServer |
-| 3 | `logging_pattern_validation_integration.test.bats` | 9 | Validación de patrones de logging | Logging, Validation |
-| 4 | `mock_planet_processing.test.bats` | 8 | Procesamiento Planet con mocks | ProcessPlanet, Mock |
-| 5 | `processAPINotes_parallel_error_integration.test.bats` | 7 | ProcessAPI con errores paralelos | ProcessAPI, Parallel |
-| 6 | `xslt_integration.test.bats` | 7 | Integración de transformaciones XSLT | XSLT, XML |
-| 7 | `end_to_end.test.bats` | 6 | Flujo completo de ingesta | Full workflow |
-| 8 | `processAPI_historical_e2e.test.bats` | 5 | ProcessAPI con datos históricos | ProcessAPI, Historical |
-| **TOTAL** | **8** | **68** | | |
+| #         | Archivo                                                | Tests  | Descripción                             | Componentes               |
+| --------- | ------------------------------------------------------ | ------ | --------------------------------------- | ------------------------- |
+| 1         | `boundary_processing_error_integration.test.bats`      | 16     | Procesamiento de boundaries con errores | ProcessPlanet, Boundaries |
+| 2         | `wms_integration.test.bats`                            | 10     | Integración con WMS                     | WMS, GeoServer            |
+| 3         | `logging_pattern_validation_integration.test.bats`     | 9      | Validación de patrones de logging       | Logging, Validation       |
+| 4         | `mock_planet_processing.test.bats`                     | 8      | Procesamiento Planet con mocks          | ProcessPlanet, Mock       |
+| 5         | `processAPINotes_parallel_error_integration.test.bats` | 7      | ProcessAPI con errores paralelos        | ProcessAPI, Parallel      |
+| 6         | `xslt_integration.test.bats`                           | 7      | Integración de transformaciones XSLT    | XSLT, XML                 |
+| 7         | `end_to_end.test.bats`                                 | 6      | Flujo completo de ingesta               | Full workflow             |
+| 8         | `processAPI_historical_e2e.test.bats`                  | 5      | ProcessAPI con datos históricos         | ProcessAPI, Historical    |
+| **TOTAL** | **8**                                                  | **68** |                                         |                           |
 
 ---
 
 ## Detalle de Pruebas DWH (Data Warehouse Enhanced)
 
-| Tipo | Archivos | Tests Aprox. | Descripción |
-|------|----------|--------------|-------------|
-| **SQL Unit Tests** | 2 | ~30 | Dimensiones y funciones DWH |
-| **Integration Tests** | 2 | ~15 | ETL y Datamarts mejorados |
-| **TOTAL** | **4** | **~45** | |
+| Tipo                  | Archivos | Tests Aprox. | Descripción                 |
+| --------------------- | -------- | ------------ | --------------------------- |
+| **SQL Unit Tests**    | 2        | ~30          | Dimensiones y funciones DWH |
+| **Integration Tests** | 2        | ~15          | ETL y Datamarts mejorados   |
+| **TOTAL**             | **4**    | **~45**      |                             |
 
 ### Archivos DWH
 
@@ -141,37 +141,37 @@
 
 ### Coverage Tests
 
-| Tipo | Herramienta | Descripción | Local | Docker | GitHub |
-|------|-------------|-------------|-------|--------|--------|
-| Bash Coverage | kcov | Cobertura de scripts Bash | ✅ | ✅ | ✅ |
-| SQL Coverage | pgtap | Cobertura de funciones SQL | ✅ | ✅ | ✅ |
-| Coverage Report | custom | Reporte consolidado | ✅ | ✅ | ✅ |
+| Tipo            | Herramienta | Descripción                | Local | Docker | GitHub |
+| --------------- | ----------- | -------------------------- | ----- | ------ | ------ |
+| Bash Coverage   | kcov        | Cobertura de scripts Bash  | ✅    | ✅     | ✅     |
+| SQL Coverage    | pgtap       | Cobertura de funciones SQL | ✅    | ✅     | ✅     |
+| Coverage Report | custom      | Reporte consolidado        | ✅    | ✅     | ✅     |
 
 ### Security Tests
 
-| Tipo | Herramienta | Descripción | Local | Docker | GitHub |
-|------|-------------|-------------|-------|--------|--------|
-| ShellCheck | shellcheck | Análisis estático de Bash | ✅ | ✅ | ✅ |
-| Security Scan | custom | Búsqueda de credenciales hardcoded | ✅ | ✅ | ✅ |
-| Permission Check | custom | Verificación de permisos de archivos | ✅ | ✅ | ✅ |
+| Tipo             | Herramienta | Descripción                          | Local | Docker | GitHub |
+| ---------------- | ----------- | ------------------------------------ | ----- | ------ | ------ |
+| ShellCheck       | shellcheck  | Análisis estático de Bash            | ✅    | ✅     | ✅     |
+| Security Scan    | custom      | Búsqueda de credenciales hardcoded   | ✅    | ✅     | ✅     |
+| Permission Check | custom      | Verificación de permisos de archivos | ✅    | ✅     | ✅     |
 
 ### Quality Tests
 
-| Tipo | Herramienta | Descripción | Local | Docker | GitHub |
-|------|-------------|-------------|-------|--------|--------|
-| Format Check | shfmt | Formato de código Bash | ✅ | ✅ | ✅ |
-| Naming Convention | custom | Validación de nombres de variables/funciones | ✅ | ✅ | ✅ |
-| Variable Duplication | custom | Detección de variables duplicadas | ✅ | ✅ | ✅ |
-| Script Help | custom | Validación de mensajes de ayuda | ✅ | ✅ | ✅ |
+| Tipo                 | Herramienta | Descripción                                  | Local | Docker | GitHub |
+| -------------------- | ----------- | -------------------------------------------- | ----- | ------ | ------ |
+| Format Check         | shfmt       | Formato de código Bash                       | ✅    | ✅     | ✅     |
+| Naming Convention    | custom      | Validación de nombres de variables/funciones | ✅    | ✅     | ✅     |
+| Variable Duplication | custom      | Detección de variables duplicadas            | ✅    | ✅     | ✅     |
+| Script Help          | custom      | Validación de mensajes de ayuda              | ✅    | ✅     | ✅     |
 
 ### Performance Tests
 
-| Tipo | Descripción | Local | Docker | GitHub |
-|------|-------------|-------|--------|--------|
-| Binary Division | Optimización de división binaria | ✅ | ✅ | ✅ |
-| Parallel Processing | Performance de procesamiento paralelo | ✅ | ✅ | ✅ |
-| Large Files | Procesamiento de archivos grandes | ✅ | ✅ | ⚠️ |
-| Edge Cases | Casos extremos de performance | ✅ | ✅ | ⚠️ |
+| Tipo                | Descripción                           | Local | Docker | GitHub |
+| ------------------- | ------------------------------------- | ----- | ------ | ------ |
+| Binary Division     | Optimización de división binaria      | ✅    | ✅     | ✅     |
+| Parallel Processing | Performance de procesamiento paralelo | ✅    | ✅     | ✅     |
+| Large Files         | Procesamiento de archivos grandes     | ✅    | ✅     | ⚠️     |
+| Edge Cases          | Casos extremos de performance         | ✅    | ✅     | ⚠️     |
 
 ---
 
@@ -179,33 +179,33 @@
 
 ### Workflow: tests.yml (Principal)
 
-| Job | Tests | Tiempo Aprox. | Dependencias |
-|-----|-------|---------------|--------------|
-| `unit-tests` | ~946 | 20-30 min | PostgreSQL 16 |
-| `dwh-enhanced-tests` | ~45 | 10-15 min | PostGIS 16 |
-| `integration-tests` | varies | 15-25 min | Docker |
-| `performance-tests` | varies | 10-15 min | PostgreSQL 16 |
-| `security-tests` | static | 5-8 min | shellcheck |
-| `advanced-tests` | varies | 15-20 min | PostGIS 15, kcov |
-| `test-summary` | - | 2-3 min | Todos los jobs |
-| **TOTAL** | - | **77-116 min** | |
+| Job                  | Tests  | Tiempo Aprox.  | Dependencias     |
+| -------------------- | ------ | -------------- | ---------------- |
+| `unit-tests`         | ~946   | 20-30 min      | PostgreSQL 16    |
+| `dwh-enhanced-tests` | ~45    | 10-15 min      | PostGIS 16       |
+| `integration-tests`  | varies | 15-25 min      | Docker           |
+| `performance-tests`  | varies | 10-15 min      | PostgreSQL 16    |
+| `security-tests`     | static | 5-8 min        | shellcheck       |
+| `advanced-tests`     | varies | 15-20 min      | PostGIS 15, kcov |
+| `test-summary`       | -      | 2-3 min        | Todos los jobs   |
+| **TOTAL**            | -      | **77-116 min** |                  |
 
 ### Workflow: integration-tests.yml
 
-| Job | Tests | Tiempo Aprox. | Descripción |
-|-----|-------|---------------|-------------|
-| `integration-tests` | 68 | 15-25 min | Todas las pruebas de integración |
+| Job                 | Tests | Tiempo Aprox. | Descripción                      |
+| ------------------- | ----- | ------------- | -------------------------------- |
+| `integration-tests` | 68    | 15-25 min     | Todas las pruebas de integración |
 
 ### Workflow: quality-tests.yml
 
-| Job | Tests | Tiempo Aprox. | Descripción |
-|-----|-------|---------------|-------------|
-| `shellcheck` | static | 5-8 min | Análisis estático de todos los scripts |
-| `bats-tests` | varies | 10-15 min | Pruebas BATS críticas |
-| `integration-tests-quick` | subset | 8-12 min | Subset de pruebas de integración |
-| `security-scan` | static | 3-5 min | Escaneo de seguridad |
-| `code-quality` | static | 3-5 min | Validación de formato |
-| **TOTAL** | - | **29-45 min** | |
+| Job                       | Tests  | Tiempo Aprox. | Descripción                            |
+| ------------------------- | ------ | ------------- | -------------------------------------- |
+| `shellcheck`              | static | 5-8 min       | Análisis estático de todos los scripts |
+| `bats-tests`              | varies | 10-15 min     | Pruebas BATS críticas                  |
+| `integration-tests-quick` | subset | 8-12 min      | Subset de pruebas de integración       |
+| `security-scan`           | static | 3-5 min       | Escaneo de seguridad                   |
+| `code-quality`            | static | 3-5 min       | Validación de formato                  |
+| **TOTAL**                 | -      | **29-45 min** |                                        |
 
 ---
 
@@ -213,23 +213,23 @@
 
 ### Scripts Principales
 
-| Script | Modo | Descripción | Uso |
-|--------|------|-------------|-----|
-| `run_all_tests.sh` | Universal | Runner maestro consolidado | `./tests/run_all_tests.sh --mode [host\|mock\|docker\|ci] --type [all\|unit\|integration\|quality\|dwh]` |
-| `run_tests.sh` | Host | Runner maestro original | `./tests/run_tests.sh [--db\|--mock\|--simple\|--all]` |
-| `run_tests_simple.sh` | Host | Pruebas básicas sin Docker | `./tests/run_tests_simple.sh` |
-| `run_mock_tests.sh` | Mock | Pruebas con mocks | `./tests/run_mock_tests.sh [--unit\|--integration\|--all]` |
-| `run_integration_tests.sh` | Host/Docker | Pruebas de integración | `./tests/run_integration_tests.sh [--all\|--process-api\|--process-planet\|--cleanup\|--wms]` |
-| `run_dwh_tests.sh` | Host | Pruebas DWH enhanced | `./tests/run_dwh_tests.sh [--skip-sql\|--skip-integration]` |
+| Script                     | Modo        | Descripción                | Uso                                                                                                      |
+| -------------------------- | ----------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `run_all_tests.sh`         | Universal   | Runner maestro consolidado | `./tests/run_all_tests.sh --mode [host\|mock\|docker\|ci] --type [all\|unit\|integration\|quality\|dwh]` |
+| `run_tests.sh`             | Host        | Runner maestro original    | `./tests/run_tests.sh [--db\|--mock\|--simple\|--all]`                                                   |
+| `run_tests_simple.sh`      | Host        | Pruebas básicas sin Docker | `./tests/run_tests_simple.sh`                                                                            |
+| `run_mock_tests.sh`        | Mock        | Pruebas con mocks          | `./tests/run_mock_tests.sh [--unit\|--integration\|--all]`                                               |
+| `run_integration_tests.sh` | Host/Docker | Pruebas de integración     | `./tests/run_integration_tests.sh [--all\|--process-api\|--process-planet\|--cleanup\|--wms]`            |
+| `run_dwh_tests.sh`         | Host        | Pruebas DWH enhanced       | `./tests/run_dwh_tests.sh [--skip-sql\|--skip-integration]`                                              |
 
 ### Scripts Docker
 
-| Script | Descripción | Ubicación |
-|--------|-------------|-----------|
-| `docker-compose.yml` | Ambiente Docker estándar | `tests/docker/` |
-| `docker-compose.ci.yml` | Ambiente Docker para CI | `tests/docker/` |
-| `docker-compose.test.yml` | Ambiente Docker para tests | `tests/docker/` |
-| `run_ci_tests.sh` | Ejecución de tests en Docker CI | `tests/docker/` |
+| Script                     | Descripción                        | Ubicación       |
+| -------------------------- | ---------------------------------- | --------------- |
+| `docker-compose.yml`       | Ambiente Docker estándar           | `tests/docker/` |
+| `docker-compose.ci.yml`    | Ambiente Docker para CI            | `tests/docker/` |
+| `docker-compose.test.yml`  | Ambiente Docker para tests         | `tests/docker/` |
+| `run_ci_tests.sh`          | Ejecución de tests en Docker CI    | `tests/docker/` |
 | `run_integration_tests.sh` | Ejecución de integración en Docker | `tests/docker/` |
 
 ---
@@ -334,18 +334,18 @@ git push origin main
 
 ## Matriz de Compatibilidad de Características
 
-| Característica | Local | Docker | GitHub | Mock |
-|----------------|-------|--------|--------|------|
-| **Database tests** | ✅ | ✅ | ✅ | ❌ |
-| **XSLT tests** | ✅ | ✅ | ✅ | ✅ |
-| **Parallel processing** | ✅ | ✅ | ✅ | ✅ |
-| **WMS integration** | ✅ | ✅ | ✅ | ⚠️ |
-| **DWH enhanced** | ✅ | ✅ | ✅ | ❌ |
-| **Coverage reports** | ✅ | ✅ | ✅ | ❌ |
-| **Security scans** | ✅ | ✅ | ✅ | ✅ |
-| **Performance tests** | ✅ | ✅ | ⚠️ | ⚠️ |
-| **Large file tests** | ✅ | ✅ | ❌ | ❌ |
-| **End-to-end tests** | ✅ | ✅ | ✅ | ⚠️ |
+| Característica          | Local | Docker | GitHub | Mock |
+| ----------------------- | ----- | ------ | ------ | ---- |
+| **Database tests**      | ✅    | ✅     | ✅     | ❌   |
+| **XSLT tests**          | ✅    | ✅     | ✅     | ✅   |
+| **Parallel processing** | ✅    | ✅     | ✅     | ✅   |
+| **WMS integration**     | ✅    | ✅     | ✅     | ⚠️   |
+| **DWH enhanced**        | ✅    | ✅     | ✅     | ❌   |
+| **Coverage reports**    | ✅    | ✅     | ✅     | ❌   |
+| **Security scans**      | ✅    | ✅     | ✅     | ✅   |
+| **Performance tests**   | ✅    | ✅     | ⚠️     | ⚠️   |
+| **Large file tests**    | ✅    | ✅     | ❌     | ❌   |
+| **End-to-end tests**    | ✅    | ✅     | ✅     | ⚠️   |
 
 ---
 
@@ -396,18 +396,18 @@ bats tests/parallel_processing_test_suite.bats
 
 ### Cobertura por Componente
 
-| Componente | Tests | Cobertura Estimada |
-|------------|-------|--------------------|
-| **ProcessAPI** | ~85 | 85-90% |
-| **ProcessPlanet** | ~75 | 80-85% |
-| **XSLT** | ~35 | 90-95% |
-| **Parallel Processing** | ~68 | 85-90% |
-| **Validation** | ~140 | 80-85% |
-| **Cleanup** | ~60 | 75-80% |
-| **WMS** | ~28 | 70-75% |
-| **DWH** | ~45 | 75-80% |
-| **Error Handling** | ~82 | 80-85% |
-| **Database** | ~50 | 75-80% |
+| Componente              | Tests | Cobertura Estimada |
+| ----------------------- | ----- | ------------------ |
+| **ProcessAPI**          | ~85   | 85-90%             |
+| **ProcessPlanet**       | ~75   | 80-85%             |
+| **XSLT**                | ~35   | 90-95%             |
+| **Parallel Processing** | ~68   | 85-90%             |
+| **Validation**          | ~140  | 80-85%             |
+| **Cleanup**             | ~60   | 75-80%             |
+| **WMS**                 | ~28   | 70-75%             |
+| **DWH**                 | ~45   | 75-80%             |
+| **Error Handling**      | ~82   | 80-85%             |
+| **Database**            | ~50   | 75-80%             |
 
 ### Cobertura Global
 

@@ -268,18 +268,18 @@ bats tests/unit/bash/suite.test.bats 2>&1 | tee test_output.log
 
 ## 📈 Estructura de Niveles
 
-| Nivel | Descripción | Tests | Tiempo |
-|-------|-------------|-------|--------|
-| 1 | Básicos (logging, formato) | ~50-60 | 5-10 min |
-| 2 | Validación (datos, coordenadas, fechas) | ~100-120 | 10-15 min |
-| 3 | XML/XSLT | ~80-100 | 8-12 min |
-| 4 | Procesamiento (API, Planet) | ~120-150 | 15-25 min |
-| 5 | Procesamiento Paralelo | ~80-100 | 10-15 min |
-| 6 | Cleanup y Error Handling | ~100-120 | 12-18 min |
-| 7 | Monitoreo y WMS | ~50-70 | 8-12 min |
-| 8 | Avanzados y Edge Cases | ~100-130 | 10-15 min |
-| 9 | Integración E2E | ~68 | 10-20 min |
-| 10 | DWH Enhanced | ~45 | 10-15 min |
+| Nivel | Descripción                             | Tests    | Tiempo    |
+| ----- | --------------------------------------- | -------- | --------- |
+| 1     | Básicos (logging, formato)              | ~50-60   | 5-10 min  |
+| 2     | Validación (datos, coordenadas, fechas) | ~100-120 | 10-15 min |
+| 3     | XML/XSLT                                | ~80-100  | 8-12 min  |
+| 4     | Procesamiento (API, Planet)             | ~120-150 | 15-25 min |
+| 5     | Procesamiento Paralelo                  | ~80-100  | 10-15 min |
+| 6     | Cleanup y Error Handling                | ~100-120 | 12-18 min |
+| 7     | Monitoreo y WMS                         | ~50-70   | 8-12 min  |
+| 8     | Avanzados y Edge Cases                  | ~100-130 | 10-15 min |
+| 9     | Integración E2E                         | ~68      | 10-20 min |
+| 10    | DWH Enhanced                            | ~45      | 10-15 min |
 
 ---
 

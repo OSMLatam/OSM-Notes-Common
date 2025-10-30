@@ -5,8 +5,8 @@
 
 ## Introducción
 
-Esta guía te permite ejecutar las pruebas **por partes**, organizadas por
-prioridad, complejidad y categoría funcional. Ideal para:
+Esta guía te permite ejecutar las pruebas **por partes**, organizadas por prioridad, complejidad y
+categoría funcional. Ideal para:
 
 - Verificación rápida durante desarrollo
 - Debugging de componentes específicos
@@ -19,16 +19,16 @@ prioridad, complejidad y categoría funcional. Ideal para:
 
 ### 📊 Resumen de Niveles
 
-| Nivel | Suites | Tests Aprox. | Tiempo | Descripción |
-|-------|--------|--------------|--------|-------------|
-| **Nivel 1 - Básico** | 15 | ~150 | 5-10 min | Tests fundamentales y rápidos |
-| **Nivel 2 - Validación** | 20 | ~250 | 10-15 min | Validación de datos y formato |
-| **Nivel 3 - Procesamiento** | 18 | ~220 | 15-20 min | Lógica de procesamiento |
-| **Nivel 4 - Integración** | 25 | ~350 | 20-30 min | Integración de componentes |
-| **Nivel 5 - Avanzado** | 18 | ~220 | 15-25 min | Tests avanzados y performance |
-| **Nivel 6 - DWH** | 4 | ~45 | 8-15 min | Data Warehouse Enhanced |
-| **Nivel 7 - Completo** | 8 | ~68 | 10-20 min | End-to-End Integration |
-| **TOTAL** | **108** | **~1,303** | **83-135 min** | |
+| Nivel                       | Suites  | Tests Aprox. | Tiempo         | Descripción                   |
+| --------------------------- | ------- | ------------ | -------------- | ----------------------------- |
+| **Nivel 1 - Básico**        | 15      | ~150         | 5-10 min       | Tests fundamentales y rápidos |
+| **Nivel 2 - Validación**    | 20      | ~250         | 10-15 min      | Validación de datos y formato |
+| **Nivel 3 - Procesamiento** | 18      | ~220         | 15-20 min      | Lógica de procesamiento       |
+| **Nivel 4 - Integración**   | 25      | ~350         | 20-30 min      | Integración de componentes    |
+| **Nivel 5 - Avanzado**      | 18      | ~220         | 15-25 min      | Tests avanzados y performance |
+| **Nivel 6 - DWH**           | 4       | ~45          | 8-15 min       | Data Warehouse Enhanced       |
+| **Nivel 7 - Completo**      | 8       | ~68          | 10-20 min      | End-to-End Integration        |
+| **TOTAL**                   | **108** | **~1,303**   | **83-135 min** |                               |
 
 ---
 
@@ -778,7 +778,7 @@ run_level() {
   local level=$1
   local description=$2
   CURRENT_LEVEL=$level
-  
+
   echo ""
   echo "╔════════════════════════════════════════╗"
   echo "║  Nivel $level/$TOTAL_LEVELS: $description"

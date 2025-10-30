@@ -1,10 +1,12 @@
 # JSON Schema Validation
 
-This directory contains JSON Schema definitions for validating data structure between the OSM-Notes-Analytics (producer) and OSM-Notes-Viewer (consumer) repositories.
+This directory contains JSON Schema definitions for validating data structure between the
+OSM-Notes-Analytics (producer) and OSM-Notes-Viewer (consumer) repositories.
 
 ## Purpose
 
 These schemas define the contract for JSON data exchange, ensuring:
+
 - **Producer** generates valid JSON files
 - **Consumer** receives expected data structure
 - **Type safety** across repository boundaries
@@ -39,21 +41,21 @@ ajv -s country-profile.schema.json -d src/data/countries/*.json
 ### Validate Using Node.js
 
 ```javascript
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
 // Load schema
-const schema = JSON.parse(fs.readFileSync('schemas/user-profile.schema.json'));
+const schema = JSON.parse(fs.readFileSync("schemas/user-profile.schema.json"));
 
 // Validate data
 const validate = ajv.compile(schema);
 const valid = validate(userData);
 
 if (!valid) {
-  console.error('Validation errors:', validate.errors);
+  console.error("Validation errors:", validate.errors);
 }
 ```
 
@@ -66,25 +68,25 @@ name: Validate Data Schemas
 on:
   pull_request:
     paths:
-      - 'src/data/**'
+      - "src/data/**"
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Install AJV
         run: npm install -g ajv-cli
-      
+
       - name: Validate metadata
         run: ajv -s schemas/metadata.schema.json -d src/data/metadata.json
-      
+
       - name: Validate user profiles
         run: ajv -s schemas/user-profile.schema.json -d src/data/users/*.json
 ```
@@ -103,4 +105,3 @@ When updating schemas:
 - [JSON Schema Specification](https://json-schema.org/)
 - [Understanding JSON Schema](https://json-schema.org/understanding-json-schema/)
 - [AJV Validator](https://ajv.js.org/)
-

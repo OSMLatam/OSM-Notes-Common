@@ -6,20 +6,20 @@
 
 ## Problema
 
-Al ejecutar los tests (especialmente en modo `quick` o cualquier test
-unitario), aparecía el siguiente warning:
+Al ejecutar los tests (especialmente en modo `quick` o cualquier test unitario), aparecía el
+siguiente warning:
 
 ```text
 Warning: validationFunctions.sh not found
 ```
 
-Este warning aparecía en **todas las pruebas** porque el archivo
-`test_helper.bash` no podía cargar las funciones de validación.
+Este warning aparecía en **todas las pruebas** porque el archivo `test_helper.bash` no podía cargar
+las funciones de validación.
 
 ## Causa Raíz
 
-El archivo `tests/test_helper.bash` estaba intentando cargar
-`validationFunctions.sh` desde una ruta incorrecta:
+El archivo `tests/test_helper.bash` estaba intentando cargar `validationFunctions.sh` desde una ruta
+incorrecta:
 
 **Ruta incorrecta (línea 105):**
 
@@ -39,7 +39,8 @@ El archivo `validationFunctions.sh` está ubicado en:
 lib/osm-common/validationFunctions.sh
 ```
 
-Esta es la ubicación estándar de todas las librerías comunes del proyecto, como se puede ver en la estructura:
+Esta es la ubicación estándar de todas las librerías comunes del proyecto, como se puede ver en la
+estructura:
 
 ```text
 lib/osm-common/
@@ -110,7 +111,8 @@ ok 1 Todos los scripts pasan shellcheck
 
 ### Tests Afectados
 
-Este fix elimina el warning en **TODOS los tests unitarios e integración** que usan `test_helper.bash`:
+Este fix elimina el warning en **TODOS los tests unitarios e integración** que usan
+`test_helper.bash`:
 
 - ✅ Tests unitarios (86 archivos `.bats`)
 - ✅ Tests de integración (8 archivos `.bats`)
@@ -119,8 +121,7 @@ Este fix elimina el warning en **TODOS los tests unitarios e integración** que 
 
 ### Funcionalidad Mejorada
 
-Ahora las funciones de validación están correctamente cargadas en todos los
-tests:
+Ahora las funciones de validación están correctamente cargadas en todos los tests:
 
 - `__validate_iso8601_date`
 - `__validate_xml_dates`
@@ -187,12 +188,11 @@ Este fix:
 
 ### Para Evitar este Tipo de Problemas en el Futuro
 
-1. **Documentar estructura de directorios:** Mantener actualizado
-   `lib/osm-common/README.md`
-2. **Tests de carga de librerías:** Crear tests que verifiquen que todas las
-   librerías se cargan correctamente
-3. **Revisión de rutas:** Al agregar nuevos archivos de librería, verificar
-   que todas las referencias usen la ruta correcta
+1. **Documentar estructura de directorios:** Mantener actualizado `lib/osm-common/README.md`
+2. **Tests de carga de librerías:** Crear tests que verifiquen que todas las librerías se cargan
+   correctamente
+3. **Revisión de rutas:** Al agregar nuevos archivos de librería, verificar que todas las
+   referencias usen la ruta correcta
 
 ### Verificación Manual
 
