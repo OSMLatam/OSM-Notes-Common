@@ -5,7 +5,7 @@
 # and other scripts to send immediate alerts when critical errors occur.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-10-22
+# Version: 2025-11-02
 
 # Creates a failed execution marker file with details and sends immediate
 # alerts.
@@ -33,7 +33,9 @@ function __common_create_failed_marker() {
  local ERROR_CODE="${2}"
  local ERROR_MESSAGE="${3}"
  local REQUIRED_ACTION="${4}"
- local FAILED_EXECUTION_FILE="${5}"
+ # Use parameter directly instead of local to avoid readonly conflict
+ # FAILED_EXECUTION_FILE may be readonly, so use it directly
+ local FAILED_FILE_PARAM="${5}"
  local TIMESTAMP
  TIMESTAMP=$(date)
  local HOSTNAME_VAR
@@ -43,6 +45,9 @@ function __common_create_failed_marker() {
 
  if [[ "${GENERATE_FAILED_FILE:-true}" == "true" ]] \
   && [[ "${ONLY_EXECUTION:-no}" == "yes" ]]; then
+
+  # Use parameter value, fallback to readonly variable if not provided
+  local FILE_PATH="${FAILED_FILE_PARAM:-${FAILED_EXECUTION_FILE:-/tmp/unknown_failed_execution}}"
 
   # Create the failed execution marker file
   {
@@ -55,14 +60,14 @@ function __common_create_failed_marker() {
    echo "Server: ${HOSTNAME_VAR}"
    echo ""
    echo "Required action: ${REQUIRED_ACTION}"
-  } > "${FAILED_EXECUTION_FILE}"
-  __loge "Failed execution file created: ${FAILED_EXECUTION_FILE}"
+  } > "${FILE_PATH}"
+  __loge "Failed execution file created: ${FILE_PATH}"
   __loge "Remove this file after fixing the issue to allow new executions"
 
   # Send immediate email alert if enabled
   if [[ "${SEND_ALERT_EMAIL:-true}" == "true" ]]; then
    __common_send_failure_email "${SCRIPT_NAME}" "${ERROR_CODE}" \
-    "${ERROR_MESSAGE}" "${REQUIRED_ACTION}" "${FAILED_EXECUTION_FILE}" \
+    "${ERROR_MESSAGE}" "${REQUIRED_ACTION}" "${FILE_PATH}" \
     "${TIMESTAMP}" "${HOSTNAME_VAR}"
   fi
 
@@ -88,10 +93,14 @@ function __common_send_failure_email() {
  local ERROR_CODE="${2}"
  local ERROR_MESSAGE="${3}"
  local REQUIRED_ACTION="${4}"
- local FAILED_EXECUTION_FILE="${5}"
+ # Use parameter directly instead of local to avoid readonly conflict
+ local FAILED_FILE_PARAM="${5}"
  local TIMESTAMP="${6}"
  local HOSTNAME_VAR="${7}"
  local EMAIL_TO="${ADMIN_EMAIL:-root@localhost}"
+
+ # Use parameter value, fallback to readonly variable if not provided
+ local FILE_PATH="${FAILED_FILE_PARAM:-${FAILED_EXECUTION_FILE:-/tmp/unknown_failed_execution}}"
 
  # Check if mail command is available
  if ! command -v mail > /dev/null 2>&1; then
@@ -108,7 +117,7 @@ ALERT: OSM Notes Processing Failed
 Script: ${SCRIPT_NAME}.sh
 Time: ${TIMESTAMP}
 Server: ${HOSTNAME_VAR}
-Failed marker file: ${FAILED_EXECUTION_FILE}
+Failed marker file: ${FILE_PATH}
 
 Error Details:
 --------------
@@ -130,7 +139,7 @@ Recovery Steps:
 1. Read the error details above
 2. Follow the required action instructions
 3. After fixing, delete the marker file:
-   rm ${FAILED_EXECUTION_FILE}
+   rm ${FILE_PATH}
 4. Run the script again to verify the fix
 
 Logs:
