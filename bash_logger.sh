@@ -18,7 +18,7 @@
 # - Test-friendly design
 #
 # Author: Andres Gomez (AngocA) - Enhanced version
-# Version: 2025-10-28
+# Version: 2025-11-09
 # Based on: Dushyanth Jyothi's bash-logger
 
 # === CONSTANTS AND CONFIGURATION ===
@@ -32,11 +32,13 @@ declare -g __log_level="${LOG_LEVEL:-INFO}"
 declare -g __log_fd=""
 declare -g __logger_script_start_time=""
 declare -g __logger_function_start_time=""
+declare -ga __logger_start_time_stack=()
 declare -gA __logger_run_times=()
 
 # Initialize timing
 __logger_script_start_time=$(date +%s)
 __logger_function_start_time=$(date +%s)
+__logger_start_time_stack=()
 
 # === UTILITY FUNCTIONS ===
 
@@ -412,7 +414,10 @@ __log_start() {
  script_name="${script_name##*/}"
 
  # Store start time for this function
- __logger_function_start_time=$(date +%s)
+ local start_time
+ start_time=$(date +%s)
+ __logger_function_start_time="${start_time}"
+ __logger_start_time_stack+=("${start_time}")
 
  # Log the start with special format
  local message="#-- STARTED ${function_name^^} IN ${script_name^^}"
@@ -436,7 +441,23 @@ __log_finish() {
  local current_time
  current_time=$(date +%s)
  local execution_time
- execution_time=$((current_time - __logger_function_start_time))
+ local start_time=0
+ local stack_length=${#__logger_start_time_stack[@]}
+
+ if ((stack_length > 0)); then
+  local last_index=$((stack_length - 1))
+  start_time=${__logger_start_time_stack[${last_index}]}
+  unset "__logger_start_time_stack[${last_index}]"
+  if ((${#__logger_start_time_stack[@]} == 0)); then
+   __logger_start_time_stack=()
+  else
+   __logger_start_time_stack=("${__logger_start_time_stack[@]}")
+  fi
+ else
+  start_time=${__logger_function_start_time:-$current_time}
+ fi
+
+ execution_time=$((current_time - start_time))
 
  # Store run time for this function
  __logger_run_times["${function_name}"]="${execution_time}"
