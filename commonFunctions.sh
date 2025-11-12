@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-08-17
-VERSION="2025-08-17"
+# Version: 2025-11-12
+VERSION="2025-11-12"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -220,85 +220,6 @@ function __dropGenericObjects {
  psql -d "${DBNAME}" -f "${POSTGRES_12_DROP_GENERIC_OBJECTS}"
  __log_finish
 }
-
-# Create function to get country
-function __createFunctionToGetCountry {
- __log_start
- __logd "Creating function to get country."
-
- # Validate that POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY is defined
- if [[ -z "${POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY:-}" ]]; then
-  __loge "ERROR: POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY variable is not defined. This variable should be defined in the calling script"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- # Validate that the SQL file exists
- if [[ ! -f "${POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY}" ]]; then
-  __loge "ERROR: SQL file not found: ${POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY}"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- psql -d "${DBNAME}" -f "${POSTGRES_21_CREATE_FUNCTION_GET_COUNTRY}"
- __log_finish
-}
-
-# Create procedures
-function __createProcedures {
- __log_start
- __logd "Creating procedures."
-
- # Validate that POSTGRES_22_CREATE_PROC_INSERT_NOTE is defined
- if [[ -z "${POSTGRES_22_CREATE_PROC_INSERT_NOTE:-}" ]]; then
-  __loge "ERROR: POSTGRES_22_CREATE_PROC_INSERT_NOTE variable is not defined. This variable should be defined in the calling script"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- # Validate that POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT is defined
- if [[ -z "${POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT:-}" ]]; then
-  __loge "ERROR: POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT variable is not defined. This variable should be defined in the calling script"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- # Validate that the SQL files exist
- if [[ ! -f "${POSTGRES_22_CREATE_PROC_INSERT_NOTE}" ]]; then
-  __loge "ERROR: SQL file not found: ${POSTGRES_22_CREATE_PROC_INSERT_NOTE}"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- if [[ ! -f "${POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT}" ]]; then
-  __loge "ERROR: SQL file not found: ${POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT}"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- psql -d "${DBNAME}" -f "${POSTGRES_22_CREATE_PROC_INSERT_NOTE}"
- psql -d "${DBNAME}" -f "${POSTGRES_23_CREATE_PROC_INSERT_NOTE_COMMENT}"
- __log_finish
-}
-
-# Organize areas
-function __organizeAreas {
- __log_start
- __logd "Organizing areas."
-
- # Validate that POSTGRES_31_ORGANIZE_AREAS is defined
- if [[ -z "${POSTGRES_31_ORGANIZE_AREAS:-}" ]]; then
-  __loge "ERROR: POSTGRES_31_ORGANIZE_AREAS variable is not defined"
-  __loge "ERROR: This variable should be defined in the calling script"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- # Validate that the SQL file exists
- if [[ ! -f "${POSTGRES_31_ORGANIZE_AREAS}" ]]; then
-  __loge "ERROR: SQL file not found: ${POSTGRES_31_ORGANIZE_AREAS}"
-  exit "${ERROR_MISSING_LIBRARY}"
- fi
-
- psql -d "${DBNAME}" -f "${POSTGRES_31_ORGANIZE_AREAS}"
- __log_finish
-}
-
-# Get location notes - Function moved to functionsProcess.sh to avoid duplication
-# The correct implementation is in functionsProcess.sh which handles CSV decompression
 
 # Set log file for output redirection
 # Parameters:
