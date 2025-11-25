@@ -170,10 +170,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 See [LICENSE](LICENSE) for license information.
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history.
-
 ## Support
 
 For issues or questions:

@@ -142,7 +142,6 @@ Familiarize yourself with the osm-common submodule structure:
 
 - **`*.sh`**: Bash function libraries (commonFunctions, validationFunctions, bash_logger, etc.)
 - **`schemas/`**: JSON schema definitions for data validation
-- **`docs/`**: Documentation (bugfixes, etc.)
 - **`README.md`**: Overview and usage guide
 
 ### 3. Development Process
