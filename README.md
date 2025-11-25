@@ -191,7 +191,3 @@ For issues or questions:
 
 - **Andres Gomez (@AngocA)**: Main developer
 - All contributors to the OSM Notes processing ecosystem
-
----
-
-**Version:** 2025-10-13

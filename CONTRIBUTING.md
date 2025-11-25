@@ -138,17 +138,12 @@ sudo apt-get install gdal-bin ogr2ogr
 
 ### 2. Project Structure Understanding
 
-Familiarize yourself with the project structure:
+Familiarize yourself with the osm-common submodule structure:
 
-- **`bin/`**: Executable scripts and processing components
-- **`sql/`**: Database scripts and schema definitions
-- **`tests/`**: Comprehensive testing infrastructure
-- **`docs/`**: System documentation
-- **`etc/`**: Configuration files
-- **`xslt/`**: XML transformations
-- **`xsd/`**: XML schema definitions
-- **`overpass/`**: Geographic data queries
-- **`sld/`**: Map styling definitions
+- **`*.sh`**: Bash function libraries (commonFunctions, validationFunctions, bash_logger, etc.)
+- **`schemas/`**: JSON schema definitions for data validation
+- **`docs/`**: Documentation (bugfixes, etc.)
+- **`README.md`**: Overview and usage guide
 
 ### 3. Development Process
 
@@ -166,139 +161,48 @@ Familiarize yourself with the project structure:
 
 3. **Test your changes**:
 
-   ```bash
-   # Run basic tests
-   ./tests/run_tests_simple.sh
-
-   # Run enhanced tests
-   ./tests/run_enhanced_tests.sh
-
-   # Run advanced tests
-   ./tests/advanced/run_advanced_tests.sh
-   ```
+   Tests for osm-common functions are located in the repositories that use this submodule
+   (OSM-Notes-Ingestion and OSM-Notes-Analytics). Ensure tests pass in those repositories
+   before submitting changes.
 
 ## Testing Requirements
 
 ### Overview
 
-All contributions must include comprehensive testing. The project uses **78 BATS testing suites**
-covering all system components, including the new DWH enhanced features.
+All contributions must include comprehensive testing. Since this is a shared library,
+tests should be added to the repositories that use this submodule (OSM-Notes-Ingestion
+or OSM-Notes-Analytics).
 
 ### Test Categories
 
-#### Unit Tests (72 suites)
+#### Unit Tests
 
-- **Bash Scripts**: 68 BATS test suites for shell scripts
-- **SQL Functions**: 4 SQL test suites (including DWH enhanced)
+- **Bash Functions**: Test individual functions from the library
+- **Validation Functions**: Test validation logic
+- **Error Handling**: Test error handling and recovery
 
-#### Integration Tests (8 suites)
+#### Integration Tests
 
-- **End-to-End Workflows**: Complete system integration testing
-- **DWH Enhanced**: ETL and datamart enhanced functionality testing
-
-#### Validation Tests
-
-- **Data Validation**: XML/CSV processing, ETL workflows
-- **Error Handling**: Edge cases, error conditions
-- **Performance**: Parallel processing, optimization
+- **Function Integration**: Test how functions work together
+- **Cross-Repository**: Test compatibility with dependent projects
 
 #### Quality Tests
 
 - **Code Quality**: Linting, formatting, conventions
 - **Security**: Vulnerability scanning, best practices
 
-### DWH Enhanced Testing Requirements
-
-When contributing to DWH features, you must include tests for:
-
-#### New Dimensions
-
-- **`dimension_timezones`**: Timezone support testing
-- **`dimension_seasons`**: Seasonal analysis testing
-- **`dimension_continents`**: Continental grouping testing
-- **`dimension_application_versions`**: Application version testing
-- **`fact_hashtags`**: Bridge table testing
-
-#### Enhanced Dimensions
-
-- **`dimension_time_of_week`**: Renamed dimension with enhanced attributes
-- **`dimension_users`**: SCD2 implementation testing
-- **`dimension_countries`**: ISO codes testing
-- **`dimension_days`**: Enhanced date attributes testing
-- **`dimension_applications`**: Enhanced attributes testing
-
-#### New Functions
-
-- **`get_timezone_id_by_lonlat()`**: Timezone calculation testing
-- **`get_season_id()`**: Season calculation testing
-- **`get_application_version_id()`**: Application version management testing
-- **`get_local_date_id()`**: Local date calculation testing
-- **`get_local_hour_of_week_id()`**: Local hour calculation testing
-
-#### Enhanced ETL
-
-- **Staging Procedures**: New columns, SCD2, bridge tables
-- **Datamart Compatibility**: Integration with new dimensions
-- **Documentation**: Consistency with implementation
-
 ### Running Tests
 
-#### Complete Test Suite
-
-```bash
-# Run all tests (recommended)
-./tests/run_all_tests.sh
-
-# Run DWH enhanced tests only
-./tests/run_dwh_tests.sh
-
-# Run specific test categories
-./tests/run_tests.sh --type dwh
-```
-
-#### Individual Test Categories
-
-```bash
-# Unit tests
-bats tests/unit/bash/*.bats
-bats tests/unit/sql/*.sql
-
-# Integration tests
-bats tests/integration/*.bats
-
-# DWH enhanced tests
-./tests/run_dwh_tests.sh --skip-integration  # SQL only
-./tests/run_dwh_tests.sh --skip-sql          # Integration only
-```
-
-#### Test Validation
-
-```bash
-# Validate test structure
-./tests/run_dwh_tests.sh --dry-run
-
-# Check test coverage
-./tests/run_tests.sh --type all
-```
+Tests for osm-common functions are located in the repositories that use this submodule.
+See the testing documentation in those repositories for details on running tests.
 
 ### Test Documentation
 
-All new tests must be documented in:
-
-- [Testing Suites Reference](./docs/Testing_Suites_Reference.md)
-- [Testing Guide](./docs/Testing_Guide.md)
-- [DWH Testing Documentation](./tests/README.md#dwh-enhanced-testing-features)
+All new tests must be documented appropriately in the repositories that use this submodule.
 
 ### CI/CD Integration
 
-Tests are automatically run in GitHub Actions:
-
-- **Unit Tests**: Basic functionality and code quality
-- **DWH Enhanced Tests**: New dimensions, functions, ETL improvements
-- **Integration Tests**: End-to-end workflow validation
-- **Performance Tests**: System performance validation
-- **Security Tests**: Vulnerability scanning
-- **Advanced Tests**: Coverage, quality, advanced functionality
+Tests are automatically run in GitHub Actions in the repositories that use this submodule.
 
 ### Test Quality Standards
 
@@ -327,30 +231,20 @@ Tests are automatically run in GitHub Actions:
 ### Directory Structure Standards
 
 ```text
-project/
-├── bin/                    # Executable scripts
-│   ├── process/           # Data processing scripts
-│   ├── dwh/              # Data warehouse scripts
-│   ├── monitor/          # Monitoring scripts
-│   ├── functionsProcess.sh # Shared functions
-│   ├── parallelProcessingFunctions.sh # Consolidated parallel processing functions
-│   └── consolidatedValidationFunctions.sh # Consolidated validation functions
-├── sql/                   # Database scripts
-│   ├── process/          # Processing SQL scripts
-│   ├── dwh/             # Data warehouse SQL
-│   ├── monitor/         # Monitoring SQL
-│   └── functionsProcess/ # Function definitions
-├── tests/                # Testing infrastructure
-│   ├── unit/            # Unit tests
-│   ├── integration/     # Integration tests
-│   ├── advanced/        # Advanced testing
-│   └── fixtures/        # Test data
-├── docs/                 # Documentation
-├── etc/                  # Configuration
-├── xslt/                 # XML transformations
-├── xsd/                  # XML schemas
-├── overpass/             # Geographic queries
-└── sld/                  # Map styling
+lib/osm-common/
+├── commonFunctions.sh              # Common utility functions
+├── validationFunctions.sh          # Validation functions
+├── consolidatedValidationFunctions.sh # Consolidated validation
+├── errorHandlingFunctions.sh        # Error handling functions
+├── bash_logger.sh                  # Logging library
+├── alertFunctions.sh               # Alert functions
+├── schemas/                        # JSON schemas
+│   ├── country-index.schema.json
+│   ├── country-profile.schema.json
+│   ├── user-index.schema.json
+│   └── user-profile.schema.json
+├── docs/                           # Documentation
+└── README.md                       # This file
 ```
 
 ### File Naming Conventions
@@ -479,7 +373,7 @@ Before submitting your contribution, ensure:
 
 - [ ] **Code formatting**: Run `shfmt -w -i 1 -sr -bn` on all bash scripts
 - [ ] **Linting**: Run `shellcheck -x -o all` on all bash scripts
-- [ ] **Tests**: All tests pass (`./tests/run_tests.sh`)
+- [ ] **Tests**: All tests pass in dependent repositories
 - [ ] **Documentation**: All new code is documented
 - [ ] **Error handling**: Proper error codes and handling
 - [ ] **Logging**: Appropriate logging levels and messages
@@ -496,12 +390,6 @@ shfmt -w -i 1 -sr -bn script.sh
 
 # Lint bash scripts
 shellcheck -x -o all script.sh
-
-# Run tests
-./tests/run_tests.sh
-
-# Run advanced tests
-./tests/advanced/run_advanced_tests.sh
 ```
 
 #### Quality Standards
@@ -611,25 +499,8 @@ For local development, consider using Docker:
 
 ### Local Configuration
 
-To avoid accidentally committing local configuration changes:
-
-```bash
-# Tell Git to ignore changes to properties files (local development only)
-git update-index --assume-unchanged etc/properties.sh
-git update-index --assume-unchanged etc/etl.properties
-git update-index --assume-unchanged etc/wms.properties.sh
-
-# Verify that the files are now ignored
-git ls-files -v | grep '^[[:lower:]]'
-
-# To re-enable tracking (if needed)
-git update-index --no-assume-unchanged etc/properties.sh
-git update-index --no-assume-unchanged etc/etl.properties
-git update-index --no-assume-unchanged etc/wms.properties.sh
-```
-
-This allows you to customize database settings, user names, ETL configurations, or WMS settings
-without affecting the repository.
+Configuration files are managed in the repositories that use this submodule, not in the
+submodule itself.
 
 ## Version Control
 
