@@ -4,8 +4,8 @@
 # This file contains error handling and retry functions.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-08-13
-VERSION="2025-08-13"
+# Version: 2025-11-25
+VERSION="2025-11-25"
 
 # shellcheck disable=SC2317,SC2155
 
@@ -234,6 +234,18 @@ function __check_network_connectivity() {
 }
 
 # Handle error with cleanup
+# Parameters:
+#   $1 - error_code: Error code to return/exit with
+#   $2 - error_message: Error message to log
+#   $3 - cleanup_command: (Optional) Command to execute for cleanup
+#
+# Environment variables:
+#   TEST_MODE: If set to "true", uses return instead of exit (for testing)
+#   BATS_TEST_NAME: If set, uses return instead of exit (BATS testing)
+#
+# Returns:
+#   In production: Exits with error_code
+#   In test environment: Returns with error_code
 function __handle_error_with_cleanup() {
  __log_start
  local ERROR_CODE="${1}"
@@ -262,7 +274,15 @@ function __handle_error_with_cleanup() {
  fi
 
  __log_finish
- return "${ERROR_CODE}"
+ # Use exit in production, return in test environment
+ # Detect test environment via TEST_MODE or BATS_TEST_NAME variables
+ if [[ "${TEST_MODE:-false}" == "true" ]] || [[ -n "${BATS_TEST_NAME:-}" ]]; then
+  __logd "Test environment detected, using return instead of exit"
+  return "${ERROR_CODE}"
+ else
+  __logd "Production environment detected, using exit"
+  exit "${ERROR_CODE}"
+ fi
 }
 
 # Get circuit breaker status
