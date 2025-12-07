@@ -47,7 +47,7 @@ function __show_help() {
  echo "Validation Functions for OSM-Notes-profile"
  echo "This file contains validation functions for various data types."
  echo
- echo "Usage: source bin/validationFunctions.sh"
+ echo "Usage: source lib/osm-common/validationFunctions.sh"
  echo
  echo "Available functions:"
  echo "  __validate_input_file      - Validate input file"
