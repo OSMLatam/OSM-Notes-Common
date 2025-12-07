@@ -4,8 +4,8 @@
 # This file contains validation functions for various data types.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-10-24
-VERSION="2025-10-24"
+# Version: 2025-12-07
+VERSION="2025-12-07"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -1080,14 +1080,8 @@ function __validate_file_checksum_from_file() {
   return 1
  fi
 
- # Skip checksum validation in hybrid/test mode (mocked downloads have different checksums)
- if [[ -n "${HYBRID_MOCK_MODE:-}" ]] || [[ -n "${TEST_MODE:-}" ]]; then
-  __logw "Skipping checksum validation in hybrid/test mode (mocked downloads)"
-  __log_finish
-  return 0
- fi
-
- # Check if checksum file exists and is readable, but allow empty files
+ # Check if checksum file exists and is readable
+ # These validations must happen even in test mode to catch configuration errors
  if [[ ! -f "${CHECKSUM_FILE}" ]]; then
   __loge "ERROR: Checksum file not found: ${CHECKSUM_FILE}"
   __log_finish
@@ -1114,10 +1108,19 @@ function __validate_file_checksum_from_file() {
   EXPECTED_CHECKSUM=$(head -1 "${CHECKSUM_FILE}" | awk '{print $1}' 2> /dev/null)
  fi
 
+ # Check if checksum could be extracted (empty file case)
  if [[ -z "${EXPECTED_CHECKSUM}" ]]; then
   __loge "ERROR: Could not extract checksum from file: ${CHECKSUM_FILE}"
   __log_finish
   return 1
+ fi
+
+ # Skip checksum validation in hybrid/test mode (mocked downloads have different checksums)
+ # But only skip the actual checksum comparison, not the file/checksum extraction validation
+ if [[ -n "${HYBRID_MOCK_MODE:-}" ]] || [[ -n "${TEST_MODE:-}" ]]; then
+  __logw "Skipping checksum validation in hybrid/test mode (mocked downloads)"
+  __log_finish
+  return 0
  fi
 
  # Validate checksum
