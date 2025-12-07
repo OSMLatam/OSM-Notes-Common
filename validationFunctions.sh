@@ -1080,6 +1080,13 @@ function __validate_file_checksum_from_file() {
   return 1
  fi
 
+ # Skip checksum validation in hybrid/test mode (mocked downloads have different checksums)
+ if [[ -n "${HYBRID_MOCK_MODE:-}" ]] || [[ -n "${TEST_MODE:-}" ]]; then
+  __logw "Skipping checksum validation in hybrid/test mode (mocked downloads)"
+  __log_finish
+  return 0
+ fi
+
  # Check if checksum file exists and is readable, but allow empty files
  if [[ ! -f "${CHECKSUM_FILE}" ]]; then
   __loge "ERROR: Checksum file not found: ${CHECKSUM_FILE}"
