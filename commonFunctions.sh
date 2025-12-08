@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-11-12
-VERSION="2025-11-12"
+# Version: 2025-12-07
+VERSION="2025-12-07"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -135,7 +135,7 @@ function __checkPrereqsCommands {
  local MISSING_COMMANDS=()
 
  # Check basic commands
- for CMD in psql xmllint xsltproc curl wget grep; do
+ for CMD in psql xmllint curl wget grep; do
   if ! command -v "${CMD}" > /dev/null 2>&1; then
    MISSING_COMMANDS+=("${CMD}")
   fi
