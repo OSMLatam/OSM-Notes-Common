@@ -130,7 +130,7 @@ sudo apt-get install shellcheck shfmt bats
 sudo apt-get install postgresql postgis
 
 # Install XML processing tools
-sudo apt-get install libxml2-utils xmlstarlet
+sudo apt-get install libxml2-utils
 
 # Install geographic tools
 sudo apt-get install gdal-bin ogr2ogr

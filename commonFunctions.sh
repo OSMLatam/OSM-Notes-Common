@@ -134,12 +134,18 @@ function __checkPrereqsCommands {
  # Check if required commands are available
  local MISSING_COMMANDS=()
 
- # Check basic commands
- for CMD in psql xmllint curl wget grep; do
+ # Check basic commands (required)
+ for CMD in psql curl wget grep; do
   if ! command -v "${CMD}" > /dev/null 2>&1; then
    MISSING_COMMANDS+=("${CMD}")
   fi
  done
+
+ # Check optional commands (for XML validation)
+ # xmllint is optional - validation can be skipped with SKIP_XML_VALIDATION=true
+ if ! command -v xmllint > /dev/null 2>&1; then
+  __logw "xmllint not available - XML validation will be skipped (set SKIP_XML_VALIDATION=true to suppress this warning)"
+ fi
 
  # Check parallel processing commands
  for CMD in free uptime ulimit prlimit bc timeout; do
@@ -147,11 +153,6 @@ function __checkPrereqsCommands {
    MISSING_COMMANDS+=("${CMD}")
   fi
  done
-
- # Check XML processing commands
- if ! command -v xmlstarlet > /dev/null 2>&1; then
-  MISSING_COMMANDS+=("xmlstarlet")
- fi
 
  # Check JSON processing commands
  if ! command -v jq > /dev/null 2>&1; then
