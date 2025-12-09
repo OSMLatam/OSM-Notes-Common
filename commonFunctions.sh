@@ -98,21 +98,16 @@ fi
 # Parameters: None
 # Returns: None
 function __start_logger {
- __logd "Initializing logger system"
-
+ # Silently initialize logger - only log errors
  # Set log level from environment if not already set
  if [[ -n "${LOG_LEVEL:-}" ]]; then
   __set_log_level "${LOG_LEVEL}"
-  __logd "Logger level set to: ${LOG_LEVEL}"
  fi
 
  # Set log file if LOG_FILE environment variable is set
  if [[ -n "${LOG_FILE:-}" ]]; then
   __set_log_file "${LOG_FILE}"
-  __logi "Logger file set to: ${LOG_FILE}"
  fi
-
- __logd "Logger system initialized successfully"
 }
 
 # Validation function
@@ -228,12 +223,10 @@ function __dropGenericObjects {
 # Returns:
 #   0 if successful, 1 if failed
 function __set_log_file() {
- __log_start
  local LOG_FILE="${1}"
 
  if [[ -z "${LOG_FILE}" ]]; then
   __loge "ERROR: Log file path not provided"
-  __log_finish
   return 1
  fi
 
@@ -243,7 +236,6 @@ function __set_log_file() {
  if [[ ! -d "${LOG_DIR}" ]]; then
   mkdir -p "${LOG_DIR}" 2> /dev/null || {
    __loge "ERROR: Cannot create log directory: ${LOG_DIR}"
-   __log_finish
    return 1
   }
  fi
@@ -251,11 +243,9 @@ function __set_log_file() {
  # Ensure the log file is writable
  touch "${LOG_FILE}" 2> /dev/null || {
   __loge "ERROR: Cannot create or write to log file: ${LOG_FILE}"
-  __log_finish
   return 1
  }
 
- __logd "Log file set to: ${LOG_FILE}"
- __log_finish
+ # Silently set log file - only log errors
  return 0
 }
