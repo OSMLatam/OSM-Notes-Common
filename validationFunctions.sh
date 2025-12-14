@@ -931,7 +931,7 @@ function __validate_xml_dates_lightweight() {
 
    # If more than 90% of dates are valid, consider the file valid
    if [[ "${VALID_PERCENTAGE}" -ge 90 ]]; then
-    __logd "XML dates validation passed (sample-based): ${XML_FILE}"
+    __logi "XML dates validation passed (sample-based): ${XML_FILE}"
     # Still check if there were malformed dates
     if [[ "${FAILED}" -eq 1 ]]; then
      __log_finish
