@@ -18,7 +18,7 @@
 # - Test-friendly design
 #
 # Author: Andres Gomez (AngocA) - Enhanced version
-# Version: 2025-11-09
+# Version: 2025-01-23
 # Based on: Dushyanth Jyothi's bash-logger
 
 # === CONSTANTS AND CONFIGURATION ===
@@ -66,6 +66,38 @@ __should_log_message() {
  [[ "${message_level_num}" -ge "${current_level_num}" ]]
 }
 
+# Simplify file path for logging (similar to log4j package display)
+# Parameters:
+#   $1: Full file path
+# Returns: Simplified path (relative from workspace or just filename)
+__simplify_file_path() {
+ local full_path="${1:-}"
+ local simplified_path
+
+ if [[ -z "${full_path}" ]]; then
+  echo "unknown"
+  return 0
+ fi
+
+ # Try to get workspace root from SCRIPT_BASE_DIRECTORY if available
+ local workspace_root="${SCRIPT_BASE_DIRECTORY:-}"
+
+ # If workspace root is set and the path contains it, show relative path
+ if [[ -n "${workspace_root}" ]] && [[ "${full_path}" == "${workspace_root}"* ]]; then
+  # Remove workspace root prefix and leading slash
+  simplified_path="${full_path#${workspace_root}/}"
+  # If it's empty after removal, it means it's the root itself
+  if [[ -z "${simplified_path}" ]]; then
+   simplified_path="${full_path##*/}"
+  fi
+ else
+  # If no workspace root or path doesn't contain it, show just filename
+  simplified_path="${full_path##*/}"
+ fi
+
+ echo "${simplified_path}"
+}
+
 # Get caller information safely
 __get_caller_info() {
  # Get caller information with proper index handling
@@ -76,9 +108,11 @@ __get_caller_info() {
  while [[ ${caller_index} -lt ${max_index} ]]; do
   if [[ "${BASH_SOURCE[${caller_index}]:-}" != *"bash_logger"* ]]; then
    local script_name="${BASH_SOURCE[${caller_index}]:-}"
+   local simplified_script_name
+   simplified_script_name=$(__simplify_file_path "${script_name}")
    local function_name="${FUNCNAME[${caller_index}]:-main}"
    local line_number="${BASH_LINENO[$((caller_index - 1))]:-0}"
-   echo "${script_name}:${function_name}:${line_number}"
+   echo "${simplified_script_name}:${function_name}:${line_number}"
    return 0
   fi
   ((caller_index++))
@@ -185,12 +219,13 @@ __generate_call_stack() {
  local __bl_function_name="${FUNCNAME[0]}"
  local __bl_called_line_number="${BASH_LINENO[0]}"
  local __bl_time_and_date
+ local __bl_simplified_script_name
 
- __bl_script_name="${__bl_script_name##*/}"
+ __bl_simplified_script_name=$(__simplify_file_path "${__bl_script_name}")
  __bl_time_and_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
  # First, log the stack header
- local LOG="${__bl_time_and_date} - ${__bl_script_name}:${__bl_function_name}:${__bl_called_line_number} - TRACE - Execution call stack:"
+ local LOG="${__bl_time_and_date} - ${__bl_simplified_script_name}:${__bl_function_name}:${__bl_called_line_number} - TRACE - Execution call stack:"
  if [[ -z "${__log_fd}" ]]; then
   echo "${LOG}"
  else
@@ -200,7 +235,9 @@ __generate_call_stack() {
  for ((i = 0; i < __bl_functions_length; i++)); do
   if ((i != __bl_functions_length - 1)); then
    if [[ "${BASH_SOURCE[${i}]}" != *"bash_logger"* ]]; then
-    LOG="   ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+    local __bl_simplified_source
+    __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+    LOG="   ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
     if [[ -z "${__log_fd}" ]]; then
      echo "${LOG}"
     else
@@ -208,7 +245,9 @@ __generate_call_stack() {
     fi
    fi
   else
-   LOG="    ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+   local __bl_simplified_source
+   __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+   LOG="    ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
    if [[ -z "${__log_fd}" ]]; then
     echo "${LOG}"
    else
@@ -225,12 +264,13 @@ __generate_call_stack_error() {
  local __bl_function_name="${FUNCNAME[0]}"
  local __bl_called_line_number="${BASH_LINENO[0]}"
  local __bl_time_and_date
+ local __bl_simplified_script_name
 
- __bl_script_name="${__bl_script_name##*/}"
+ __bl_simplified_script_name=$(__simplify_file_path "${__bl_script_name}")
  __bl_time_and_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
  # First, log the stack header
- local LOG="${__bl_time_and_date} - ${__bl_script_name}:${__bl_function_name}:${__bl_called_line_number} - ERROR - Execution call stack:"
+ local LOG="${__bl_time_and_date} - ${__bl_simplified_script_name}:${__bl_function_name}:${__bl_called_line_number} - ERROR - Execution call stack:"
  if [[ -z "${__log_fd}" ]]; then
   echo "${LOG}" >&2
  else
@@ -240,7 +280,9 @@ __generate_call_stack_error() {
  for ((i = 0; i < __bl_functions_length; i++)); do
   if ((i != __bl_functions_length - 1)); then
    if [[ "${BASH_SOURCE[${i}]}" != *"bash_logger"* ]]; then
-    LOG="   ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+    local __bl_simplified_source
+    __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+    LOG="   ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
     if [[ -z "${__log_fd}" ]]; then
      echo "${LOG}" >&2
     else
@@ -248,7 +290,9 @@ __generate_call_stack_error() {
     fi
    fi
   else
-   LOG="    ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+   local __bl_simplified_source
+   __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+   LOG="    ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
    if [[ -z "${__log_fd}" ]]; then
     echo "${LOG}" >&2
    else
@@ -265,12 +309,13 @@ __generate_call_stack_fatal() {
  local __bl_function_name="${FUNCNAME[0]}"
  local __bl_called_line_number="${BASH_LINENO[0]}"
  local __bl_time_and_date
+ local __bl_simplified_script_name
 
- __bl_script_name="${__bl_script_name##*/}"
+ __bl_simplified_script_name=$(__simplify_file_path "${__bl_script_name}")
  __bl_time_and_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
  # First, log the stack header
- local LOG="${__bl_time_and_date} - ${__bl_script_name}:${__bl_function_name}:${__bl_called_line_number} - FATAL - Execution call stack:"
+ local LOG="${__bl_time_and_date} - ${__bl_simplified_script_name}:${__bl_function_name}:${__bl_called_line_number} - FATAL - Execution call stack:"
  if [[ -z "${__log_fd}" ]]; then
   echo "${LOG}" >&2
  else
@@ -280,7 +325,9 @@ __generate_call_stack_fatal() {
  for ((i = 0; i < __bl_functions_length; i++)); do
   if ((i != __bl_functions_length - 1)); then
    if [[ "${BASH_SOURCE[${i}]}" != *"bash_logger"* ]]; then
-    LOG="   ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+    local __bl_simplified_source
+    __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+    LOG="   ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
     if [[ -z "${__log_fd}" ]]; then
      echo "${LOG}" >&2
     else
@@ -288,7 +335,9 @@ __generate_call_stack_fatal() {
     fi
    fi
   else
-   LOG="    ${BASH_SOURCE[${i}]//.\//}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
+   local __bl_simplified_source
+   __bl_simplified_source=$(__simplify_file_path "${BASH_SOURCE[${i}]}")
+   LOG="    ${__bl_simplified_source}:${BASH_LINENO[${i}]} ${FUNCNAME[${i}]}(..)"
    if [[ -z "${__log_fd}" ]]; then
     echo "${LOG}" >&2
    else
@@ -411,7 +460,8 @@ __logf() {
 __log_start() {
  local function_name="${FUNCNAME[1]:-unknown}"
  local script_name="${BASH_SOURCE[1]:-unknown}"
- script_name="${script_name##*/}"
+ local simplified_script_name
+ simplified_script_name=$(__simplify_file_path "${script_name}")
 
  # Store start time for this function
  local start_time
@@ -420,7 +470,7 @@ __log_start() {
  __logger_start_time_stack+=("${start_time}")
 
  # Log the start with special format
- local message="#-- STARTED ${function_name^^} IN ${script_name^^}"
+ local message="#-- STARTED ${function_name^^} IN ${simplified_script_name^^}"
  local caller_info
  caller_info=$(__get_caller_info)
  local formatted_message
@@ -435,7 +485,8 @@ __log_start() {
 __log_finish() {
  local function_name="${FUNCNAME[1]:-unknown}"
  local script_name="${BASH_SOURCE[1]:-unknown}"
- script_name="${script_name##*/}"
+ local simplified_script_name
+ simplified_script_name=$(__simplify_file_path "${script_name}")
 
  # Calculate execution time
  local current_time
@@ -468,7 +519,7 @@ __log_finish() {
  local seconds=$((execution_time % 60))
 
  # Log the finish with special format and timing
- local message="|-- FINISHED ${function_name^^} IN ${script_name^^}"
+ local message="|-- FINISHED ${function_name^^} IN ${simplified_script_name^^}"
  local caller_info
  caller_info=$(__get_caller_info)
  local formatted_message
@@ -487,7 +538,8 @@ __log_finish() {
 # Default log function (original behavior)
 __log() {
  local __bl_script_name="${BASH_SOURCE[1]}"
- __bl_script_name="${__bl_script_name##*/}"
+ local __bl_simplified_script_name
+ __bl_simplified_script_name=$(__simplify_file_path "${__bl_script_name}")
 
  local __bl_function_name="${FUNCNAME[1]}"
  local __bl_called_line_number="${BASH_LINENO[0]}"
@@ -496,7 +548,7 @@ __log() {
 
  __bl_time_and_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
- local LOG="${__bl_time_and_date} - ${__bl_script_name}:${__bl_function_name}:${__bl_called_line_number} - ${__bl_log_message}"
+ local LOG="${__bl_time_and_date} - ${__bl_simplified_script_name}:${__bl_function_name}:${__bl_called_line_number} - ${__bl_log_message}"
 
  if [[ -z "${__log_fd}" ]]; then
   echo "${LOG}"
@@ -521,6 +573,7 @@ fi
 # Export all functions
 export -f __get_log_level_number
 export -f __should_log_message
+export -f __simplify_file_path
 export -f __get_caller_info
 export -f __get_timestamp
 export -f __format_log_message
