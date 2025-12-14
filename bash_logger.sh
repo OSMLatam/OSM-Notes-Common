@@ -18,7 +18,7 @@
 # - Test-friendly design
 #
 # Author: Andres Gomez (AngocA) - Enhanced version
-# Version: 2025-01-23
+# Version: 2025-10-26
 # Based on: Dushyanth Jyothi's bash-logger
 
 # === CONSTANTS AND CONFIGURATION ===

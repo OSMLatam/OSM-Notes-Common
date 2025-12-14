@@ -3,7 +3,7 @@
 # This file consolidates all validation functions to eliminate duplication
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-01-27
+# Version: 2025-10-26
 # Description: Centralized validation functions for better maintainability
 
 # Common help function for library files
