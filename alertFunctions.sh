@@ -5,7 +5,7 @@
 # and other scripts to send immediate alerts when critical errors occur.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-11-02
+# Version: 2025-12-15
 
 # Creates a failed execution marker file with details and sends immediate
 # alerts.
@@ -79,6 +79,7 @@ function __common_create_failed_marker() {
 
 # Sends an email alert about the failed execution.
 # This is called automatically by __common_create_failed_marker.
+# Uses mutt (required prerequisite for external SMTP).
 #
 # Parameters:
 #   $1 - script_name
@@ -102,12 +103,8 @@ function __common_send_failure_email() {
  # Use parameter value, fallback to readonly variable if not provided
  local FILE_PATH="${FAILED_FILE_PARAM:-${FAILED_EXECUTION_FILE:-/tmp/unknown_failed_execution}}"
 
- # Check if mail command is available
- if ! command -v mail > /dev/null 2>&1; then
-  __logw "Mail command not available, skipping email alert"
-  return 0
- fi
-
+ # mutt is a required prerequisite (checked in __checkPrereqsCommands)
+ # so it should always be available at this point
  local SUBJECT="ALERT: OSM Notes ${SCRIPT_NAME} Failed - ${HOSTNAME_VAR}"
  local BODY
  BODY=$(cat << EOF
@@ -151,11 +148,16 @@ This is an automated alert from OSM Notes Ingestion system.
 EOF
 )
 
- # Send email
- if echo "${BODY}" | mail -s "${SUBJECT}" "${EMAIL_TO}" 2>/dev/null; then
+ # Send email using mutt (required prerequisite)
+ local TEMP_BODY_FILE
+ TEMP_BODY_FILE=$(mktemp)
+ echo "${BODY}" > "${TEMP_BODY_FILE}"
+ if echo "" | mutt -s "${SUBJECT}" -i "${TEMP_BODY_FILE}" -- "${EMAIL_TO}" 2>/dev/null; then
   __logi "Email alert sent successfully to ${EMAIL_TO}"
+  rm -f "${TEMP_BODY_FILE}"
  else
   __logw "Failed to send email alert to ${EMAIL_TO}"
+  rm -f "${TEMP_BODY_FILE}"
  fi
 }
 
