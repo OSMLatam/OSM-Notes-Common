@@ -104,7 +104,7 @@ declare -r ERROR_INVALID_ARGUMENT=242
 #### File Naming Convention
 
 - **Process files**: `processAPINotes_21_createApiTables.sql`
-- **ETL files**: `ETL_11_checkDWHTables.sql`
+> **Note:** ETL files are maintained in [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics).
 - **Function files**: `functionsProcess_21_createFunctionToGetCountry.sql`
 - **Drop files**: `processAPINotes_12_dropApiTables.sql`
 
