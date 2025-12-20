@@ -6,7 +6,7 @@ Shared functions and utilities for OSM Notes processing projects.
 
 This repository contains common Bash functions and utilities shared between:
 
-- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Ingestion and WMS
+- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion
 - [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and Analytics
 
 ## Components
@@ -180,7 +180,7 @@ For issues or questions:
 
 ## Related Projects
 
-- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion and WMS
+- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion
 - [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and analytics
 
 ## Acknowledgments
