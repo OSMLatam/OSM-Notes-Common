@@ -3,6 +3,22 @@
 This directory contains JSON Schema definitions for validating data structure between the
 OSM-Notes-Analytics (producer) and OSM-Notes-Viewer (consumer) repositories.
 
+## Schema Locations
+
+### For Frontend/Consumer Applications
+
+**Primary location (recommended):** Schemas are automatically copied to the data repository and available at:
+- **GitHub Pages**: `https://osmlatam.github.io/OSM-Notes-Data/schemas/`
+- **Local path**: `OSM-Notes-Data/schemas/` (when repository is cloned)
+
+This is the recommended location for frontend applications as schemas are versioned together with the data.
+
+### For Development/Validation
+
+**Source location:** This directory (`lib/osm-common/schemas/`) in the OSM-Notes-Analytics repository.
+
+Schemas are automatically synced to the data repository during each export via `exportAndPushToGitHub.sh`.
+
 ## Purpose
 
 These schemas define the contract for JSON data exchange, ensuring:
