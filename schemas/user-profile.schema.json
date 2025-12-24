@@ -50,6 +50,10 @@
       "type": "integer",
       "description": "Contributor type ID"
     },
+    "contributor_type_name": {
+      "type": ["string", "null"],
+      "description": "Contributor type name (human-readable)"
+    },
     "last_year_activity": {
       "type": "string",
       "pattern": "^[01]+$",

@@ -17,7 +17,7 @@ This is the recommended location for frontend applications as schemas are versio
 
 **Source location:** This directory (`lib/osm-common/schemas/`) in the OSM-Notes-Analytics repository.
 
-Schemas are automatically synced to the data repository during each export via `exportAndPushToGitHub.sh`.
+Schemas are automatically synced to the data repository during each export via `exportAndPushJSONToGitHub.sh`.
 
 ## Purpose
 

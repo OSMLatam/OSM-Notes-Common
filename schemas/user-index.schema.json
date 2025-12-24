@@ -16,6 +16,14 @@
       "minLength": 1,
       "description": "OSM username"
     },
+    "id_contributor_type": {
+      "type": ["integer", "null"],
+      "description": "Contributor type ID"
+    },
+    "contributor_type_name": {
+      "type": ["string", "null"],
+      "description": "Contributor type name (human-readable)"
+    },
     "history_whole_open": {
       "type": "integer",
       "minimum": 0,
