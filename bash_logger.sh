@@ -85,7 +85,7 @@ __simplify_file_path() {
  # If workspace root is set and the path contains it, show relative path
  if [[ -n "${workspace_root}" ]] && [[ "${full_path}" == "${workspace_root}"* ]]; then
   # Remove workspace root prefix and leading slash
-  simplified_path="${full_path#${workspace_root}/}"
+  simplified_path="${full_path#"${workspace_root}"/}"
   # If it's empty after removal, it means it's the root itself
   if [[ -z "${simplified_path}" ]]; then
    simplified_path="${full_path##*/}"
