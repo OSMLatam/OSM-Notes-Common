@@ -83,7 +83,7 @@ fi
 
 # Load bash logger functions - this provides all logging functionality
 if [[ -f "${SCRIPT_BASE_DIRECTORY}/lib/osm-common/bash_logger.sh" ]]; then
- # shellcheck source=../lib/osm-common/bash_logger.sh
+ # shellcheck source=lib/osm-common/bash_logger.sh
  source "${SCRIPT_BASE_DIRECTORY}/lib/osm-common/bash_logger.sh"
 else
  # If bash_logger.sh is not available, this is a critical error

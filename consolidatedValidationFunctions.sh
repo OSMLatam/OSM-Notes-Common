@@ -254,16 +254,15 @@ function __validate_osm_comments_realistic() {
  case "${VALIDATION_TYPE}" in
  "comments")
   # Validate comment events with realistic OSM patterns
-  local INVALID_LINES=0
-  local LINE_NUMBER=0
-  local TOTAL_LINES=0
-  local EMPTY_EVENTS=0
-  local ANONYMOUS_COMMENTS=0
-  local SYSTEM_ACTIONS=0
+  local invalid_lines=0
+  local line_number=0
+  local total_lines=0
+  local anonymous_comments=0
+  local system_actions=0
 
   while IFS= read -r line; do
-   ((LINE_NUMBER++))
-   ((TOTAL_LINES++))
+   ((line_number++))
+   ((total_lines++))
 
    # Skip empty lines
    if [[ -z "${line}" ]]; then
@@ -282,48 +281,48 @@ function __validate_osm_comments_realistic() {
 
    # Validate required fields
    if [[ -z "${NOTE_ID}" ]] || [[ -z "${SEQUENCE}" ]] || [[ -z "${ACTION}" ]] || [[ -z "${TIMESTAMP}" ]]; then
-    __logw "WARNING: Missing required fields in line ${LINE_NUMBER}: ${line}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Missing required fields in line ${line_number}: ${line}"
+    ((invalid_lines++))
     continue
    fi
 
    # Validate action values (realistic OSM actions)
    if [[ ! "${ACTION}" =~ ^(opened|closed|reopened|commented|hidden|reopened_automatically)$ ]]; then
-    __logw "WARNING: Unknown action '${ACTION}' in line ${LINE_NUMBER}: ${line}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Unknown action '${ACTION}' in line ${line_number}: ${line}"
+    ((invalid_lines++))
     continue
    fi
 
    # Validate timestamp format (ISO 8601)
    if [[ ! "${TIMESTAMP}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
-    __logw "WARNING: Invalid timestamp format '${TIMESTAMP}' in line ${LINE_NUMBER}: ${line}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Invalid timestamp format '${TIMESTAMP}' in line ${line_number}: ${line}"
+    ((invalid_lines++))
     continue
    fi
 
    # Track realistic patterns
    if [[ -z "${UID}" ]] || [[ -z "${USERNAME}" ]]; then
-    ((ANONYMOUS_COMMENTS++))
-    __logd "DEBUG: Anonymous comment detected in line ${LINE_NUMBER} (note ${NOTE_ID})"
+    ((anonymous_comments++))
+    __logd "DEBUG: Anonymous comment detected in line ${line_number} (note ${NOTE_ID})"
    fi
 
    # Track system actions (actions that commonly have no user)
    if [[ "${ACTION}" =~ ^(reopened|closed)$ ]] && [[ -z "${UID}" ]]; then
-    ((SYSTEM_ACTIONS++))
-    __logd "DEBUG: System action detected in line ${LINE_NUMBER} (note ${NOTE_ID}, action: ${ACTION})"
+    ((system_actions++))
+    __logd "DEBUG: System action detected in line ${line_number} (note ${NOTE_ID}, action: ${ACTION})"
    fi
 
   done < "${CSV_FILE}"
 
   # Report validation results
   __logi "Comment validation completed:"
-  __logi "  Total lines: ${TOTAL_LINES}"
-  __logi "  Anonymous comments: ${ANONYMOUS_COMMENTS}"
-  __logi "  System actions: ${SYSTEM_ACTIONS}"
-  __logi "  Invalid lines: ${INVALID_LINES}"
+  __logi "  Total lines: ${total_lines}"
+  __logi "  Anonymous comments: ${anonymous_comments}"
+  __logi "  System actions: ${system_actions}"
+  __logi "  Invalid lines: ${invalid_lines}"
 
-  if [[ "${INVALID_LINES}" -gt 0 ]]; then
-   __loge "ERROR: Found ${INVALID_LINES} invalid lines in ${CSV_FILE}"
+  if [[ "${invalid_lines}" -gt 0 ]]; then
+   __loge "ERROR: Found ${invalid_lines} invalid lines in ${CSV_FILE}"
    __log_finish
    return 1
   fi
@@ -331,15 +330,15 @@ function __validate_osm_comments_realistic() {
 
  "text_comments")
   # Validate text comments with realistic OSM patterns
-  local INVALID_LINES=0
-  local LINE_NUMBER=0
-  local TOTAL_LINES=0
-  local EMPTY_TEXTS=0
-  local LONG_TEXTS=0
+  local invalid_lines=0
+  local line_number=0
+  local total_lines=0
+  local empty_texts=0
+  local long_texts=0
 
   while IFS= read -r line; do
-   ((LINE_NUMBER++))
-   ((TOTAL_LINES++))
+   ((line_number++))
+   ((total_lines++))
 
    # Skip empty lines
    if [[ -z "${line}" ]]; then
@@ -355,34 +354,34 @@ function __validate_osm_comments_realistic() {
 
    # Validate required fields
    if [[ -z "${NOTE_ID}" ]] || [[ -z "${SEQUENCE}" ]]; then
-    __logw "WARNING: Missing required fields in line ${LINE_NUMBER}: ${line}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Missing required fields in line ${line_number}: ${line}"
+    ((invalid_lines++))
     continue
    fi
 
    # Track empty texts (realistic pattern in OSM)
    if [[ -z "${TEXT}" ]]; then
-    ((EMPTY_TEXTS++))
-    __logd "DEBUG: Empty text comment detected in line ${LINE_NUMBER} (note ${NOTE_ID})"
+    ((empty_texts++))
+    __logd "DEBUG: Empty text comment detected in line ${line_number} (note ${NOTE_ID})"
    fi
 
    # Track very long texts (potential data corruption)
    if [[ ${#TEXT} -gt 10000 ]]; then
-    __logw "WARNING: Very long text comment in line ${LINE_NUMBER} (${#TEXT} chars): ${TEXT:0:100}..."
-    ((LONG_TEXTS++))
+    __logw "WARNING: Very long text comment in line ${line_number} (${#TEXT} chars): ${TEXT:0:100}..."
+    ((long_texts++))
    fi
 
   done < "${CSV_FILE}"
 
   # Report validation results
   __logi "Text comment validation completed:"
-  __logi "  Total lines: ${TOTAL_LINES}"
-  __logi "  Empty texts: ${EMPTY_TEXTS}"
-  __logi "  Long texts: ${LONG_TEXTS}"
-  __logi "  Invalid lines: ${INVALID_LINES}"
+  __logi "  Total lines: ${total_lines}"
+  __logi "  Empty texts: ${empty_texts}"
+  __logi "  Long texts: ${long_texts}"
+  __logi "  Invalid lines: ${invalid_lines}"
 
-  if [[ "${INVALID_LINES}" -gt 0 ]]; then
-   __loge "ERROR: Found ${INVALID_LINES} invalid lines in ${CSV_FILE}"
+  if [[ "${invalid_lines}" -gt 0 ]]; then
+   __loge "ERROR: Found ${invalid_lines} invalid lines in ${CSV_FILE}"
    __log_finish
    return 1
   fi
@@ -390,15 +389,14 @@ function __validate_osm_comments_realistic() {
 
  "notes")
   # Validate notes with realistic OSM patterns
-  local INVALID_LINES=0
-  local LINE_NUMBER=0
-  local TOTAL_LINES=0
-  local MISSING_COORDINATES=0
-  local INVALID_COORDINATES=0
+  local invalid_lines=0
+  local line_number=0
+  local total_lines=0
+  local invalid_coordinates=0
 
   while IFS= read -r line; do
-   ((LINE_NUMBER++))
-   ((TOTAL_LINES++))
+   ((line_number++))
+   ((total_lines++))
 
    # Skip empty lines
    if [[ -z "${line}" ]]; then
@@ -406,8 +404,8 @@ function __validate_osm_comments_realistic() {
    fi
 
    # Parse CSV fields (note_id, lat, lon, created_at, status, closed_at, country_id)
-   local NOTE_ID LAT LON CREATED_AT STATUS CLOSED_AT COUNTRY_ID
-   IFS=',' read -r NOTE_ID LAT LON CREATED_AT STATUS CLOSED_AT COUNTRY_ID <<< "${line}"
+   local NOTE_ID LAT LON CREATED_AT STATUS CLOSED_AT
+   IFS=',' read -r NOTE_ID LAT LON CREATED_AT STATUS CLOSED_AT <<< "${line}"
 
    # Remove quotes from fields
    CREATED_AT=$(echo "${CREATED_AT}" | tr -d '"')
@@ -416,45 +414,45 @@ function __validate_osm_comments_realistic() {
 
    # Validate required fields
    if [[ -z "${NOTE_ID}" ]] || [[ -z "${LAT}" ]] || [[ -z "${LON}" ]] || [[ -z "${CREATED_AT}" ]]; then
-    __logw "WARNING: Missing required fields in line ${LINE_NUMBER}: ${line}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Missing required fields in line ${line_number}: ${line}"
+    ((invalid_lines++))
     continue
    fi
 
    # Validate coordinates (realistic ranges)
    if [[ ! "${LAT}" =~ ^-?[0-9]+\.?[0-9]*$ ]] || [[ ! "${LON}" =~ ^-?[0-9]+\.?[0-9]*$ ]]; then
-    __logw "WARNING: Invalid coordinate format in line ${LINE_NUMBER}: lat=${LAT}, lon=${LON}"
-    ((INVALID_COORDINATES++))
-    ((INVALID_LINES++))
+    __logw "WARNING: Invalid coordinate format in line ${line_number}: lat=${LAT}, lon=${LON}"
+    ((invalid_coordinates++))
+    ((invalid_lines++))
     continue
    fi
 
    # Validate coordinate ranges (realistic Earth bounds)
    if (($(echo "${LAT} < -90" | bc -l))) || (($(echo "${LAT} > 90" | bc -l))); then
-    __logw "WARNING: Latitude out of range in line ${LINE_NUMBER}: ${LAT}"
-    ((INVALID_COORDINATES++))
-    ((INVALID_LINES++))
+    __logw "WARNING: Latitude out of range in line ${line_number}: ${LAT}"
+    ((invalid_coordinates++))
+    ((invalid_lines++))
     continue
    fi
 
    if (($(echo "${LON} < -180" | bc -l))) || (($(echo "${LON} > 180" | bc -l))); then
-    __logw "WARNING: Longitude out of range in line ${LINE_NUMBER}: ${LON}"
-    ((INVALID_COORDINATES++))
-    ((INVALID_LINES++))
+    __logw "WARNING: Longitude out of range in line ${line_number}: ${LON}"
+    ((invalid_coordinates++))
+    ((invalid_lines++))
     continue
    fi
 
    # Validate timestamp format
    if [[ ! "${CREATED_AT}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
-    __logw "WARNING: Invalid created_at format '${CREATED_AT}' in line ${LINE_NUMBER}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Invalid created_at format '${CREATED_AT}' in line ${line_number}"
+    ((invalid_lines++))
     continue
    fi
 
    # Validate status (can be empty for open notes)
    if [[ -n "${STATUS}" ]] && [[ ! "${STATUS}" =~ ^(open|close|hidden)$ ]]; then
-    __logw "WARNING: Invalid status '${STATUS}' in line ${LINE_NUMBER}"
-    ((INVALID_LINES++))
+    __logw "WARNING: Invalid status '${STATUS}' in line ${line_number}"
+    ((invalid_lines++))
     continue
    fi
 
@@ -462,12 +460,12 @@ function __validate_osm_comments_realistic() {
 
   # Report validation results
   __logi "Note validation completed:"
-  __logi "  Total lines: ${TOTAL_LINES}"
-  __logi "  Invalid coordinates: ${INVALID_COORDINATES}"
-  __logi "  Invalid lines: ${INVALID_LINES}"
+  __logi "  Total lines: ${total_lines}"
+  __logi "  Invalid coordinates: ${invalid_coordinates}"
+  __logi "  Invalid lines: ${invalid_lines}"
 
-  if [[ "${INVALID_LINES}" -gt 0 ]]; then
-   __loge "ERROR: Found ${INVALID_LINES} invalid lines in ${CSV_FILE}"
+  if [[ "${invalid_lines}" -gt 0 ]]; then
+   __loge "ERROR: Found ${invalid_lines} invalid lines in ${CSV_FILE}"
    __log_finish
    return 1
   fi
