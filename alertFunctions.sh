@@ -21,7 +21,7 @@
 # Environment variables:
 #   GENERATE_FAILED_FILE: Set to "true" to enable (default)
 #   SEND_ALERT_EMAIL: Set to "true" to send email alerts (default: true)
-#   ADMIN_EMAIL: Email address for alerts (default: root@localhost)
+#   ADMIN_EMAIL: Email address for alerts (default: notes@osm.lat)
 #   ONLY_EXECUTION: Must be "yes" for alerts to be sent
 #   TMP_DIR: Temporary directory for this execution
 #   VERSION: Script version
@@ -98,7 +98,7 @@ function __common_send_failure_email() {
  local FAILED_FILE_PARAM="${5}"
  local TIMESTAMP="${6}"
  local HOSTNAME_VAR="${7}"
- local EMAIL_TO="${ADMIN_EMAIL:-root@localhost}"
+ local EMAIL_TO="${ADMIN_EMAIL:-notes@osm.lat}"
 
  # Use parameter value, fallback to readonly variable if not provided
  local FILE_PATH="${FAILED_FILE_PARAM:-${FAILED_EXECUTION_FILE:-/tmp/unknown_failed_execution}}"
