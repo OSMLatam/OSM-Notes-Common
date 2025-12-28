@@ -641,9 +641,13 @@ function __validate_iso8601_date() {
  local YEAR MONTH DAY HOUR MINUTE SECOND
  # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  YEAR=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f1 || echo "")
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  MONTH=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f2 || echo "")
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  DAY=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f3 || echo "")
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  HOUR=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f1 || echo "")
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  MINUTE=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f2 || echo "")
  # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
  SECOND=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f3 | cut -d'Z' -f1 | cut -d'+' -f1 | cut -d'-' -f1 || echo "")
@@ -1317,6 +1321,7 @@ function __validate_coordinates() {
 
  # Check latitude range (-90 to 90)
  if [[ "${LATITUDE}" =~ ^-?[0-9]+\.?[0-9]*$ ]]; then
+  # shellcheck disable=SC2312  # bc failures are handled by || echo "0", echo always succeeds
   if (($(echo "${LATITUDE} < -90" | bc -l 2> /dev/null || echo "0"))) || (($(echo "${LATITUDE} > 90" | bc -l 2> /dev/null || echo "0"))); then
    VALIDATION_ERRORS+=("Latitude '${LATITUDE}' is outside valid range (-90 to 90)")
   fi
@@ -1324,6 +1329,7 @@ function __validate_coordinates() {
 
  # Check longitude range (-180 to 180)
  if [[ "${LONGITUDE}" =~ ^-?[0-9]+\.?[0-9]*$ ]]; then
+  # shellcheck disable=SC2312  # bc failures are handled by || echo "0", echo always succeeds
   if (($(echo "${LONGITUDE} < -180" | bc -l 2> /dev/null || echo "0"))) || (($(echo "${LONGITUDE} > 180" | bc -l 2> /dev/null || echo "0"))); then
    VALIDATION_ERRORS+=("Longitude '${LONGITUDE}' is outside valid range (-180 to 180)")
   fi
