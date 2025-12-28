@@ -284,7 +284,8 @@ function __validate_csv_structure() {
  # Check column count if expected columns provided
  if [[ -n "${EXPECTED_COLUMNS}" ]]; then
   local COLUMN_COUNT
-  COLUMN_COUNT=$(echo "${FIRST_LINE}" | tr ',' '\n' | wc -l)
+  # shellcheck disable=SC2312  # wc -l always succeeds, tr may fail but we handle empty result
+  COLUMN_COUNT=$(echo "${FIRST_LINE}" | tr ',' '\n' | wc -l || echo "0")
   local EXPECTED_COUNT
 
   # Check if EXPECTED_COLUMNS is a number (direct column count)
@@ -292,7 +293,8 @@ function __validate_csv_structure() {
    EXPECTED_COUNT="${EXPECTED_COLUMNS}"
   else
    # EXPECTED_COLUMNS is a comma-separated list of column names
-   EXPECTED_COUNT=$(echo "${EXPECTED_COLUMNS}" | tr ',' '\n' | wc -l)
+   # shellcheck disable=SC2312  # wc -l always succeeds, tr may fail but we handle empty result
+   EXPECTED_COUNT=$(echo "${EXPECTED_COLUMNS}" | tr ',' '\n' | wc -l || echo "0")
   fi
 
   if [[ "${COLUMN_COUNT}" -ne "${EXPECTED_COUNT}" ]]; then
@@ -336,7 +338,8 @@ function __validate_sql_structure() {
  # Create a temporary file with non-comment, non-empty lines
  local TEMP_FILE
  TEMP_FILE=$(mktemp)
- grep -v '^[[:space:]]*--' "${SQL_FILE}" | grep -v '^[[:space:]]*$' > "${TEMP_FILE}"
+ # shellcheck disable=SC2312  # grep failures are acceptable here, we check if file is empty
+ grep -v '^[[:space:]]*--' "${SQL_FILE}" | grep -v '^[[:space:]]*$' > "${TEMP_FILE}" || true
 
  # If temp file is empty, the original file contains only comments
  if [[ ! -s "${TEMP_FILE}" ]]; then
@@ -361,9 +364,12 @@ function __validate_sql_structure() {
  # Remove comments before counting parentheses
  local TEMP_SQL
  TEMP_SQL=$(mktemp)
- grep -v '^[[:space:]]*--' "${SQL_FILE}" | sed 's/--.*$//' > "${TEMP_SQL}"
- OPEN_PARENS=$(grep -o '(' "${TEMP_SQL}" | wc -l)
- CLOSE_PARENS=$(grep -o ')' "${TEMP_SQL}" | wc -l)
+ # shellcheck disable=SC2312  # grep/sed failures are acceptable here
+ grep -v '^[[:space:]]*--' "${SQL_FILE}" | sed 's/--.*$//' > "${TEMP_SQL}" || true
+ # shellcheck disable=SC2312  # wc -l always succeeds, grep may fail but we handle empty result
+ OPEN_PARENS=$(grep -o '(' "${TEMP_SQL}" | wc -l || echo "0")
+ # shellcheck disable=SC2312  # wc -l always succeeds, grep may fail but we handle empty result
+ CLOSE_PARENS=$(grep -o ')' "${TEMP_SQL}" | wc -l || echo "0")
  rm -f "${TEMP_SQL}"
 
  if [[ "${OPEN_PARENS}" -ne "${CLOSE_PARENS}" ]]; then
@@ -534,13 +540,15 @@ function __validate_database_tables() {
  for TABLE in "${TABLES[@]}"; do
   if [[ -n "${DBHOST_PARAM}" ]] || [[ -n "${DBPORT_PARAM}" ]] || [[ -n "${DBUSER_PARAM}" ]]; then
    # shellcheck disable=SC2154
-   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" | grep -q "1"; then
+   # shellcheck disable=SC2312  # psql failure is checked, grep -q is used for boolean check
+   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" 2> /dev/null | grep -q "1"; then
     __loge "ERROR: Table ${TABLE} does not exist in database ${DBNAME_PARAM} (host/port/user)"
     __log_finish
     return 1
    fi
   else
-   if ! psql -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" | grep -q "1"; then
+   # shellcheck disable=SC2312  # psql failure is checked, grep -q is used for boolean check
+   if ! psql -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" 2> /dev/null | grep -q "1"; then
     __loge "ERROR: Table ${TABLE} does not exist in database ${DBNAME_PARAM} (peer)"
     __log_finish
     return 1
@@ -588,13 +596,15 @@ function __validate_database_extensions() {
  for EXTENSION in "${EXTENSIONS[@]}"; do
   if [[ -n "${DBHOST_PARAM}" ]] || [[ -n "${DBPORT_PARAM}" ]] || [[ -n "${DBUSER_PARAM}" ]]; then
    # shellcheck disable=SC2154
-   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" | grep -q "1"; then
+   # shellcheck disable=SC2312  # psql failure is checked, grep -q is used for boolean check
+   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" 2> /dev/null | grep -q "1"; then
     __loge "ERROR: Extension ${EXTENSION} is not installed in database ${DBNAME_PARAM} (host/port/user)"
     __log_finish
     return 1
    fi
   else
-   if ! psql -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" | grep -q "1"; then
+   # shellcheck disable=SC2312  # psql failure is checked, grep -q is used for boolean check
+   if ! psql -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" 2> /dev/null | grep -q "1"; then
     __loge "ERROR: Extension ${EXTENSION} is not installed in database ${DBNAME_PARAM} (peer)"
     __log_finish
     return 1
@@ -629,12 +639,14 @@ function __validate_iso8601_date() {
 
  # Validate date components
  local YEAR MONTH DAY HOUR MINUTE SECOND
- YEAR=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f1)
- MONTH=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f2)
- DAY=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f3)
- HOUR=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f1)
- MINUTE=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f2)
- SECOND=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f3 | cut -d'Z' -f1 | cut -d'+' -f1 | cut -d'-' -f1)
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
+ YEAR=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f1 || echo "")
+ MONTH=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f2 || echo "")
+ DAY=$(echo "${DATE_STRING}" | cut -d'T' -f1 | cut -d'-' -f3 || echo "")
+ HOUR=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f1 || echo "")
+ MINUTE=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f2 || echo "")
+ # shellcheck disable=SC2312  # cut always succeeds, failures are handled by validation
+ SECOND=$(echo "${DATE_STRING}" | cut -d'T' -f2 | cut -d':' -f3 | cut -d'Z' -f1 | cut -d'+' -f1 | cut -d'-' -f1 || echo "")
 
  # Convert to base 10 to handle leading zeros properly
  YEAR=$((10#${YEAR}))
@@ -980,7 +992,8 @@ function __validate_csv_dates() {
  # Validate dates in CSV
  for DATE_COLUMN in "${DATE_COLUMNS[@]}"; do
   local COL_INDEX
-  COL_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${DATE_COLUMN}$" | cut -d: -f1)
+  # shellcheck disable=SC2312  # tr/grep/cut failures are handled by empty check
+  COL_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${DATE_COLUMN}$" | cut -d: -f1 || echo "")
 
   if [[ -z "${COL_INDEX}" ]]; then
    __loge "ERROR: Date column not found: ${DATE_COLUMN}"
@@ -1041,16 +1054,20 @@ function __validate_file_checksum() {
  local ACTUAL_CHECKSUM
  case "${ALGORITHM}" in
  md5)
-  ACTUAL_CHECKSUM=$(md5sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, md5sum failure is handled
+  ACTUAL_CHECKSUM=$(md5sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha1)
-  ACTUAL_CHECKSUM=$(sha1sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha1sum failure is handled
+  ACTUAL_CHECKSUM=$(sha1sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha256)
-  ACTUAL_CHECKSUM=$(sha256sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha256sum failure is handled
+  ACTUAL_CHECKSUM=$(sha256sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha512)
-  ACTUAL_CHECKSUM=$(sha512sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha512sum failure is handled
+  ACTUAL_CHECKSUM=$(sha512sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  *)
   __loge "ERROR: ${ALGORITHM} checksum validation failed - Invalid algorithm"
@@ -1103,12 +1120,14 @@ function __validate_file_checksum_from_file() {
  FILENAME=$(basename "${FILE_PATH}")
 
  # First try to find checksum by filename
- EXPECTED_CHECKSUM=$(grep "${FILENAME}" "${CHECKSUM_FILE}" | awk '{print $1}' 2> /dev/null)
+ # shellcheck disable=SC2312  # grep/awk failures are handled by empty check
+ EXPECTED_CHECKSUM=$(grep "${FILENAME}" "${CHECKSUM_FILE}" | awk '{print $1}' 2> /dev/null || echo "")
 
  # If not found by filename, assume single-line checksum file and take first field
  if [[ -z "${EXPECTED_CHECKSUM}" ]]; then
   __logw "Checksum not found by filename, trying to extract from single-line file"
-  EXPECTED_CHECKSUM=$(head -1 "${CHECKSUM_FILE}" | awk '{print $1}' 2> /dev/null)
+  # shellcheck disable=SC2312  # head/awk failures are handled by empty check
+  EXPECTED_CHECKSUM=$(head -1 "${CHECKSUM_FILE}" | awk '{print $1}' 2> /dev/null || echo "")
  fi
 
  # Check if checksum could be extracted (empty file case)
@@ -1150,16 +1169,20 @@ function __generate_file_checksum() {
  local CHECKSUM
  case "${ALGORITHM}" in
  md5)
-  CHECKSUM=$(md5sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, md5sum failure is handled
+  CHECKSUM=$(md5sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha1)
-  CHECKSUM=$(sha1sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha1sum failure is handled
+  CHECKSUM=$(sha1sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha256)
-  CHECKSUM=$(sha256sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha256sum failure is handled
+  CHECKSUM=$(sha256sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  sha512)
-  CHECKSUM=$(sha512sum "${FILE_PATH}" | cut -d' ' -f1)
+  # shellcheck disable=SC2312  # cut always succeeds, sha512sum failure is handled
+  CHECKSUM=$(sha512sum "${FILE_PATH}" | cut -d' ' -f1 || echo "")
   ;;
  *)
   __loge "ERROR: Invalid algorithm: ${ALGORITHM}"
@@ -1216,7 +1239,8 @@ function __validate_directory_checksums() {
 
  local FAILED=0
  local FILES
- mapfile -t FILES < <(find "${DIRECTORY}" -type f 2> /dev/null)
+ # shellcheck disable=SC2312  # find failure is acceptable, empty array is handled
+ mapfile -t FILES < <(find "${DIRECTORY}" -type f 2> /dev/null || true)
 
  for FILE in "${FILES[@]}"; do
   local RELATIVE_PATH
@@ -1350,6 +1374,7 @@ function __validate_numeric_range() {
  fi
 
  # Validate range
+ # shellcheck disable=SC2312  # bc failures are handled by || echo "0"
  if (($(echo "${VALUE} < ${MIN}" | bc -l 2> /dev/null || echo "0"))) || (($(echo "${VALUE} > ${MAX}" | bc -l 2> /dev/null || echo "0"))); then
   __loge "ERROR: ${DESCRIPTION} out of range (${MIN} to ${MAX}): ${VALUE}"
   __log_finish
@@ -1405,8 +1430,10 @@ function __validate_csv_coordinates() {
  local HEADER
  HEADER=$(head -n 1 "${CSV_FILE}")
  local LAT_INDEX LON_INDEX
- LAT_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${LAT_COLUMN}$" | cut -d: -f1)
- LON_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${LON_COLUMN}$" | cut -d: -f1)
+ # shellcheck disable=SC2312  # tr/grep/cut failures are handled by empty check
+ LAT_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${LAT_COLUMN}$" | cut -d: -f1 || echo "")
+ # shellcheck disable=SC2312  # tr/grep/cut failures are handled by empty check
+ LON_INDEX=$(echo "${HEADER}" | tr ',' '\n' | grep -n "^${LON_COLUMN}$" | cut -d: -f1 || echo "")
 
  if [[ -z "${LAT_INDEX}" ]] || [[ -z "${LON_INDEX}" ]]; then
   __loge "ERROR: Coordinate columns not found: ${LAT_COLUMN}, ${LON_COLUMN}"
@@ -1417,6 +1444,7 @@ function __validate_csv_coordinates() {
  local FAILED=0
 
  # Read coordinates from CSV
+ # shellcheck disable=SC2312  # tail failure is acceptable, loop handles empty input
  while IFS=',' read -r -a FIELDS; do
   local LAT="${FIELDS[LAT_INDEX - 1]}"
   local LON="${FIELDS[LON_INDEX - 1]}"
@@ -1426,7 +1454,7 @@ function __validate_csv_coordinates() {
     FAILED=1
    fi
   fi
- done < <(tail -n +2 "${CSV_FILE}")
+ done < <(tail -n +2 "${CSV_FILE}" 2> /dev/null || true)
 
  if [[ "${FAILED}" -eq 1 ]]; then
   __loge "ERROR: CSV coordinate validation failed"

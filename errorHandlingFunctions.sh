@@ -288,7 +288,8 @@ function __handle_error_with_cleanup() {
 
  # Generate failed execution file if enabled
  if [[ "${GENERATE_FAILED_FILE:-false}" == "true" ]] && [[ -n "${FAILED_EXECUTION_FILE:-}" ]]; then
-  echo "$(date): ${ERROR_MESSAGE}" >> "${FAILED_EXECUTION_FILE}"
+  # shellcheck disable=SC2312  # date failure is acceptable, we still want to log
+  echo "$(date || echo 'unknown date'): ${ERROR_MESSAGE}" >> "${FAILED_EXECUTION_FILE}"
  fi
 
  __log_finish
