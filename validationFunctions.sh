@@ -7,7 +7,7 @@
 # Version: 2025-12-07
 VERSION="2025-12-07"
 
-# shellcheck disable=SC2317,SC2155,SC2034
+# shellcheck disable=SC2317,SC2155,SC2034,SC2312
 
 # Note: This file expects to be sourced after commonFunctions.sh which provides logging functions
 # If sourced directly, ensure commonFunctions.sh is loaded first

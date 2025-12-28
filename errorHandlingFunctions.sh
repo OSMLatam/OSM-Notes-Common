@@ -7,7 +7,7 @@
 # Version: 2025-11-25
 VERSION="2025-11-25"
 
-# shellcheck disable=SC2317,SC2155
+# shellcheck disable=SC2317,SC2155,SC2312
 
 # Circuit breaker state
 declare -A CIRCUIT_BREAKER_STATE

@@ -6,6 +6,8 @@
 # Version: 2025-10-26
 # Description: Centralized validation functions for better maintainability
 
+# shellcheck disable=SC2312
+
 # Common help function for library files
 function __show_help_library() {
  local SCRIPT_NAME="${1:-Unknown Script}"
