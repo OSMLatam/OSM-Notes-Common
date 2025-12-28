@@ -213,6 +213,12 @@ function __dropGenericObjects {
   exit "${ERROR_MISSING_LIBRARY}"
  fi
 
+ # Validate that DBNAME is defined
+ if [[ -z "${DBNAME:-}" ]]; then
+  __loge "ERROR: DBNAME variable is not defined. This variable should be defined in the calling script"
+  exit "${ERROR_MISSING_LIBRARY}"
+ fi
+
  psql -d "${DBNAME}" -f "${POSTGRES_12_DROP_GENERIC_OBJECTS}"
  __log_finish
 }

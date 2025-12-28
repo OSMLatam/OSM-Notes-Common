@@ -160,7 +160,25 @@ function __database_operation_with_retry() {
   return 1
  fi
 
- local COMMAND="PGPASSWORD='${DB_PASSWORD}' psql -h '${DB_HOST}' -p '${DB_PORT}' -U '${DB_USER}' -d '${DBNAME}' -f '${SQL_FILE}'"
+ # Use default values if variables are not set (for peer authentication)
+ local DB_PASSWORD_PARAM="${DB_PASSWORD:-}"
+ local DB_HOST_PARAM="${DB_HOST:-localhost}"
+ local DB_PORT_PARAM="${DB_PORT:-5432}"
+ local DB_USER_PARAM="${DB_USER:-$(whoami)}"
+ local DBNAME_PARAM="${DBNAME:-}"
+
+ if [[ -z "${DBNAME_PARAM}" ]]; then
+  __loge "ERROR: DBNAME variable is not defined"
+  __log_finish
+  return 1
+ fi
+
+ local COMMAND
+ if [[ -n "${DB_PASSWORD_PARAM}" ]]; then
+  COMMAND="PGPASSWORD='${DB_PASSWORD_PARAM}' psql -h '${DB_HOST_PARAM}' -p '${DB_PORT_PARAM}' -U '${DB_USER_PARAM}' -d '${DBNAME_PARAM}' -f '${SQL_FILE}'"
+ else
+  COMMAND="psql -d '${DBNAME_PARAM}' -f '${SQL_FILE}'"
+ fi
  __circuit_breaker_execute "database_operation_${SQL_FILE}" "${COMMAND}" 3 "${TIMEOUT}" 300
  __log_finish
 }
@@ -269,7 +287,7 @@ function __handle_error_with_cleanup() {
  fi
 
  # Generate failed execution file if enabled
- if [[ "${GENERATE_FAILED_FILE}" == "true" ]]; then
+ if [[ "${GENERATE_FAILED_FILE:-false}" == "true" ]] && [[ -n "${FAILED_EXECUTION_FILE:-}" ]]; then
   echo "$(date): ${ERROR_MESSAGE}" >> "${FAILED_EXECUTION_FILE}"
  fi
 

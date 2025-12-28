@@ -479,7 +479,8 @@ function __validate_database_connection() {
  if [[ -n "${DBHOST_PARAM}" ]] || [[ -n "${DBPORT_PARAM}" ]] || [[ -n "${DBUSER_PARAM}" ]]; then
   __log_finish
   # Usar parámetros personalizados (por ejemplo, en Docker o CI/CD)
-  if ! PGPASSWORD="${DB_PASSWORD}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1;" > /dev/null 2>&1; then
+  # shellcheck disable=SC2154
+  if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1;" > /dev/null 2>&1; then
    __loge "ERROR: Database connection failed (host/port/user)"
    __log_finish
    return 1
@@ -532,7 +533,8 @@ function __validate_database_tables() {
 
  for TABLE in "${TABLES[@]}"; do
   if [[ -n "${DBHOST_PARAM}" ]] || [[ -n "${DBPORT_PARAM}" ]] || [[ -n "${DBUSER_PARAM}" ]]; then
-   if ! PGPASSWORD="${DB_PASSWORD}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" | grep -q "1"; then
+   # shellcheck disable=SC2154
+   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM information_schema.tables WHERE table_name = '${TABLE}';" | grep -q "1"; then
     __loge "ERROR: Table ${TABLE} does not exist in database ${DBNAME_PARAM} (host/port/user)"
     __log_finish
     return 1
@@ -585,7 +587,8 @@ function __validate_database_extensions() {
 
  for EXTENSION in "${EXTENSIONS[@]}"; do
   if [[ -n "${DBHOST_PARAM}" ]] || [[ -n "${DBPORT_PARAM}" ]] || [[ -n "${DBUSER_PARAM}" ]]; then
-   if ! PGPASSWORD="${DB_PASSWORD}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" | grep -q "1"; then
+   # shellcheck disable=SC2154
+   if ! PGPASSWORD="${DB_PASSWORD:-}" psql -h "${DBHOST_PARAM}" -p "${DBPORT_PARAM}" -U "${DBUSER_PARAM}" -d "${DBNAME_PARAM}" -c "SELECT 1 FROM pg_extension WHERE extname = '${EXTENSION}';" | grep -q "1"; then
     __loge "ERROR: Extension ${EXTENSION} is not installed in database ${DBNAME_PARAM} (host/port/user)"
     __log_finish
     return 1
