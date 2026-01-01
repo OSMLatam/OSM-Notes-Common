@@ -367,9 +367,9 @@ function __validate_sql_structure() {
  # shellcheck disable=SC2312  # grep/sed failures are acceptable here
  grep -v '^[[:space:]]*--' "${SQL_FILE}" | sed 's/--.*$//' > "${TEMP_SQL}" || true
  # shellcheck disable=SC2312  # wc -l always succeeds, grep may fail but we handle empty result
- OPEN_PARENS=$(grep -o '(' "${TEMP_SQL}" | wc -l || echo "0")
+ OPEN_PARENS=$(grep -o '(' "${TEMP_SQL}" | wc -l | tr -d ' \n' || echo "0")
  # shellcheck disable=SC2312  # wc -l always succeeds, grep may fail but we handle empty result
- CLOSE_PARENS=$(grep -o ')' "${TEMP_SQL}" | wc -l || echo "0")
+ CLOSE_PARENS=$(grep -o ')' "${TEMP_SQL}" | wc -l | tr -d ' \n' || echo "0")
  rm -f "${TEMP_SQL}"
 
  if [[ "${OPEN_PARENS}" -ne "${CLOSE_PARENS}" ]]; then
