@@ -86,7 +86,10 @@
       "description": "Activity string representing last year activity (371 characters, scores 0-9)"
     },
     "lastest_open_note_id": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of latest note opened"
     },
     "lastest_commented_note_id": {

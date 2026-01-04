@@ -4,12 +4,16 @@
   "description": "Metadata about the data export including export date and counts",
   "type": "object",
   "additionalProperties": true,
-  "required": ["export_date", "total_users", "total_countries"],
+  "required": [
+    "export_date",
+    "total_users",
+    "total_countries"
+  ],
   "properties": {
     "export_date": {
       "type": "string",
-      "format": "date-time",
-      "description": "ISO 8601 timestamp when the export was generated"
+      "description": "ISO 8601 timestamp when the export was generated",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\+\\d{2}:\\d{2}|Z)?$"
     },
     "total_users": {
       "type": "integer",
@@ -28,4 +32,3 @@
     }
   }
 }
-
