@@ -4,7 +4,12 @@
   "description": "Complete user profile with statistics and activity data",
   "type": "object",
   "additionalProperties": true,
-  "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
+  "required": [
+    "user_id",
+    "username",
+    "history_whole_open",
+    "history_whole_closed"
+  ],
   "properties": {
     "dimension_user_id": {
       "type": "integer",
@@ -21,29 +26,47 @@
       "description": "OSM username"
     },
     "date_starting_creating_notes": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "Date when user started creating notes (YYYY-MM-DD format)"
     },
     "date_starting_solving_notes": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "Date when user started solving notes (YYYY-MM-DD format)"
     },
     "first_open_note_id": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of first note opened"
     },
     "first_commented_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of first note commented on"
     },
     "first_closed_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of first note closed"
     },
     "first_reopened_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of first note reopened"
     },
     "id_contributor_type": {
@@ -51,36 +74,54 @@
       "description": "Contributor type ID"
     },
     "contributor_type_name": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Contributor type name (human-readable)"
     },
     "last_year_activity": {
       "type": "string",
-      "pattern": "^[01]+$",
-      "description": "Binary string representing last year activity (365 bits)"
+      "pattern": "^[0-9]+$",
+      "description": "Activity string representing last year activity (371 characters, scores 0-9)"
     },
     "lastest_open_note_id": {
       "type": "integer",
       "description": "ID of latest note opened"
     },
     "lastest_commented_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of latest note commented on"
     },
     "lastest_closed_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of latest note closed"
     },
     "lastest_reopened_note_id": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "description": "ID of latest note reopened"
     },
     "dates_most_open": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Array of dates with most notes opened",
       "items": {
         "type": "object",
-        "required": ["date", "quantity"],
+        "required": [
+          "date",
+          "quantity"
+        ],
         "properties": {
           "date": {
             "type": "string",
@@ -94,11 +135,17 @@
       }
     },
     "dates_most_closed": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Array of dates with most notes closed",
       "items": {
         "type": "object",
-        "required": ["date", "quantity"],
+        "required": [
+          "date",
+          "quantity"
+        ],
         "properties": {
           "date": {
             "type": "string",
@@ -112,15 +159,25 @@
       }
     },
     "hashtags": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Array of hashtags used"
     },
     "countries_open_notes": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Countries where user opened notes",
       "items": {
         "type": "object",
-        "required": ["rank", "country", "quantity"],
+        "required": [
+          "rank",
+          "country",
+          "quantity"
+        ],
         "properties": {
           "rank": {
             "type": "integer",
@@ -137,11 +194,18 @@
       }
     },
     "countries_solving_notes": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Countries where user solved notes",
       "items": {
         "type": "object",
-        "required": ["rank", "country", "quantity"],
+        "required": [
+          "rank",
+          "country",
+          "quantity"
+        ],
         "properties": {
           "rank": {
             "type": "integer",
@@ -158,29 +222,48 @@
       }
     },
     "countries_open_notes_current_month": {
-      "type": ["array", "null"]
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "countries_solving_notes_current_month": {
-      "type": ["array", "null"]
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "countries_open_notes_current_day": {
-      "type": ["array", "null"]
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "countries_solving_notes_current_day": {
-      "type": ["array", "null"]
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "working_hours_of_week_opening": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Working hours pattern for opening notes",
       "items": {
         "type": "object",
-        "required": ["day_of_week", "hour_of_day", "count"],
+        "required": [
+          "day_of_week",
+          "hour_of_day",
+          "count"
+        ],
         "properties": {
           "day_of_week": {
             "type": "integer",
-            "minimum": 0,
-            "maximum": 6,
-            "description": "0=Sunday, 6=Saturday"
+            "minimum": 1,
+            "maximum": 7,
+            "description": "1=Monday, 7=Sunday (ISO format)"
           },
           "hour_of_day": {
             "type": "integer",
@@ -195,16 +278,23 @@
       }
     },
     "working_hours_of_week_commenting": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Working hours pattern for commenting",
       "items": {
         "type": "object",
-        "required": ["day_of_week", "hour_of_day", "count"],
+        "required": [
+          "day_of_week",
+          "hour_of_day",
+          "count"
+        ],
         "properties": {
           "day_of_week": {
             "type": "integer",
-            "minimum": 0,
-            "maximum": 6
+            "minimum": 1,
+            "maximum": 7
           },
           "hour_of_day": {
             "type": "integer",
@@ -219,16 +309,23 @@
       }
     },
     "working_hours_of_week_closing": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Working hours pattern for closing notes",
       "items": {
         "type": "object",
-        "required": ["day_of_week", "hour_of_day", "count"],
+        "required": [
+          "day_of_week",
+          "hour_of_day",
+          "count"
+        ],
         "properties": {
           "day_of_week": {
             "type": "integer",
-            "minimum": 0,
-            "maximum": 6
+            "minimum": 1,
+            "maximum": 7
           },
           "hour_of_day": {
             "type": "integer",
@@ -258,7 +355,10 @@
       "description": "Total notes closed (all time)"
     },
     "history_whole_closed_with_comment": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0
     },
     "history_whole_reopened": {
@@ -652,109 +752,186 @@
       "description": "Notes reopened in 2025"
     },
     "ranking_countries_opening_2013": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2013"
     },
     "ranking_countries_closing_2013": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2013"
     },
     "ranking_countries_opening_2014": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2014"
     },
     "ranking_countries_closing_2014": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2014"
     },
     "ranking_countries_opening_2015": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2015"
     },
     "ranking_countries_closing_2015": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2015"
     },
     "ranking_countries_opening_2016": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2016"
     },
     "ranking_countries_closing_2016": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2016"
     },
     "ranking_countries_opening_2017": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2017"
     },
     "ranking_countries_closing_2017": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2017"
     },
     "ranking_countries_opening_2018": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2018"
     },
     "ranking_countries_closing_2018": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2018"
     },
     "ranking_countries_opening_2019": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2019"
     },
     "ranking_countries_closing_2019": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2019"
     },
     "ranking_countries_opening_2020": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2020"
     },
     "ranking_countries_closing_2020": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2020"
     },
     "ranking_countries_opening_2021": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2021"
     },
     "ranking_countries_closing_2021": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2021"
     },
     "ranking_countries_opening_2022": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2022"
     },
     "ranking_countries_closing_2022": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2022"
     },
     "ranking_countries_opening_2023": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2023"
     },
     "ranking_countries_closing_2023": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2023"
     },
     "ranking_countries_opening_2024": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2024"
     },
     "ranking_countries_closing_2024": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2024"
     },
     "ranking_countries_opening_2025": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes opened in 2025"
     },
     "ranking_countries_closing_2025": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "description": "Ranking of countries by notes closed in 2025"
     }
   }
 }
-
