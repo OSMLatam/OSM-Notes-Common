@@ -22,13 +22,13 @@
     },
     "date_starting_creating_notes": {
       "type": ["string", "null"],
-      "format": "date",
-      "description": "Date when user started creating notes"
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Date when user started creating notes (YYYY-MM-DD format)"
     },
     "date_starting_solving_notes": {
       "type": ["string", "null"],
-      "format": "date",
-      "description": "Date when user started solving notes"
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Date when user started solving notes (YYYY-MM-DD format)"
     },
     "first_open_note_id": {
       "type": "integer",
@@ -84,7 +84,7 @@
         "properties": {
           "date": {
             "type": "string",
-            "format": "date"
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
           },
           "quantity": {
             "type": "integer",
@@ -102,7 +102,7 @@
         "properties": {
           "date": {
             "type": "string",
-            "format": "date"
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
           },
           "quantity": {
             "type": "integer",
