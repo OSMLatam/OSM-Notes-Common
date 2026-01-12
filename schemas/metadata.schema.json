@@ -27,8 +27,26 @@
     },
     "version": {
       "type": "string",
+      "description": "Export version identifier (semantic version or date format)",
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d+\\.\\d+\\.\\d+)$"
+    },
+    "schema_version": {
+      "type": "string",
       "description": "Schema version identifier",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2}|\\d+\\.\\d+\\.\\d+)$"
+    },
+    "export_timestamp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp when the export was generated"
+    },
+    "api_compat_min": {
+      "type": "string",
+      "description": "Minimum API version required for compatibility"
+    },
+    "data_schema_hash": {
+      "type": "string",
+      "description": "SHA256 hash of the datamart schema for change detection"
     }
   }
 }

@@ -1,48 +1,101 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "User Index Entry",
-  "description": "Individual user entry in the users index file",
-  "type": "object",
-  "additionalProperties": true,
-  "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
-  "properties": {
-    "user_id": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "OSM user ID"
-    },
-    "username": {
-      "type": "string",
-      "minLength": 1,
-      "description": "OSM username"
-    },
-    "id_contributor_type": {
-      "type": ["integer", "null"],
-      "description": "Contributor type ID"
-    },
-    "contributor_type_name": {
-      "type": ["string", "null"],
-      "description": "Contributor type name (human-readable)"
-    },
-    "history_whole_open": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Total notes opened by user (all time)"
-    },
-    "history_whole_closed": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Total notes closed by user (all time)"
-    },
-    "history_year_open": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Notes opened in current year"
-    },
-    "history_year_closed": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Notes closed in current year"
+  "title": "User Index",
+  "description": "Array of user entries in the users index file",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
+    "properties": {
+      "user_id": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "OSM user ID"
+      },
+      "username": {
+        "type": "string",
+        "minLength": 1,
+        "description": "OSM username"
+      },
+      "id_contributor_type": {
+        "type": ["integer", "null"],
+        "description": "Contributor type ID"
+      },
+      "contributor_type_name": {
+        "type": ["string", "null"],
+        "description": "Contributor type name (human-readable)"
+      },
+      "date_starting_creating_notes": {
+        "type": ["string", "null"],
+        "description": "Date when user started creating notes"
+      },
+      "history_whole_open": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes opened by user (all time)"
+      },
+      "history_whole_closed": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes closed by user (all time)"
+      },
+      "history_whole_commented": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes commented by user (all time)"
+      },
+      "history_year_open": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes opened in current year"
+      },
+      "history_year_closed": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes closed in current year"
+      },
+      "history_year_commented": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes commented in current year"
+      },
+      "avg_days_to_resolution": {
+        "type": ["number", "null"],
+        "description": "Average days to resolve notes"
+      },
+      "resolution_rate": {
+        "type": ["number", "null"],
+        "description": "Resolution rate (0-1)"
+      },
+      "notes_resolved_count": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Number of notes resolved"
+      },
+      "notes_still_open_count": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Number of notes still open"
+      },
+      "user_response_time": {
+        "type": ["number", "null"],
+        "description": "Average user response time in hours"
+      },
+      "days_since_last_action": {
+        "type": ["integer", "null"],
+        "description": "Days since last action"
+      },
+      "notes_created_last_30_days": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes created in last 30 days"
+      },
+      "notes_resolved_last_30_days": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes resolved in last 30 days"
+      }
     }
   }
 }

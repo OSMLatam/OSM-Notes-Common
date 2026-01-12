@@ -1,48 +1,101 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Country Index Entry",
-  "description": "Individual country entry in the countries index file",
-  "type": "object",
-  "additionalProperties": true,
-  "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
-  "properties": {
-    "country_id": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "OSM relation ID for the country"
-    },
-    "country_name": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Country name in local language"
-    },
-    "country_name_es": {
-      "type": "string",
-      "description": "Country name in Spanish"
-    },
-    "country_name_en": {
-      "type": "string",
-      "description": "Country name in English"
-    },
-    "history_whole_open": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Total notes opened in country (all time)"
-    },
-    "history_whole_closed": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Total notes closed in country (all time)"
-    },
-    "history_year_open": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Notes opened in current year"
-    },
-    "history_year_closed": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Notes closed in current year"
+  "title": "Country Index",
+  "description": "Array of country entries in the countries index file",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
+    "properties": {
+      "country_id": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "OSM relation ID for the country"
+      },
+      "country_name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Country name in local language"
+      },
+      "country_name_es": {
+        "type": ["string", "null"],
+        "description": "Country name in Spanish"
+      },
+      "country_name_en": {
+        "type": ["string", "null"],
+        "description": "Country name in English"
+      },
+      "date_starting_creating_notes": {
+        "type": ["string", "null"],
+        "description": "Date when first note was created in country"
+      },
+      "history_whole_open": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes opened in country (all time)"
+      },
+      "history_whole_closed": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes closed in country (all time)"
+      },
+      "history_whole_commented": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Total notes commented in country (all time)"
+      },
+      "history_year_open": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes opened in current year"
+      },
+      "history_year_closed": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes closed in current year"
+      },
+      "history_year_commented": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes commented in current year"
+      },
+      "avg_days_to_resolution": {
+        "type": ["number", "null"],
+        "description": "Average days to resolve notes"
+      },
+      "resolution_rate": {
+        "type": ["number", "null"],
+        "description": "Resolution rate (0-1)"
+      },
+      "notes_resolved_count": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Number of notes resolved"
+      },
+      "notes_still_open_count": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Number of notes still open"
+      },
+      "notes_health_score": {
+        "type": ["number", "null"],
+        "description": "Notes health score"
+      },
+      "new_vs_resolved_ratio": {
+        "type": ["number", "null"],
+        "description": "Ratio of new vs resolved notes"
+      },
+      "notes_created_last_30_days": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes created in last 30 days"
+      },
+      "notes_resolved_last_30_days": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Notes resolved in last 30 days"
+      }
     }
   }
 }
