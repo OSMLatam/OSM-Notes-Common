@@ -4,56 +4,56 @@
   "description": "Array of country entries in the countries index file",
   "type": "array",
   "items": {
-    "type": "object",
-    "additionalProperties": true,
-    "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
-    "properties": {
-      "country_id": {
-        "type": "integer",
-        "minimum": 1,
-        "description": "OSM relation ID for the country"
-      },
-      "country_name": {
-        "type": "string",
-        "minLength": 1,
-        "description": "Country name in local language"
-      },
-      "country_name_es": {
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
+  "properties": {
+    "country_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "OSM relation ID for the country"
+    },
+    "country_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Country name in local language"
+    },
+    "country_name_es": {
         "type": ["string", "null"],
-        "description": "Country name in Spanish"
-      },
-      "country_name_en": {
+      "description": "Country name in Spanish"
+    },
+    "country_name_en": {
         "type": ["string", "null"],
-        "description": "Country name in English"
-      },
+      "description": "Country name in English"
+    },
       "date_starting_creating_notes": {
         "type": ["string", "null"],
         "description": "Date when first note was created in country"
       },
-      "history_whole_open": {
+    "history_whole_open": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Total notes opened in country (all time)"
-      },
-      "history_whole_closed": {
+      "minimum": 0,
+      "description": "Total notes opened in country (all time)"
+    },
+    "history_whole_closed": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Total notes closed in country (all time)"
-      },
+      "minimum": 0,
+      "description": "Total notes closed in country (all time)"
+    },
       "history_whole_commented": {
         "type": ["integer", "null"],
         "minimum": 0,
         "description": "Total notes commented in country (all time)"
       },
-      "history_year_open": {
+    "history_year_open": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Notes opened in current year"
-      },
-      "history_year_closed": {
+      "minimum": 0,
+      "description": "Notes opened in current year"
+    },
+    "history_year_closed": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Notes closed in current year"
+      "minimum": 0,
+      "description": "Notes closed in current year"
       },
       "history_year_commented": {
         "type": ["integer", "null"],

@@ -4,56 +4,56 @@
   "description": "Array of user entries in the users index file",
   "type": "array",
   "items": {
-    "type": "object",
-    "additionalProperties": true,
-    "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
-    "properties": {
-      "user_id": {
-        "type": "integer",
-        "minimum": 1,
-        "description": "OSM user ID"
-      },
-      "username": {
-        "type": "string",
-        "minLength": 1,
-        "description": "OSM username"
-      },
-      "id_contributor_type": {
-        "type": ["integer", "null"],
-        "description": "Contributor type ID"
-      },
-      "contributor_type_name": {
-        "type": ["string", "null"],
-        "description": "Contributor type name (human-readable)"
-      },
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
+  "properties": {
+    "user_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "OSM user ID"
+    },
+    "username": {
+      "type": "string",
+      "minLength": 1,
+      "description": "OSM username"
+    },
+    "id_contributor_type": {
+      "type": ["integer", "null"],
+      "description": "Contributor type ID"
+    },
+    "contributor_type_name": {
+      "type": ["string", "null"],
+      "description": "Contributor type name (human-readable)"
+    },
       "date_starting_creating_notes": {
         "type": ["string", "null"],
         "description": "Date when user started creating notes"
       },
-      "history_whole_open": {
+    "history_whole_open": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Total notes opened by user (all time)"
-      },
-      "history_whole_closed": {
+      "minimum": 0,
+      "description": "Total notes opened by user (all time)"
+    },
+    "history_whole_closed": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Total notes closed by user (all time)"
-      },
+      "minimum": 0,
+      "description": "Total notes closed by user (all time)"
+    },
       "history_whole_commented": {
         "type": ["integer", "null"],
         "minimum": 0,
         "description": "Total notes commented by user (all time)"
       },
-      "history_year_open": {
+    "history_year_open": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Notes opened in current year"
-      },
-      "history_year_closed": {
+      "minimum": 0,
+      "description": "Notes opened in current year"
+    },
+    "history_year_closed": {
         "type": ["integer", "null"],
-        "minimum": 0,
-        "description": "Notes closed in current year"
+      "minimum": 0,
+      "description": "Notes closed in current year"
       },
       "history_year_commented": {
         "type": ["integer", "null"],
