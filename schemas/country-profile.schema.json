@@ -17,8 +17,7 @@
     },
     "country_id": {
       "type": "integer",
-      "minimum": 1,
-      "description": "OSM relation ID for the country"
+      "description": "OSM relation ID for the country (can be -1 for International waters)"
     },
     "country_name": {
       "type": "string",
@@ -423,77 +422,77 @@
       "minimum": 0
     },
     "history_2013_open": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes opened in 2013"
     },
     "history_2013_commented": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes commented in 2013"
     },
     "history_2013_closed": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed in 2013"
     },
     "history_2013_closed_with_comment": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed with comment in 2013"
     },
     "history_2013_reopened": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes reopened in 2013"
     },
     "history_2014_open": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes opened in 2014"
     },
     "history_2014_commented": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes commented in 2014"
     },
     "history_2014_closed": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed in 2014"
     },
     "history_2014_closed_with_comment": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed with comment in 2014"
     },
     "history_2014_reopened": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes reopened in 2014"
     },
     "history_2015_open": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes opened in 2015"
     },
     "history_2015_commented": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes commented in 2015"
     },
     "history_2015_closed": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed in 2015"
     },
     "history_2015_closed_with_comment": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes closed with comment in 2015"
     },
     "history_2015_reopened": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
       "description": "Notes reopened in 2015"
     },
