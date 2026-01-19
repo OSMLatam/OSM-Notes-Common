@@ -422,327 +422,522 @@
       "minimum": 0
     },
     "history_2013_open": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2013"
     },
     "history_2013_commented": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2013"
     },
     "history_2013_closed": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2013"
     },
     "history_2013_closed_with_comment": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2013"
     },
     "history_2013_reopened": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2013"
     },
     "history_2014_open": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2014"
     },
     "history_2014_commented": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2014"
     },
     "history_2014_closed": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2014"
     },
     "history_2014_closed_with_comment": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2014"
     },
     "history_2014_reopened": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2014"
     },
     "history_2015_open": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2015"
     },
     "history_2015_commented": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2015"
     },
     "history_2015_closed": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2015"
     },
     "history_2015_closed_with_comment": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2015"
     },
     "history_2015_reopened": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2015"
     },
     "history_2016_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2016"
     },
     "history_2016_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2016"
     },
     "history_2016_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2016"
     },
     "history_2016_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2016"
     },
     "history_2016_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2016"
     },
     "history_2017_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2017"
     },
     "history_2017_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2017"
     },
     "history_2017_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2017"
     },
     "history_2017_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2017"
     },
     "history_2017_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2017"
     },
     "history_2018_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2018"
     },
     "history_2018_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2018"
     },
     "history_2018_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2018"
     },
     "history_2018_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2018"
     },
     "history_2018_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2018"
     },
     "history_2019_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2019"
     },
     "history_2019_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2019"
     },
     "history_2019_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2019"
     },
     "history_2019_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2019"
     },
     "history_2019_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2019"
     },
     "history_2020_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2020"
     },
     "history_2020_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2020"
     },
     "history_2020_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2020"
     },
     "history_2020_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2020"
     },
     "history_2020_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2020"
     },
     "history_2021_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2021"
     },
     "history_2021_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2021"
     },
     "history_2021_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2021"
     },
     "history_2021_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2021"
     },
     "history_2021_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2021"
     },
     "history_2022_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2022"
     },
     "history_2022_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2022"
     },
     "history_2022_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2022"
     },
     "history_2022_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2022"
     },
     "history_2022_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2022"
     },
     "history_2023_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2023"
     },
     "history_2023_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2023"
     },
     "history_2023_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2023"
     },
     "history_2023_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2023"
     },
     "history_2023_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2023"
     },
     "history_2024_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2024"
     },
     "history_2024_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2024"
     },
     "history_2024_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2024"
     },
     "history_2024_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2024"
     },
     "history_2024_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2024"
     },
     "history_2025_open": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes opened in 2025"
     },
     "history_2025_commented": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes commented in 2025"
     },
     "history_2025_closed": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed in 2025"
     },
     "history_2025_closed_with_comment": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes closed with comment in 2025"
     },
     "history_2025_reopened": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 0,
       "description": "Notes reopened in 2025"
     },
