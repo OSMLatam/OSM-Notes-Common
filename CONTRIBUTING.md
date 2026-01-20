@@ -1,6 +1,6 @@
-# Contributing to OSM-Notes-Ingestion
+# Contributing to OSM-Notes-Common
 
-Thank you for your interest in contributing to the OSM-Notes-Ingestion project! This document
+Thank you for your interest in contributing to the OSM-Notes-Common project! This document
 provides comprehensive guidelines for contributing to this OpenStreetMap notes analysis system.
 
 ## Table of Contents
@@ -104,7 +104,7 @@ declare -r ERROR_INVALID_ARGUMENT=242
 #### File Naming Convention
 
 - **Process files**: `processAPINotes_21_createApiTables.sql`
-> **Note:** ETL files are maintained in [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics).
+> **Note:** ETL files are maintained in [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics).
 - **Function files**: `functionsProcess_21_createFunctionToGetCountry.sql`
 - **Drop files**: `processAPINotes_12_dropApiTables.sql`
 
@@ -521,7 +521,7 @@ submodule itself.
 
 ---
 
-**Thank you for contributing to OSM-Notes-Ingestion!**
+**Thank you for contributing to OSM-Notes-Common!**
 
 Your contributions help make OpenStreetMap notes analysis more accessible and powerful for the
 community.

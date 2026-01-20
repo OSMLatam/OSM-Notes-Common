@@ -6,8 +6,8 @@ Shared functions and utilities for OSM Notes processing projects.
 
 This repository contains common Bash functions and utilities shared between:
 
-- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion
-- [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and Analytics
+- [OSM-Notes-Ingestion](https://github.com/OSM-Notes/OSM-Notes-Ingestion) - Notes ingestion
+- [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics) - DWH and Analytics
 
 ## Components
 
@@ -52,7 +52,7 @@ This repository is designed to be used as a Git submodule.
 
 ```bash
 # In your project directory
-git submodule add https://github.com/OSMLatam/OSM-Notes-Common.git lib/osm-common
+git submodule add https://github.com/OSM-Notes/OSM-Notes-Common.git lib/osm-common
 
 # Commit the submodule
 git commit -m "Add OSM-Notes-Common as submodule"
@@ -180,8 +180,8 @@ For issues or questions:
 
 ## Related Projects
 
-- [OSM-Notes-Ingestion](https://github.com/OSMLatam/OSM-Notes-Ingestion) - Notes ingestion
-- [OSM-Notes-Analytics](https://github.com/OSMLatam/OSM-Notes-Analytics) - DWH and analytics
+- [OSM-Notes-Ingestion](https://github.com/OSM-Notes/OSM-Notes-Ingestion) - Notes ingestion
+- [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics) - DWH and analytics
 
 ## Acknowledgments
 
