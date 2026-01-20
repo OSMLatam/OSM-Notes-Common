@@ -1,7 +1,7 @@
 # Contributing to OSM-Notes-Common
 
-Thank you for your interest in contributing to the OSM-Notes-Common project! This document
-provides comprehensive guidelines for contributing to this OpenStreetMap notes analysis system.
+Thank you for your interest in contributing to the OSM-Notes-Common project! This document provides
+comprehensive guidelines for contributing to this OpenStreetMap notes analysis system.
 
 ## Table of Contents
 
@@ -104,7 +104,8 @@ declare -r ERROR_INVALID_ARGUMENT=242
 #### File Naming Convention
 
 - **Process files**: `processAPINotes_21_createApiTables.sql`
-> **Note:** ETL files are maintained in [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics).
+  > **Note:** ETL files are maintained in
+  > [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics).
 - **Function files**: `functionsProcess_21_createFunctionToGetCountry.sql`
 - **Drop files**: `processAPINotes_12_dropApiTables.sql`
 
@@ -161,16 +162,15 @@ Familiarize yourself with the osm-common submodule structure:
 3. **Test your changes**:
 
    Tests for osm-common functions are located in the repositories that use this submodule
-   (OSM-Notes-Ingestion and OSM-Notes-Analytics). Ensure tests pass in those repositories
-   before submitting changes.
+   (OSM-Notes-Ingestion and OSM-Notes-Analytics). Ensure tests pass in those repositories before
+   submitting changes.
 
 ## Testing Requirements
 
 ### Overview
 
-All contributions must include comprehensive testing. Since this is a shared library,
-tests should be added to the repositories that use this submodule (OSM-Notes-Ingestion
-or OSM-Notes-Analytics).
+All contributions must include comprehensive testing. Since this is a shared library, tests should
+be added to the repositories that use this submodule (OSM-Notes-Ingestion or OSM-Notes-Analytics).
 
 ### Test Categories
 
@@ -192,8 +192,8 @@ or OSM-Notes-Analytics).
 
 ### Running Tests
 
-Tests for osm-common functions are located in the repositories that use this submodule.
-See the testing documentation in those repositories for details on running tests.
+Tests for osm-common functions are located in the repositories that use this submodule. See the
+testing documentation in those repositories for details on running tests.
 
 ### Test Documentation
 
@@ -498,8 +498,8 @@ For local development, consider using Docker:
 
 ### Local Configuration
 
-Configuration files are managed in the repositories that use this submodule, not in the
-submodule itself.
+Configuration files are managed in the repositories that use this submodule, not in the submodule
+itself.
 
 ## Version Control
 

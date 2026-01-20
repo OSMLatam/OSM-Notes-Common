@@ -4,11 +4,7 @@
   "description": "Metadata about the data export including export date and counts",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "export_date",
-    "total_users",
-    "total_countries"
-  ],
+  "required": ["export_date", "total_users", "total_countries"],
   "properties": {
     "export_date": {
       "type": "string",
