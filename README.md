@@ -166,6 +166,10 @@ This project follows [Semantic Versioning](https://semver.org/):
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
+## Documentation
+
+- [Schemas Documentation](schemas/README.md) - JSON Schema definitions and validation
+
 ## License
 
 See [LICENSE](LICENSE) for license information.

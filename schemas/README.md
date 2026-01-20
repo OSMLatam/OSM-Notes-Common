@@ -8,7 +8,7 @@ OSM-Notes-Analytics (producer) and OSM-Notes-Viewer (consumer) repositories.
 ### For Frontend/Consumer Applications
 
 **Primary location (recommended):** Schemas are automatically copied to the data repository and available at:
-- **GitHub Pages**: `https://osmlatam.github.io/OSM-Notes-Data/schemas/`
+- **GitHub Pages**: `https://osm-notes.github.io/OSM-Notes-Data/schemas/`
 - **Local path**: `OSM-Notes-Data/schemas/` (when repository is cloned)
 
 This is the recommended location for frontend applications as schemas are versioned together with the data.
