@@ -6,7 +6,7 @@
   "items": {
   "type": "object",
   "additionalProperties": true,
-  "required": ["user_id", "username", "history_whole_open", "history_whole_closed"],
+  "required": ["user_id", "username"],
   "properties": {
     "user_id": {
       "type": "integer",

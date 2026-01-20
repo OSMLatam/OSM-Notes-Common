@@ -85,28 +85,28 @@
       "pattern": "^[0-9]+$",
       "description": "Activity string representing last year activity (371 characters, scores 0-9)"
     },
-    "lastest_open_note_id": {
+    "latest_open_note_id": {
       "type": [
         "integer",
         "null"
       ],
       "description": "ID of latest note opened"
     },
-    "lastest_commented_note_id": {
+    "latest_commented_note_id": {
       "type": [
         "integer",
         "null"
       ],
       "description": "ID of latest note commented on"
     },
-    "lastest_closed_note_id": {
+    "latest_closed_note_id": {
       "type": [
         "integer",
         "null"
       ],
       "description": "ID of latest note closed"
     },
-    "lastest_reopened_note_id": {
+    "latest_reopened_note_id": {
       "type": [
         "integer",
         "null"

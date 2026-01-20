@@ -25,11 +25,11 @@
       "description": "Country name in local language"
     },
     "country_name_es": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "Country name in Spanish"
     },
     "country_name_en": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "Country name in English"
     },
     "date_starting_creating_notes": {
@@ -78,25 +78,25 @@
       "pattern": "^[0-9]+$",
       "description": "Activity string representing last year activity (371 characters, scores 0-9)"
     },
-    "lastest_open_note_id": {
-      "type": "integer",
+    "latest_open_note_id": {
+      "type": ["integer", "null"],
       "description": "ID of latest note opened"
     },
-    "lastest_commented_note_id": {
+    "latest_commented_note_id": {
       "type": [
         "integer",
         "null"
       ],
       "description": "ID of latest note commented on"
     },
-    "lastest_closed_note_id": {
+    "latest_closed_note_id": {
       "type": [
         "integer",
         "null"
       ],
       "description": "ID of latest note closed"
     },
-    "lastest_reopened_note_id": {
+    "latest_reopened_note_id": {
       "type": [
         "integer",
         "null"

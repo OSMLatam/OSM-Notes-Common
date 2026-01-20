@@ -6,7 +6,7 @@
   "items": {
   "type": "object",
   "additionalProperties": true,
-  "required": ["country_id", "country_name", "history_whole_open", "history_whole_closed"],
+  "required": ["country_id", "country_name"],
   "properties": {
     "country_id": {
       "type": "integer",
