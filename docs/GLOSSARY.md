@@ -236,7 +236,7 @@ https://geoserver.osm.lat/geoserver/osm_notes/wms
 
 **Location:** `OSM-Notes-Ingestion` - Script `bin/process/processAPINotes.sh`
 
-**Frecuencia:**
+**Frequency:**
 - Daemon mode: Every minute
 - Cron mode: Every 15 minutes
 
