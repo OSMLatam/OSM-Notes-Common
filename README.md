@@ -1,3 +1,19 @@
+---
+title: "OSM-Notes-Common"
+description: "Shared functions and utilities for OSM Notes processing projects"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "shared-libraries"
+  - "bash"
+  - "utilities"
+audience:
+  - "developers"
+project: "OSM-Notes-Common"
+status: "active"
+---
+
 # OSM-Notes-Common
 
 Shared functions and utilities for OSM Notes processing projects.
@@ -67,20 +83,55 @@ for all others. **This Common library is used as a Git submodule** by multiple p
 
 ### Project Relationships
 
-```
-OSM Planet/API
-    ↓
-[OSM-Notes-Ingestion] ← Base project
-    ├─→ [OSM-Notes-Analytics] → ETL → Data Warehouse
-    │       ├─→ [OSM-Notes-Data] → JSON files (GitHub Pages)
-    │       │       └─→ [OSM-Notes-Viewer]
-    │       └─→ [OSM-Notes-API] → REST API
-    └─→ [OSM-Notes-WMS] → WMS layers
+```mermaid
+graph TB
+    subgraph External["External Sources"]
+        OSM[OSM Planet/API]
+    end
     
-[OSM-Notes-Monitoring] → Monitors all projects
-[OSM-Notes-Common] → Shared libraries (this project, used as submodule)
-    ├─→ Used by: Ingestion ✅, Analytics ✅, WMS ✅, Monitoring ✅
-    └─→ Not used by: API ❌, Viewer ❌, Data ❌
+    subgraph Base["Base Project"]
+        INGESTION[OSM-Notes-Ingestion<br/>Base project]
+    end
+    
+    subgraph Processing["Processing Layer"]
+        ANALYTICS[OSM-Notes-Analytics<br/>ETL → Data Warehouse]
+        WMS[OSM-Notes-WMS<br/>WMS layers]
+    end
+    
+    subgraph Delivery["Delivery Layer"]
+        DATA[OSM-Notes-Data<br/>JSON files<br/>GitHub Pages]
+        VIEWER[OSM-Notes-Viewer]
+        API[OSM-Notes-API<br/>REST API]
+    end
+    
+    subgraph Support["Support Layer"]
+        MONITORING[OSM-Notes-Monitoring<br/>Monitors all projects]
+        COMMON[OSM-Notes-Common<br/>Shared libraries<br/>this project, used as submodule<br/>Used by: Ingestion ✅, Analytics ✅, WMS ✅, Monitoring ✅<br/>Not used by: API ❌, Viewer ❌, Data ❌]
+    end
+    
+    OSM -->|Downloads| INGESTION
+    INGESTION -->|Base Tables| ANALYTICS
+    INGESTION -->|Same Database| WMS
+    ANALYTICS -->|JSON Export| DATA
+    ANALYTICS -->|Data Warehouse| API
+    DATA -->|JSON Files| VIEWER
+    MONITORING -.->|Monitors| INGESTION
+    MONITORING -.->|Monitors| ANALYTICS
+    MONITORING -.->|Monitors| API
+    COMMON -.->|Used by| INGESTION
+    COMMON -.->|Used by| ANALYTICS
+    COMMON -.->|Used by| WMS
+    COMMON -.->|Used by| MONITORING
+    
+    style OSM fill:#ADD8E6
+    style INGESTION fill:#90EE90
+    style ANALYTICS fill:#FFFFE0
+    style WMS fill:#FFE4B5
+    style DATA fill:#E0F6FF
+    style API fill:#FFB6C1
+    style VIEWER fill:#DDA0DD
+    style MONITORING fill:#F0E68C
+    style COMMON fill:#D3D3D3
 ```
 
 ### Projects Using Common
@@ -315,6 +366,19 @@ This project follows [Semantic Versioning](https://semver.org/):
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## Documentation
+
+### Shared Ecosystem Documentation
+
+This repository also contains shared documentation for the entire OSM Notes ecosystem:
+
+- **[Glosario Global](docs/GLOSSARY.md)** - Complete glossary of terms used across the ecosystem
+- **[Guía de Instalación Completa](docs/INSTALLATION.md)** - Step-by-step installation guide for the complete ecosystem
+- **[Flujo de Datos End-to-End](docs/DATA_FLOW.md)** - Complete data flow from OSM Planet to Viewer
+- **[Guía de Decisión](docs/DECISION_GUIDE.md)** - Help deciding which projects you need
+
+See [docs/README.md](docs/README.md) for complete documentation index.
+
+### Project-Specific Documentation
 
 - [Schemas Documentation](schemas/README.md) - JSON Schema definitions and validation
 
