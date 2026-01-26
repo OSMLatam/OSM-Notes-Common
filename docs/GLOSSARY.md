@@ -1,17 +1,17 @@
 ---
 title: "Global Glossary of OSM Notes Ecosystem"
-description: "Consistent definitions of terms used throughout the ecosystem"
+description: "This document provides consistent definitions of common terms used throughout the OSM Notes ecosystem."
 version: "1.0.0"
 last_updated: "2026-01-25"
 author: "AngocA"
 tags:
-  - "glossary"
-  - "definitions"
-  - "ecosystem"
+  - "documentation"
 audience:
-  - "all"
+  - "developers"
+project: "OSM-Notes-Common"
 status: "active"
 ---
+
 
 # Global Glossary of OSM Notes Ecosystem
 

@@ -1,19 +1,17 @@
 ---
 title: "Decision Guide - Which Project Do I Need?"
-description: "Help deciding which OSM Notes ecosystem projects you need to install"
+description: "This guide helps you decide which OSM Notes ecosystem projects you need to install based on your use case."
 version: "1.0.0"
 last_updated: "2026-01-25"
 author: "AngocA"
 tags:
-  - "decision-guide"
-  - "architecture"
-  - "ecosystem"
+  - "guide"
 audience:
-  - "new-users"
   - "developers"
-  - "system-admins"
+project: "OSM-Notes-Common"
 status: "active"
 ---
+
 
 # Decision Guide - Which Project Do I Need?
 

@@ -1,19 +1,18 @@
 ---
 title: "End-to-End Data Flow of OSM Notes Ecosystem"
-description: "Complete data flow from OSM Planet to Viewer, including transformations at each stage"
+description: "Complete data flow from OpenStreetMap to final visualization, including all transformations, formats, and processing times at each stage"
 version: "1.0.0"
 last_updated: "2026-01-25"
 author: "AngocA"
 tags:
   - "data-flow"
   - "architecture"
-  - "ecosystem"
 audience:
   - "developers"
-  - "data-engineers"
-  - "architects"
+project: "OSM-Notes-Common"
 status: "active"
 ---
+
 
 # End-to-End Data Flow of OSM Notes Ecosystem
 

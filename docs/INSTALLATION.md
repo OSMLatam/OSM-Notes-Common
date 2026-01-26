@@ -1,18 +1,17 @@
 ---
 title: "Complete Installation Guide for OSM Notes Ecosystem"
-description: "Step-by-step installation of all ecosystem projects"
+description: "This guide walks you step-by-step through the complete installation of all 8 projects in the OSM Notes ecosystem."
 version: "1.0.0"
 last_updated: "2026-01-25"
 author: "AngocA"
 tags:
   - "installation"
-  - "setup"
-  - "ecosystem"
 audience:
-  - "system-admins"
   - "developers"
+project: "OSM-Notes-Common"
 status: "active"
 ---
+
 
 # Complete Installation Guide for OSM Notes Ecosystem
 
