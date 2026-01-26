@@ -166,8 +166,8 @@ flowchart TD
 2. OSM-Notes-Analytics
 3. OSM-Notes-WMS
 4. OSM-Notes-Data (auto-generated)
-5. OSM-Notes-Viewer
-6. OSM-Notes-API
+5. OSM-Notes-API
+6. OSM-Notes-Viewer (can optionally use API for enhanced features)
 7. OSM-Notes-Monitoring
 
 **Setup time:** 4-6 hours
