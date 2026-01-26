@@ -19,16 +19,16 @@ This directory contains shared documentation for the entire OSM Notes ecosystem.
 
 ## 📚 Available Documentation
 
-### [Global Glossary](./GLOSSARY.md)
+### [Global Glossary](./Glossary.md)
 Complete glossary of terms used across the OSM Notes ecosystem.
 
-### [Complete Installation Guide](./INSTALLATION.md)
+### [Complete Installation Guide](./Installation.md)
 Step-by-step guide to install the complete ecosystem.
 
-### [End-to-End Data Flow](./DATA_FLOW.md)
+### [End-to-End Data Flow](./Data_Flow.md)
 Complete data flow from OSM Planet to Viewer.
 
-### [Decision Guide](./DECISION_GUIDE.md)
+### [Decision Guide](./Decision_Guide.md)
 Help deciding which projects you need to install.
 
 ---

@@ -432,7 +432,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/api/v
 
 **References:**
 - [OSM-Notes-API README](https://github.com/OSM-Notes/OSM-Notes-API/blob/main/README.md)
-- [Installation Guide](https://github.com/OSM-Notes/OSM-Notes-API/blob/main/docs/INSTALLATION.md)
+- [Installation Guide](https://github.com/OSM-Notes/OSM-Notes-API/blob/main/docs/Installation.md)
 - [API Reference](https://github.com/OSM-Notes/OSM-Notes-API/blob/main/docs/API.md)
 
 ---
@@ -498,7 +498,7 @@ git push origin main
 
 **References:**
 - [OSM-Notes-Viewer README](https://github.com/OSM-Notes/OSM-Notes-Viewer/blob/main/README.md)
-- [Architecture Documentation](https://github.com/OSM-Notes/OSM-Notes-Viewer/blob/main/docs/ARCHITECTURE.md)
+- [Architecture Documentation](https://github.com/OSM-Notes/OSM-Notes-Viewer/blob/main/docs/Architecture.md)
 
 ---
 
@@ -573,7 +573,7 @@ psql -d osm_notes_monitoring -c "SELECT * FROM metrics ORDER BY collected_at DES
 
 **References:**
 - [OSM-Notes-Monitoring README](https://github.com/OSM-Notes/OSM-Notes-Monitoring/blob/main/README.md)
-- [Quick Start Guide](https://github.com/OSM-Notes/OSM-Notes-Monitoring/blob/main/docs/QUICK_START_GUIDE.md)
+- [Quick Start Guide](https://github.com/OSM-Notes/OSM-Notes-Monitoring/blob/main/docs/Quick_Start_Guide.md)
 
 ---
 
@@ -746,9 +746,9 @@ pm2 startup
 ## References
 
 - [OSM Notes Ecosystem](https://github.com/OSM-Notes/OSM-Notes) - Landing page
-- [Global Glossary](./GLOSSARY.md) - Terms and definitions
-- [Data Flow](./DATA_FLOW.md) - End-to-end flow
-- [Decision Guide](./DECISION_GUIDE.md) - Which project do I need?
+- [Global Glossary](./Glossary.md) - Terms and definitions
+- [Data Flow](./Data_Flow.md) - End-to-end flow
+- [Decision Guide](./Decision_Guide.md) - Which project do I need?
 
 ---
 

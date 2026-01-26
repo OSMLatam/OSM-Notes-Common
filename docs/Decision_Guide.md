@@ -331,7 +331,7 @@ graph TB
 
 ### Profile: Data Engineer
 - **You need:** Ingestion + Analytics
-- **Installation:** Complete (see [Installation Guide](./INSTALLATION.md))
+- **Installation:** Complete (see [Installation Guide](./Installation.md))
 - **Time:** 2-4 hours
 
 ### Profile: Backend Developer
@@ -346,16 +346,16 @@ graph TB
 
 ### Profile: System Administrator
 - **You need:** All projects
-- **Installation:** Complete (see [Installation Guide](./INSTALLATION.md))
+- **Installation:** Complete (see [Installation Guide](./Installation.md))
 - **Time:** 4-6 hours
 
 ---
 
 ## 🔗 References
 
-- [Complete Installation Guide](./INSTALLATION.md) - Step-by-step installation
-- [Data Flow](./DATA_FLOW.md) - Understand the complete flow
-- [Global Glossary](./GLOSSARY.md) - Terms and definitions
+- [Complete Installation Guide](./Installation.md) - Step-by-step installation
+- [Data Flow](./Data_Flow.md) - Understand the complete flow
+- [Global Glossary](./Glossary.md) - Terms and definitions
 - [OSM Notes Ecosystem](https://github.com/OSM-Notes/OSM-Notes) - Landing page
 
 ---
