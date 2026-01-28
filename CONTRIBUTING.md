@@ -302,7 +302,7 @@ The project uses a consolidation strategy to eliminate code duplication and impr
 - **Usage**: All scripts that need parallel processing should source this file
 - **Fallback**: Legacy scripts maintain compatibility through wrapper functions
 
-#### 2. Validation Functions (`bin/consolidatedValidationFunctions.sh`)
+#### 2. Validation Functions (`consolidatedValidationFunctions.sh` - this file)
 
 - **Purpose**: Centralizes all validation functions for XML, CSV, coordinates, and databases
 - **Functions**: `__validate_xml_with_enhanced_error_handling`, `__validate_csv_structure`,
