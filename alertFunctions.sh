@@ -28,6 +28,65 @@
 #
 # Returns:
 #   None (always creates file if conditions are met)
+##
+# Creates failed execution marker file (common implementation)
+# Creates a failed execution marker file to prevent re-execution until issue is resolved.
+# Writes error details (timestamp, script name, error code, message, process ID, etc.) to
+# marker file. Sends email alert if enabled. Used by all scripts for consistent error handling.
+#
+# Parameters:
+#   $1: SCRIPT_NAME - Name of the script that failed (required)
+#   $2: ERROR_CODE - Error code for the failure (required)
+#   $3: ERROR_MESSAGE - Error message describing the failure (required)
+#   $4: REQUIRED_ACTION - Action required to fix the issue (required)
+#   $5: FAILED_FILE_PARAM - Path to failed execution marker file (optional, uses FAILED_EXECUTION_FILE if not provided)
+#
+# Returns:
+#   Always returns 0 (marker creation is non-blocking)
+#
+# Error codes:
+#   0: Success - Marker file created successfully (or skipped if conditions not met)
+#
+# Error conditions:
+#   0: Success - Marker file created or skipped (based on GENERATE_FAILED_FILE and ONLY_EXECUTION)
+#
+# Context variables:
+#   Reads:
+#     - FAILED_EXECUTION_FILE: Path to failed execution marker file (used if FAILED_FILE_PARAM not provided)
+#     - GENERATE_FAILED_FILE: If "true", creates marker file (optional, default: true)
+#     - ONLY_EXECUTION: If "yes", creates marker file (optional, default: "no")
+#     - SEND_ALERT_EMAIL: If "true", sends email alert (optional, default: true)
+#     - TMP_DIR: Temporary directory (optional)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Creates failed execution marker file (if conditions met)
+#
+# Side effects:
+#   - Creates failed execution marker file with error details
+#   - Sends email alert if enabled (via __common_send_failure_email)
+#   - Writes log messages to stderr
+#   - File operations: Creates marker file
+#   - Network operations: Sends email alert (if enabled)
+#   - No database operations
+#
+# Notes:
+#   - Marker file contains: timestamp, script name, error code, error message, process ID, temp dir, hostname, required action
+#   - Only creates marker file if GENERATE_FAILED_FILE=true AND ONLY_EXECUTION=yes
+#   - Email alert is sent automatically if SEND_ALERT_EMAIL=true
+#   - Marker file prevents re-execution until manually removed
+#   - Critical function: Part of error handling workflow for all scripts
+#   - Used by script-specific wrapper functions (e.g., __create_failed_marker)
+#
+# Example:
+#   __common_create_failed_marker "processAPINotes" 250 "Database connection failed" \
+#    "Check PostgreSQL service status" "/tmp/processAPINotes_failed_execution"
+#   # Creates marker file and sends email alert
+#
+# Related: __common_send_failure_email() (sends email alert)
+# Related: __checkPreviousFailedExecution() (checks for marker file)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __common_create_failed_marker() {
  local SCRIPT_NAME="${1}"
  local ERROR_CODE="${2}"

@@ -74,6 +74,75 @@ function __show_help() {
 }
 
 # Validate input file (enhanced version with support for files, directories, and executables)
+##
+# Validates input file or directory
+# Performs basic validation checks on a file or directory path. Validates existence,
+# readability, and type (file/directory/executable). Does not validate file content
+# (content validation is handled by specific validation functions). Supports multiple
+# expected types: file, directory, executable.
+#
+# Parameters:
+#   $1: FILE_PATH - Path to file or directory to validate (required)
+#   $2: DESCRIPTION - Description of file for error messages (optional, default: "File")
+#   $3: EXPECTED_TYPE - Expected type: "file", "dir", or "executable" (optional, default: "file")
+#
+# Returns:
+#   0: Success - File/directory validation passed
+#   1: Failure - Validation failed (file missing, not readable, wrong type)
+#
+# Error codes:
+#   0: Success - File/directory validation passed
+#   1: Failure - File path is empty
+#   1: Failure - File/directory does not exist
+#   1: Failure - Path is not expected type (file/directory/executable)
+#   1: Failure - File/directory is not readable
+#   1: Failure - Executable is not executable
+#
+# Error conditions:
+#   0: Success - File/directory validation passed
+#   1: File path empty - FILE_PATH parameter is empty
+#   1: File missing - File/directory does not exist
+#   1: Wrong type - Path is not expected type (file/directory/executable)
+#   1: Not readable - File/directory is not readable
+#   1: Not executable - Executable file is not executable
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Creates temporary array for validation errors (local)
+#
+# Side effects:
+#   - Validates file/directory existence
+#   - Validates file/directory readability
+#   - Validates file/directory type (file/directory/executable)
+#   - Writes log messages to stderr
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Does not validate file content (content validation is handled by specific functions)
+#   - Does not validate file emptiness (different file types have different rules)
+#   - Supports multiple expected types: file, directory, executable
+#   - Common validation function used by other validation functions
+#   - Part of input validation workflow
+#   - Used before processing files to ensure they exist and are accessible
+#
+# Example:
+#   __validate_input_file "/path/to/file.txt" "Input file" "file"
+#   # Validates file exists, is readable, and is a file
+#
+#   __validate_input_file "/path/to/dir" "Config directory" "dir"
+#   # Validates directory exists, is readable, and is a directory
+#
+#   __validate_input_file "/path/to/script.sh" "Script" "executable"
+#   # Validates executable exists, is readable, and is executable
+#
+# Related: __validate_sql_structure() (validates SQL file structure)
+# Related: __validate_xml_structure() (validates XML file structure)
+# Related: __validate_input_files() (validates multiple files)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_input_file() {
  __log_start
  local FILE_PATH="${1}"
@@ -135,7 +204,46 @@ function __validate_input_file() {
  return 0
 }
 
-# Validate input files
+##
+# Validates multiple input files in batch
+# Validates each file in the provided list using __validate_input_file.
+# Returns failure if any file fails validation, success only if all files are valid.
+#
+# Parameters:
+#   $@: File paths - One or more file paths to validate (required, at least one file)
+#
+# Returns:
+#   0: Success - All files validated successfully
+#   1: Failure - One or more files failed validation
+#   2: Invalid argument - No file paths provided
+#
+# Error codes:
+#   0: Success - All provided files exist, are readable, and meet validation criteria
+#   1: Failure - At least one file failed validation (missing, not readable, wrong type, etc.)
+#   2: Invalid argument - No file paths provided (empty argument list)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Validates each file sequentially using __validate_input_file
+#   - Logs validation results for each file to standard logger
+#   - Stops on first failure (but continues to log all failures)
+#   - No file modifications or network operations
+#
+# Example:
+#   if __validate_input_files "/tmp/file1.json" "/tmp/file2.json" "/tmp/file3.json"; then
+#     echo "All files valid"
+#   else
+#     echo "Some files failed validation"
+#   fi
+#
+# Related: __validate_input_file() (used for individual file validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_input_files() {
  __log_start
  local FILES=("$@")
@@ -151,12 +259,77 @@ function __validate_input_files() {
  return "${FAILED}"
 }
 
-# Validate XML structure (main implementation)
+##
+# Validates XML file structure and basic syntax
+# Performs lightweight XML validation using grep to check for XML declaration and root element.
+# Uses basic validation suitable for large files (avoids xmllint overhead).
+#
+# Parameters:
+#   $1: XML file path - Path to XML file to validate (required)
+#   $2: Expected root element - Root element name to check for (optional, default: checks for <osm>)
+#
+# Returns:
+#   0: Success - XML structure is valid
+#   1: Failure - XML invalid, file missing, or structure incorrect
+#   2: Invalid argument - XML file path is empty
+#   7: File error - XML file not found or cannot be read
+#
+# Error codes:
+#   0: Success - XML declaration present, root element found, file is non-empty
+#   1: Failure - Missing XML declaration, missing root element, or file is empty
+#   2: Invalid argument - XML file path parameter is empty
+#   7: File error - XML file does not exist or cannot be read
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file from filesystem
+#   - Executes grep commands to check XML structure
+#   - Logs validation results to standard logger
+#   - No file modifications or network operations
+#
+# Validation approach:
+#   - Lightweight: Uses grep instead of xmllint (faster for large files)
+#   - Checks for XML declaration: <?xml
+#   - Checks for root element: <osm> (or specified root)
+#   - Verifies file is non-empty
+#   - Warns if file is very small (< 100 bytes, allows test fixtures)
+#
+# Example:
+#   if __validate_xml_structure "/tmp/data.xml"; then
+#     echo "Valid XML"
+#   fi
+#   if __validate_xml_structure "/tmp/data.xml" "osm-notes"; then
+#     echo "Valid XML with osm-notes root"
+#   fi
+#
+# Related: __validate_input_file() (validates file existence first)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_xml_structure() {
  __validate_xml_structure_impl "$@"
 }
 
-# Validate XML structure (internal implementation)
+##
+# Internal implementation of XML structure validation
+# Called by __validate_xml_structure wrapper function.
+#
+# Parameters:
+#   $1: XML file path (required)
+#   $2: Expected root element (optional)
+#
+# Returns:
+#   0: Success - XML structure valid
+#   1: Failure - XML structure invalid
+#   2: Invalid argument - File path empty
+#   7: File error - File not found
+#
+# Related: __validate_xml_structure() (public wrapper)
+##
 function __validate_xml_structure_impl() {
  __log_start
  local XML_FILE="${1}"
@@ -310,6 +483,73 @@ function __validate_csv_structure() {
 }
 
 # Validate SQL structure
+##
+# Validates SQL file structure and syntax
+# Performs comprehensive validation of SQL file structure. Validates file existence,
+# readability, non-emptiness, presence of valid SQL statements, and balanced parentheses.
+# Checks for common SQL keywords to ensure file contains valid SQL. Does not execute
+# SQL or validate against database schema.
+#
+# Parameters:
+#   $1: SQL_FILE - Path to SQL file to validate (required)
+#
+# Returns:
+#   0: Success - SQL structure validation passed
+#   1: Failure - Validation failed (file missing, empty, no valid SQL, unbalanced parentheses)
+#
+# Error codes:
+#   0: Success - SQL structure validation passed
+#   1: Failure - SQL file does not exist
+#   1: Failure - SQL file is not readable
+#   1: Failure - SQL file is empty
+#   1: Failure - SQL file contains only comments (no valid SQL statements)
+#   1: Failure - No valid SQL statements found (no SQL keywords detected)
+#   1: Failure - Unbalanced parentheses in SQL file
+#
+# Error conditions:
+#   0: Success - SQL structure validation passed
+#   1: File missing - SQL file does not exist
+#   1: Not readable - SQL file is not readable
+#   1: File empty - SQL file is empty
+#   1: Only comments - SQL file contains only comments (no valid SQL statements)
+#   1: No SQL keywords - No valid SQL keywords detected (CREATE, INSERT, SELECT, etc.)
+#   1: Unbalanced parentheses - Number of opening parentheses != closing parentheses
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Creates temporary files for comment removal and parentheses counting
+#
+# Side effects:
+#   - Validates SQL file existence and readability
+#   - Validates SQL file is not empty
+#   - Validates SQL file contains valid SQL statements (not just comments)
+#   - Validates SQL file contains SQL keywords (CREATE, INSERT, SELECT, etc.)
+#   - Validates SQL file has balanced parentheses
+#   - Creates temporary files for validation (removed after validation)
+#   - Writes log messages to stderr
+#   - File operations: Reads SQL file, creates temporary files
+#   - No database or network operations
+#
+# Notes:
+#   - Does not execute SQL or validate against database schema
+#   - Does not validate SQL syntax correctness (only structure)
+#   - Checks for common SQL keywords: CREATE, INSERT, UPDATE, DELETE, SELECT, DROP, ALTER, etc.
+#   - Removes comments before checking for SQL keywords and counting parentheses
+#   - Common validation function used before executing SQL files
+#   - Part of SQL file validation workflow
+#   - Used to ensure SQL files are valid before execution
+#
+# Example:
+#   __validate_sql_structure "/path/to/script.sql"
+#   # Validates SQL file structure, syntax, and balanced parentheses
+#
+# Related: __validate_input_file() (validates file existence and readability)
+# Related: __validate_xml_structure() (validates XML file structure)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_sql_structure() {
  __log_start
  local SQL_FILE="${1}"
@@ -456,11 +696,58 @@ function __validate_json_structure() {
  return 0
 }
 
-# Validate database connection
-# Nota:
-# Por defecto, la conexión a PostgreSQL se realiza usando peer (local, sin usuario/contraseña).
-# Los parámetros DBHOST, DBPORT y DBUSER solo son necesarios para pruebas en Docker, CI/CD
-# o entornos donde no se use peer.
+##
+# Validates PostgreSQL database connection
+# Tests database connectivity by executing a simple SELECT query.
+# Uses peer authentication by default (local, no password). DBHOST, DBPORT, DBUSER are only
+# needed for Docker, CI/CD, or environments without peer authentication.
+#
+# Parameters:
+#   $1: Database name - PostgreSQL database name to validate (optional, uses DBNAME if not provided)
+#
+# Returns:
+#   0: Success - Database connection successful
+#   1: Failure - Cannot connect to database
+#   2: Invalid argument - Database name not specified
+#   3: Missing dependency - psql command not found
+#   5: Database error - Connection failed or authentication error
+#
+# Error codes:
+#   0: Success - Connection established and query executed successfully
+#   1: Failure - Cannot connect to database (connection refused, authentication failed, etc.)
+#   2: Invalid argument - Database name parameter is empty and DBNAME environment variable not set
+#   3: Missing dependency - psql command not available
+#   5: Database error - PostgreSQL connection failed, authentication error, or database does not exist
+#
+# Context variables:
+#   Reads:
+#     - DBNAME: Default database name if parameter not provided (optional)
+#     - DBHOST: Database host (optional, for non-peer authentication)
+#     - DBPORT: Database port (optional, for non-peer authentication)
+#     - DBUSER: Database user (optional, for non-peer authentication)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes psql command to test database connection
+#   - Executes "SELECT 1;" query to verify connectivity
+#   - Logs validation results to standard logger
+#   - No database modifications or file operations
+#
+# Authentication notes:
+#   - Default: Uses peer authentication (local, no password required)
+#   - Docker/CI/CD: May require DBHOST, DBPORT, DBUSER environment variables
+#
+# Example:
+#   if __validate_database_connection "osm_notes"; then
+#     echo "Database connection valid"
+#   else
+#     echo "Database connection failed with code: $?"
+#   fi
+#
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_database_connection() {
  __log_start
  local DBNAME_PARAM="${1:-${DBNAME}}"
@@ -703,6 +990,72 @@ function __validate_iso8601_date() {
 }
 
 # Validate XML dates (lightweight version for large files)
+##
+# Validates ISO 8601 dates in XML files
+# Validates date formats in XML files using XPath queries or default patterns.
+# Automatically switches to lightweight validation for large files (>500MB).
+# Supports both ISO 8601 (YYYY-MM-DDTHH:MM:SSZ) and UTC (YYYY-MM-DD HH:MM:SS UTC) formats.
+#
+# Parameters:
+#   $1: XML file path - Path to XML file to validate (required)
+#   $2+: XPath queries - XPath expressions to locate date attributes/elements (optional)
+#       Default: validates all ISO 8601 dates found in file
+#       Examples: "//note/@created_at", "//note/@closed_at", "//note/@updated_at"
+#
+# Returns:
+#   0: Success - All dates are valid (or no dates found)
+#   1: Failure - Invalid dates found or file validation failed
+#
+# Error codes:
+#   0: Success - All dates validated successfully
+#   1: Failure - File not found or not readable
+#   1: Failure - XML structure validation failed
+#   1: Failure - Invalid date format found in XML
+#   1: Failure - Date validation failed (strict mode: fails on first error)
+#
+# Error conditions:
+#   0: Success - All dates are valid ISO 8601 or UTC format
+#   1: File not found - XML file path does not exist
+#   1: XML structure invalid - File does not have valid XML structure
+#   1: Invalid date format - Date does not match ISO 8601 or UTC format
+#   1: Date validation failed - Date format is invalid (strict mode: immediate failure)
+#
+# Context variables:
+#   Reads:
+#     - STRICT_MODE: If "true", fails immediately on first invalid date (optional, default: false)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file using grep and stat
+#   - Validates up to 1000 dates per XPath query (performance limit)
+#   - Writes log messages to stderr
+#   - No file modifications, database, or network operations
+#
+# Notes:
+#   - Automatically uses lightweight validation for files >500MB
+#   - Limits validation to first 1000 dates per query for performance
+#   - Supports multiple XPath queries (validates each separately)
+#   - Uses grep for fast date extraction (more reliable than xmllint for large files)
+#   - In strict mode, fails immediately on first invalid date
+#   - In normal mode, continues validation and reports all errors
+#   - Validates both ISO 8601 (YYYY-MM-DDTHH:MM:SSZ) and UTC formats
+#
+# Example:
+#   # Validate all dates in XML file
+#   __validate_xml_dates "notes.xml"
+#
+#   # Validate specific date attributes
+#   __validate_xml_dates "notes.xml" "//note/@created_at" "//note/@closed_at"
+#
+#   # Strict mode (fail on first error)
+#   STRICT_MODE=true __validate_xml_dates "notes.xml"
+#
+# Related: __validate_xml_dates_lightweight() (lightweight validation for large files)
+# Related: __validate_iso8601_date() (ISO 8601 date validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_xml_dates() {
  __log_start
  local XML_FILE="${1}"

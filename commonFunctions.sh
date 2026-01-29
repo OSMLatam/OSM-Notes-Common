@@ -110,7 +110,53 @@ function __start_logger {
  fi
 }
 
-# Validation function
+##
+# Validates that a required parameter is not empty
+# Simple validation function that checks if a parameter is empty and exits
+# with ERROR_INVALID_ARGUMENT if validation fails. Used for basic parameter validation.
+#
+# Parameters:
+#   $1: Value to validate - The value to check (required)
+#   $2: Error message - Error message to display if validation fails (required)
+#
+# Returns:
+#   Exits with ERROR_INVALID_ARGUMENT if value is empty
+#   Returns 0 if value is not empty
+#
+# Error codes:
+#   0: Success - Value is not empty
+#   ERROR_INVALID_ARGUMENT: Failure - Value is empty (exits script)
+#
+# Error conditions:
+#   0: Success - Value is not empty, validation passes
+#   ERROR_INVALID_ARGUMENT: Empty value - First parameter is empty string
+#
+# Context variables:
+#   Reads:
+#     - ERROR_INVALID_ARGUMENT: Error code for invalid arguments (defined in commonFunctions.sh)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Writes error message to stdout if validation fails
+#   - Exits script with ERROR_INVALID_ARGUMENT if value is empty
+#   - Writes log messages to stderr
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Simple validation - only checks for empty string
+#   - Exits script immediately on failure (does not return)
+#   - Use for critical parameter validation at script start
+#   - For more complex validation, use specialized validation functions
+#
+# Example:
+#   __validation "${DBNAME}" "Database name is required"
+#   __validation "${INPUT_FILE}" "Input file path is required"
+#
+# Related: __validate_input_file() (file validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validation {
  __log_start
  if [[ "${1}" == "" ]]; then
@@ -121,7 +167,64 @@ function __validation {
  __log_finish
 }
 
-# Check prerequisites commands
+##
+# Checks that all required system commands are available
+# Validates that essential commands required by the OSM-Notes system are installed
+# and available in PATH. Exits with ERROR_MISSING_LIBRARY if any required command
+# is missing. This function should be called early in script execution.
+#
+# Parameters:
+#   None (checks predefined list of commands)
+#
+# Returns:
+#   Exits with ERROR_MISSING_LIBRARY if any required command is missing
+#   Returns 0 if all commands are available
+#
+# Error codes:
+#   0: Success - All required commands are available
+#   ERROR_MISSING_LIBRARY: Failure - One or more required commands are missing (exits script)
+#
+# Error conditions:
+#   0: Success - All required commands found in PATH
+#   ERROR_MISSING_LIBRARY: Missing commands - One or more required commands not found
+#
+# Context variables:
+#   Reads:
+#     - ERROR_MISSING_LIBRARY: Error code for missing library/command (defined in commonFunctions.sh)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes command -v for each required command
+#   - Writes log messages to stderr
+#   - Exits script with ERROR_MISSING_LIBRARY if commands are missing
+#   - No file, database, or network operations
+#
+# Commands checked:
+#   Required:
+#     - psql: PostgreSQL client
+#     - curl: HTTP client
+#     - grep: Text search
+#     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
+#     - jq: JSON processor
+#     - ogr2ogr, gdalinfo: Geospatial tools
+#   Optional (warns only):
+#     - xmllint: XML validator (optional, can skip with SKIP_XML_VALIDATION=true)
+#
+# Notes:
+#   - Should be called early in script execution
+#   - Exits script immediately if commands are missing
+#   - xmllint is optional and only generates a warning
+#   - All other commands are required and cause script exit if missing
+#
+# Example:
+#   __checkPrereqsCommands
+#   # Script continues only if all commands are available
+#
+# Related: __checkPrereqs_functions() (function availability check)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __checkPrereqsCommands {
  __log_start
  __logd "Checking prerequisites commands."
@@ -171,7 +274,60 @@ function __checkPrereqsCommands {
  __log_finish
 }
 
-# Check prerequisites functions
+##
+# Checks that all required Bash functions are available
+# Validates that essential functions required by the OSM-Notes system are defined
+# and available. Exits with ERROR_MISSING_LIBRARY if any required function is missing.
+# This function is useful for verifying that required libraries have been sourced.
+#
+# Parameters:
+#   None (checks predefined list of functions)
+#
+# Returns:
+#   Exits with ERROR_MISSING_LIBRARY if any required function is missing
+#   Returns 0 if all functions are available
+#
+# Error codes:
+#   0: Success - All required functions are available
+#   ERROR_MISSING_LIBRARY: Failure - One or more required functions are missing (exits script)
+#
+# Error conditions:
+#   0: Success - All required functions are defined
+#   ERROR_MISSING_LIBRARY: Missing functions - One or more required functions not defined
+#
+# Context variables:
+#   Reads:
+#     - ERROR_MISSING_LIBRARY: Error code for missing library/function (defined in commonFunctions.sh)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes declare -f for each required function
+#   - Writes log messages to stderr
+#   - Exits script with ERROR_MISSING_LIBRARY if functions are missing
+#   - No file, database, or network operations
+#
+# Functions checked:
+#   Required logger functions:
+#     - __log: Basic logging function
+#     - __logi: Info logging function
+#     - __loge: Error logging function
+#
+# Notes:
+#   - Should be called after sourcing required libraries
+#   - Exits script immediately if functions are missing
+#   - Useful for verifying library dependencies
+#   - Currently checks only logger functions (can be extended)
+#
+# Example:
+#   source "${SCRIPT_BASE_DIRECTORY}/lib/osm-common/commonFunctions.sh"
+#   __checkPrereqs_functions
+#   # Script continues only if all functions are available
+#
+# Related: __checkPrereqsCommands() (command availability check)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __checkPrereqs_functions {
  __log_start
  __logd "Checking prerequisites functions."

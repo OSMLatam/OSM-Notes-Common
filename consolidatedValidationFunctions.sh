@@ -176,10 +176,58 @@ function __validate_xml_basic() {
  return 0
 }
 
-# XML structure-only validation (very lightweight)
+##
+# Validates XML file structure using lightweight checks
+# Performs very lightweight validation by checking for basic XML structure markers.
+# This is faster than full XML parsing and suitable for large files or quick checks.
+# Only verifies presence of XML declaration and root element tag, not full structure.
+#
 # Parameters:
-#   $1: XML file path
-# Returns: 0 if validation passes, 1 if validation fails
+#   $1: XML file path - Path to the XML file to validate (required)
+#
+# Returns:
+#   0: Success - XML structure markers found
+#   1: Failure - File not found or missing XML structure markers
+#
+# Error codes:
+#   0: Success - XML file contains basic structure markers (<?xml and <osm)
+#   1: Failure - File not found or missing required XML structure markers
+#
+# Error conditions:
+#   0: Success - XML declaration (<?xml) and root element (<osm) found
+#   1: File not found - XML file path does not exist or is not readable
+#   1: Missing markers - File does not contain <?xml declaration or <osm root element
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file using grep (lightweight operation)
+#   - Writes log messages to stderr
+#   - No database or network operations
+#   - No file modifications
+#
+# Notes:
+#   - Very lightweight validation - only checks for presence of markers
+#   - Does NOT validate XML syntax, structure, or well-formedness
+#   - Does NOT validate against schema or DTD
+#   - Suitable for quick checks on large files
+#   - For full validation, use __validate_xml_structure() instead
+#   - Uses grep which is fast but may have false positives on very large files
+#
+# Example:
+#   if __validate_xml_structure_only "${XML_FILE}"; then
+#     echo "Basic XML structure OK"
+#   else
+#     echo "XML structure validation failed"
+#   fi
+#
+# Related: __validate_xml_structure() (full XML validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_xml_structure_only() {
  __log_start
  local XML_FILE="${1}"
@@ -540,6 +588,59 @@ function __validate_csv_structure() {
 # Parameters:
 #   $1: XML file path
 # Returns: 0 if validation passes, 1 if validation fails
+##
+# Validates that XML file contains coordinate attributes
+# Performs lightweight validation by checking for presence of lat/lon attributes
+# in XML file. Does not validate coordinate values, only checks for attribute presence.
+# Suitable for quick validation before processing XML files with geographic data.
+#
+# Parameters:
+#   $1: XML file path - Path to XML file to validate (required)
+#
+# Returns:
+#   0: Success - XML file contains lat and lon attributes
+#   1: Failure - File not found or missing coordinate attributes
+#
+# Error codes:
+#   0: Success - Both lat= and lon= attributes found in XML
+#   1: Failure - File not found or not readable
+#   1: Failure - Missing lat= or lon= attributes in XML
+#
+# Error conditions:
+#   0: Success - XML file contains both lat= and lon= attributes
+#   1: File not found - XML file path does not exist
+#   1: Missing attributes - XML file does not contain lat= or lon= attributes
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file using grep (lightweight operation)
+#   - Writes log messages to stderr
+#   - No file modifications, database, or network operations
+#
+# Notes:
+#   - Very lightweight validation - only checks for attribute presence
+#   - Does NOT validate coordinate values (ranges, formats, etc.)
+#   - Does NOT validate XML structure or well-formedness
+#   - Uses grep for fast pattern matching
+#   - Suitable for quick checks before processing
+#   - For full coordinate validation, use __validate_coordinates() or __validate_csv_coordinates()
+#
+# Example:
+#   if __validate_xml_coordinates "notes.xml"; then
+#     echo "XML contains coordinates"
+#   else
+#     echo "XML missing coordinates"
+#   fi
+#
+# Related: __validate_coordinates() (coordinate format validation)
+# Related: __validate_csv_coordinates() (CSV coordinate validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_xml_coordinates() {
  __log_start
  local XML_FILE="${1}"
@@ -757,12 +858,59 @@ function __validate_database_connection() {
  return 0
 }
 
-# Validate database tables
+##
+# Validates that database tables exist matching a pattern
+# Checks PostgreSQL information_schema to verify tables exist in specified schema.
+# Uses SQL LIKE pattern matching to find tables (supports wildcards: %, _).
+#
 # Parameters:
-#   $1: Database name (optional, uses DBNAME if not provided)
-#   $2: Schema name (optional, default: public)
-#   $3: Table name pattern (optional, default: all tables)
-# Returns: 0 if validation passes, 1 if validation fails
+#   $1: Database name - PostgreSQL database name (optional, uses DBNAME if not provided)
+#   $2: Schema name - Database schema to search (optional, default: public)
+#   $3: Table name pattern - SQL LIKE pattern for table names (optional, default: % - all tables)
+#
+# Returns:
+#   0: Success - At least one table found matching pattern
+#   1: Failure - No tables found matching pattern
+#   2: Invalid argument - Database name not specified
+#   3: Missing dependency - psql command not found
+#   5: Database error - Connection failed or query error
+#
+# Error codes:
+#   0: Success - One or more tables found matching pattern
+#   1: Failure - No tables found matching pattern (pattern too restrictive or schema empty)
+#   2: Invalid argument - Database name parameter is empty and DBNAME environment variable not set
+#   3: Missing dependency - psql command not available
+#   5: Database error - Cannot connect to database or query failed
+#
+# Context variables:
+#   Reads:
+#     - DBNAME: Default database name if parameter not provided (optional)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes psql query to check information_schema.tables
+#   - Logs validation results to standard logger
+#   - No database modifications or file operations
+#
+# Pattern examples:
+#   - "%": All tables (default)
+#   - "notes%": Tables starting with "notes"
+#   - "%_staging": Tables ending with "_staging"
+#   - "countries": Exact table name
+#
+# Example:
+#   if __validate_database_tables "osm_notes" "public" "notes%"; then
+#     echo "Notes tables exist"
+#   fi
+#   if __validate_database_tables "osm_notes"; then
+#     echo "Database has tables"
+#   fi
+#
+# Related: __validate_database_connection() (validates connection first)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_database_tables() {
  __log_start
  local DB_NAME="${1:-${DBNAME}}"

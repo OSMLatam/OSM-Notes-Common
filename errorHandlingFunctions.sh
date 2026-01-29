@@ -184,6 +184,71 @@ function __database_operation_with_retry() {
 }
 
 # File operation with retry
+##
+# Performs file operations with retry logic using circuit breaker pattern
+# Executes file operations (copy, move, delete) with automatic retry and circuit breaker
+# protection. Uses circuit breaker to prevent repeated failures from overwhelming the system.
+#
+# Parameters:
+#   $1: Operation - File operation type: "copy", "move", or "delete" (required)
+#   $2: Source - Source file path (required)
+#   $3: Destination - Destination file path (required for copy/move, ignored for delete)
+#   $4: Max attempts - Maximum retry attempts (optional, default: 3)
+#
+# Returns:
+#   0: Success - File operation completed successfully
+#   1: Failure - Operation failed, invalid parameters, or circuit breaker open
+#
+# Error codes:
+#   0: Success - File operation completed successfully
+#   1: Failure - Missing required parameters (operation or source)
+#   1: Failure - Missing destination for copy/move operations
+#   1: Failure - Unsupported operation type
+#   1: Failure - Circuit breaker is open (too many failures)
+#   1: Failure - File operation failed after retries
+#
+# Error conditions:
+#   0: Success - File operation succeeded (possibly after retries)
+#   1: Invalid operation - Operation type not "copy", "move", or "delete"
+#   1: Missing source - Source file path is empty
+#   1: Missing destination - Destination required but not provided for copy/move
+#   1: Circuit breaker open - Too many failures, circuit breaker prevents execution
+#   1: Operation failed - File operation failed after all retry attempts
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Circuit breaker state (via __circuit_breaker_execute)
+#
+# Side effects:
+#   - Executes file operations (cp, mv, rm)
+#   - Modifies circuit breaker state for operation tracking
+#   - Writes log messages to stderr
+#   - No database or network operations
+#
+# Notes:
+#   - Uses circuit breaker pattern to prevent repeated failures
+#   - Circuit breaker thresholds: 3 failures, 30s timeout, 120s recovery
+#   - Operations are executed via command string (uses eval internally in circuit breaker)
+#   - Delete operation does not require destination parameter
+#   - Source and destination paths are single-quoted in command (basic protection)
+#
+# Example:
+#   # Copy file with retry
+#   __file_operation_with_retry "copy" "/tmp/source.txt" "/tmp/dest.txt"
+#
+#   # Move file with retry
+#   __file_operation_with_retry "move" "/tmp/old.txt" "/tmp/new.txt"
+#
+#   # Delete file with retry
+#   __file_operation_with_retry "delete" "/tmp/temp.txt"
+#
+# Related: __retry_file_operation() (alternative retry implementation)
+# Related: __circuit_breaker_execute() (circuit breaker implementation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __file_operation_with_retry() {
  __log_start
  local OPERATION="${1}"
@@ -229,7 +294,62 @@ function __file_operation_with_retry() {
  __log_finish
 }
 
-# Check network connectivity
+##
+# Checks network connectivity by testing HTTP connection to a URL
+# Verifies that the system can reach external networks by attempting to connect
+# to a test URL (default: Google). Useful for validating network availability
+# before attempting network operations.
+#
+# Parameters:
+#   $1: Timeout - Maximum seconds to wait for connection (optional, default: 10)
+#   $2: Test URL - URL to test connectivity against (optional, default: https://www.google.com)
+#
+# Returns:
+#   0: Success - Network connectivity confirmed
+#   1: Failure - Network connectivity failed or timeout exceeded
+#
+# Error codes:
+#   0: Success - Successfully connected to test URL within timeout
+#   1: Failure - Connection failed, timeout exceeded, or curl command failed
+#
+# Error conditions:
+#   0: Success - HTTP connection to test URL succeeded
+#   1: Network failure - Cannot reach test URL (DNS failure, network down, firewall blocking)
+#   1: Timeout - Connection attempt exceeded timeout limit
+#   1: Missing dependency - timeout or curl command not found
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes curl command to test HTTP connection
+#   - Writes log messages to stderr
+#   - No file or database operations
+#   - No persistent state changes
+#
+# Notes:
+#   - Uses curl with silent mode (-s) to avoid output
+#   - Uses timeout command to limit connection attempt duration
+#   - Default test URL is Google (https://www.google.com)
+#   - Can be customized to test specific endpoints
+#   - Useful as a prerequisite check before network operations
+#
+# Example:
+#   if __check_network_connectivity; then
+#     echo "Network is available"
+#   else
+#     echo "Network is unavailable"
+#   fi
+#
+#   # Custom timeout and URL
+#   __check_network_connectivity 5 "https://api.openstreetmap.org"
+#
+# Related: __retry_network_operation() (network operations with retry)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __check_network_connectivity() {
  __log_start
  local TIMEOUT="${1:-10}"
@@ -251,19 +371,70 @@ function __check_network_connectivity() {
  fi
 }
 
-# Handle error with cleanup
-# Parameters:
-#   $1 - error_code: Error code to return/exit with
-#   $2 - error_message: Error message to log
-#   $3 - cleanup_command: (Optional) Command to execute for cleanup
+##
+# Handles errors with optional cleanup command execution
+# Centralized error handling function that logs errors, executes cleanup commands,
+# generates failed execution markers, and exits (or returns in test mode).
+# This function is critical for consistent error handling across all scripts.
 #
-# Environment variables:
-#   TEST_MODE: If set to "true", uses return instead of exit (for testing)
-#   BATS_TEST_NAME: If set, uses return instead of exit (BATS testing)
+# Parameters:
+#   $1: Error code - Exit/return code to use (required)
+#   $2: Error message - Descriptive error message to log (required)
+#   $3: Cleanup command - Command to execute for cleanup (optional)
+#       Command is executed via eval, so use with caution
 #
 # Returns:
-#   In production: Exits with error_code
+#   In production: Exits script with error_code (never returns)
 #   In test environment: Returns with error_code
+#
+# Error codes:
+#   Exits/returns with the provided error_code parameter
+#   Function itself never fails (always executes cleanup and exits/returns)
+#
+# Error conditions:
+#   Always exits/returns with provided error_code
+#   Cleanup command failures are logged but do not prevent exit/return
+#
+# Context variables:
+#   Reads:
+#     - TEST_MODE: If "true", uses return instead of exit (for testing)
+#     - BATS_TEST_NAME: If set, uses return instead of exit (BATS testing)
+#     - CLEAN: If "false", skips cleanup command execution (optional, default: true)
+#     - GENERATE_FAILED_FILE: If "true", writes to failed execution file (optional, default: false)
+#     - FAILED_EXECUTION_FILE: Path to failed execution marker file (optional)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Writes error log messages to stderr
+#   - Executes cleanup command via eval (if provided and CLEAN=true)
+#   - Writes to failed execution file (if GENERATE_FAILED_FILE=true)
+#   - Exits script in production mode (does not return)
+#   - Returns error code in test mode (TEST_MODE or BATS_TEST_NAME set)
+#   - No database operations
+#
+# Notes:
+#   - CRITICAL: This function exits the script in production mode
+#   - Cleanup command execution respects CLEAN environment variable
+#   - Failed execution file is appended (not overwritten)
+#   - Test mode detection: checks TEST_MODE or BATS_TEST_NAME
+#   - Cleanup command failures are logged but do not prevent exit
+#   - Use eval for cleanup command - ensure command is safe
+#
+# Example:
+#   # Production usage (exits script)
+#   __handle_error_with_cleanup "${ERROR_DATA_VALIDATION}" \
+#     "Invalid JSON structure" \
+#     "rm -f ${TEMP_FILE}"
+#
+#   # Test usage (returns error code)
+#   export TEST_MODE=true
+#   __handle_error_with_cleanup 1 "Test error" "rm -f /tmp/test"
+#   # Script continues after return
+#
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __handle_error_with_cleanup() {
  __log_start
  local ERROR_CODE="${1}"
@@ -344,7 +515,74 @@ function __reset_circuit_breaker() {
  __log_finish
 }
 
-# Retry file operation
+##
+# Retries file operations with exponential backoff and optional cleanup
+# Executes file operations (copy, move, delete) with automatic retry using exponential
+# backoff. Supports optional cleanup command execution between retry attempts.
+# Alternative to __file_operation_with_retry() without circuit breaker pattern.
+#
+# Parameters:
+#   $1: Operation - File operation type: "copy", "move", or "delete" (required)
+#   $2: Source - Source file path (required)
+#   $3: Destination - Destination file path (optional for delete, required for copy/move)
+#   $4: Max attempts - Maximum retry attempts (optional, default: 3)
+#   $5: Cleanup command - Command to execute between retries (optional)
+#       Command is executed via eval, so use with caution
+#
+# Returns:
+#   0: Success - File operation completed successfully
+#   1: Failure - Operation failed or invalid parameters
+#
+# Error codes:
+#   0: Success - File operation completed successfully (possibly after retries)
+#   1: Failure - Missing required parameters (operation or source)
+#   1: Failure - Missing destination for copy/move operations
+#   1: Failure - Unsupported operation type
+#   1: Failure - File operation failed after all retry attempts
+#
+# Error conditions:
+#   0: Success - File operation succeeded on any attempt
+#   1: Invalid operation - Operation type not "copy", "move", or "delete"
+#   1: Missing source - Source file path is empty
+#   1: Missing destination - Destination required but not provided for copy/move
+#   1: Operation failed - File operation failed after MAX_ATTEMPTS retries
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes file operations (cp, mv, rm)
+#   - Executes cleanup command via eval between retries (if provided)
+#   - Sleeps between retry attempts (exponential backoff: 1s, 2s, 4s, ..., max 60s)
+#   - Writes log messages to stderr
+#   - No database or network operations
+#
+# Notes:
+#   - Uses exponential backoff: delay doubles each retry (1s, 2s, 4s, 8s, ...)
+#   - Maximum delay is capped at 60 seconds
+#   - Cleanup command is executed after each failed attempt (before retry)
+#   - Cleanup command failures are ignored (|| true)
+#   - File operation errors are suppressed (2> /dev/null)
+#   - Does not use circuit breaker pattern (unlike __file_operation_with_retry)
+#
+# Example:
+#   # Copy file with retry and cleanup
+#   __retry_file_operation "copy" "/tmp/source.txt" "/tmp/dest.txt" 5 \
+#     "rm -f /tmp/dest.txt"
+#
+#   # Delete file with retry
+#   __retry_file_operation "delete" "/tmp/temp.txt"
+#
+#   # Move file with retry and cleanup
+#   __retry_file_operation "move" "/tmp/old.txt" "/tmp/new.txt" 3 \
+#     "rm -f /tmp/new.txt"
+#
+# Related: __file_operation_with_retry() (circuit breaker version)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __retry_file_operation() {
  __log_start
  local OPERATION="${1}"
