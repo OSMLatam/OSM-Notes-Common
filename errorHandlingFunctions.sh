@@ -36,6 +36,75 @@ function __show_help() {
  exit 1
 }
 
+##
+# Executes command with circuit breaker pattern for resilient operation handling
+# Implements circuit breaker pattern to prevent repeated failures from overwhelming the system.
+# Tracks operation failures and opens circuit after threshold, preventing execution until recovery
+# timeout expires. Supports three states: CLOSED (normal), OPEN (circuit open, blocking), and
+# HALF_OPEN (testing recovery). Uses timeout command to limit execution duration.
+#
+# Parameters:
+#   $1: OPERATION_NAME - Unique name for the operation (required, used for state tracking)
+#   $2: COMMAND - Shell command to execute (required, executed via bash -c)
+#   $3: FAILURE_THRESHOLD - Number of failures before opening circuit (optional, default: 5)
+#   $4: TIMEOUT - Maximum execution time in seconds (optional, default: 30)
+#   $5: RESET_TIMEOUT - Seconds to wait before attempting recovery (optional, default: 60)
+#
+# Returns:
+#   0: Success - Command executed successfully
+#   1: Failure - Missing parameters, circuit breaker open, or command execution failed
+#
+# Error codes:
+#   0: Success - Command executed successfully within timeout
+#   1: Failure - Missing required parameters (OPERATION_NAME or COMMAND)
+#   1: Failure - Circuit breaker is OPEN (too many failures, recovery timeout not expired)
+#   1: Failure - Command execution failed (returns command exit code)
+#
+# Error conditions:
+#   0: Success - Command succeeded, circuit breaker remains CLOSED
+#   1: Missing parameters - OPERATION_NAME or COMMAND is empty
+#   1: Circuit breaker open - Too many failures, circuit breaker prevents execution
+#   1: Command failed - Command execution failed (exit code from command)
+#   1: Timeout exceeded - Command execution exceeded TIMEOUT limit
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - CIRCUIT_BREAKER_STATE: Operation state (CLOSED, OPEN, HALF_OPEN)
+#     - CIRCUIT_BREAKER_FAILURE_COUNT: Failure count for operation
+#     - CIRCUIT_BREAKER_LAST_FAILURE_TIME: Timestamp of last failure
+#
+# Side effects:
+#   - Executes command via bash -c with timeout command
+#   - Updates circuit breaker state arrays (associative arrays)
+#   - Tracks failure count and last failure time per operation
+#   - Writes log messages to stderr
+#   - No file, database, or network operations (delegated to command)
+#
+# Notes:
+#   - Circuit breaker states: CLOSED (normal), OPEN (blocking), HALF_OPEN (testing)
+#   - Circuit opens after FAILURE_THRESHOLD consecutive failures
+#   - Circuit resets to HALF_OPEN after RESET_TIMEOUT seconds
+#   - HALF_OPEN state allows one test execution to verify recovery
+#   - Successful execution in HALF_OPEN resets circuit to CLOSED
+#   - Failed execution in HALF_OPEN reopens circuit
+#   - Each operation has independent circuit breaker state
+#   - Uses timeout command to prevent hanging operations
+#   - Command is executed via eval (bash -c), ensure command is safe
+#
+# Example:
+#   __circuit_breaker_execute "download_file" "curl -o file.txt https://example.com/file" 3 30 120
+#   # Executes download with circuit breaker (3 failures threshold, 30s timeout, 120s recovery)
+#
+#   __circuit_breaker_execute "database_query" "psql -d db -c 'SELECT 1'" 5 60 300
+#   # Executes database query with circuit breaker (5 failures threshold, 60s timeout, 300s recovery)
+#
+# Related: __get_circuit_breaker_status() (gets circuit breaker state)
+# Related: __reset_circuit_breaker() (manually resets circuit breaker)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Circuit breaker pattern implementation
 function __circuit_breaker_execute() {
  __log_start
@@ -104,6 +173,62 @@ function __circuit_breaker_execute() {
  fi
 }
 
+##
+# Downloads file from URL with retry logic using circuit breaker pattern
+# Wrapper function that downloads a file using curl with circuit breaker protection.
+# Uses circuit breaker to prevent repeated download failures from overwhelming the system.
+# Provides resilient file downloads with automatic failure tracking and recovery.
+#
+# Parameters:
+#   $1: URL - URL to download from (required)
+#   $2: OUTPUT_FILE - Path where downloaded file will be saved (required)
+#   $3: MAX_ATTEMPTS - Maximum retry attempts (optional, default: 3, not used directly)
+#   $4: TIMEOUT - Connection timeout in seconds (optional, default: 30)
+#
+# Returns:
+#   0: Success - File downloaded successfully
+#   1: Failure - Missing parameters or circuit breaker open
+#
+# Error codes:
+#   0: Success - File downloaded successfully
+#   1: Failure - Missing required parameters (URL or OUTPUT_FILE)
+#   1: Failure - Circuit breaker is open (too many failures)
+#   1: Failure - Download failed (curl exit code)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Circuit breaker state (via __circuit_breaker_execute)
+#
+# Side effects:
+#   - Downloads file using curl command
+#   - Creates output file (overwrites if exists)
+#   - Modifies circuit breaker state for download operation
+#   - Writes log messages to stderr
+#   - Network operations: HTTP/HTTPS download
+#   - File operations: Creates output file
+#   - No database operations
+#
+# Notes:
+#   - Uses circuit breaker pattern (not simple retry loop)
+#   - Circuit breaker thresholds: 3 failures, 30s timeout, 120s recovery
+#   - Operation name is "download_${URL}" (unique per URL)
+#   - Uses curl with silent mode (-s) to suppress progress output
+#   - MAX_ATTEMPTS parameter is accepted but not used (circuit breaker handles retries)
+#
+# Example:
+#   __download_with_retry "https://example.com/file.txt" "/tmp/file.txt"
+#   # Downloads file with circuit breaker protection
+#
+#   __download_with_retry "https://api.example.com/data.json" "/tmp/data.json" 3 60
+#   # Downloads file with 60s timeout
+#
+# Related: __circuit_breaker_execute() (circuit breaker implementation)
+# Related: __retry_osm_api() (OSM API specific retry with HTTP optimizations)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Download with retry
 function __download_with_retry() {
  __log_start
@@ -123,6 +248,63 @@ function __download_with_retry() {
  __log_finish
 }
 
+##
+# Makes API call with retry logic using circuit breaker pattern
+# Wrapper function that makes HTTP API call using curl with circuit breaker protection.
+# Uses circuit breaker to prevent repeated API failures from overwhelming the system.
+# Provides resilient API calls with automatic failure tracking and recovery.
+#
+# Parameters:
+#   $1: URL - API endpoint URL (required)
+#   $2: OUTPUT_FILE - Path where API response will be saved (required)
+#   $3: MAX_ATTEMPTS - Maximum retry attempts (optional, default: 3, not used directly)
+#   $4: TIMEOUT - Connection timeout in seconds (optional, default: 30)
+#
+# Returns:
+#   0: Success - API call completed successfully
+#   1: Failure - Missing parameters or circuit breaker open
+#
+# Error codes:
+#   0: Success - API call completed successfully
+#   1: Failure - Missing required parameters (URL or OUTPUT_FILE)
+#   1: Failure - Circuit breaker is open (too many failures)
+#   1: Failure - API call failed (curl exit code)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Circuit breaker state (via __circuit_breaker_execute)
+#
+# Side effects:
+#   - Makes HTTP request using curl command
+#   - Creates output file with API response (overwrites if exists)
+#   - Modifies circuit breaker state for API call operation
+#   - Writes log messages to stderr
+#   - Network operations: HTTP/HTTPS API call
+#   - File operations: Creates output file
+#   - No database operations
+#
+# Notes:
+#   - Uses circuit breaker pattern (not simple retry loop)
+#   - Circuit breaker thresholds: 3 failures, 30s timeout, 120s recovery
+#   - Operation name is "api_call_${URL}" (unique per URL)
+#   - Uses curl with silent mode (-s) to suppress progress output
+#   - MAX_ATTEMPTS parameter is accepted but not used (circuit breaker handles retries)
+#   - For OSM API specific optimizations, use __retry_osm_api() instead
+#
+# Example:
+#   __api_call_with_retry "https://api.example.com/data" "/tmp/response.json"
+#   # Makes API call with circuit breaker protection
+#
+#   __api_call_with_retry "https://api.example.com/users" "/tmp/users.json" 3 60
+#   # Makes API call with 60s timeout
+#
+# Related: __circuit_breaker_execute() (circuit breaker implementation)
+# Related: __retry_osm_api() (OSM API specific retry with HTTP/2, caching)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # API call with retry
 function __api_call_with_retry() {
  __log_start
@@ -142,6 +324,73 @@ function __api_call_with_retry() {
  __log_finish
 }
 
+##
+# Executes database operation with retry logic using circuit breaker pattern
+# Wrapper function that executes PostgreSQL SQL script with circuit breaker protection.
+# Uses circuit breaker to prevent repeated database failures from overwhelming the system.
+# Supports both password-based and peer authentication. Validates SQL file before execution.
+#
+# Parameters:
+#   $1: SQL_FILE - Path to SQL script file to execute (required)
+#   $2: MAX_ATTEMPTS - Maximum retry attempts (optional, default: 3, not used directly)
+#   $3: TIMEOUT - Operation timeout in seconds (optional, default: 60)
+#
+# Returns:
+#   0: Success - SQL script executed successfully
+#   1: Failure - Missing parameters, file validation failed, or circuit breaker open
+#
+# Error codes:
+#   0: Success - SQL script executed successfully
+#   1: Failure - Missing required parameter (SQL_FILE)
+#   1: Failure - SQL file validation failed (file not found or not readable)
+#   1: Failure - DBNAME variable not defined
+#   1: Failure - Circuit breaker is open (too many failures)
+#   1: Failure - SQL execution failed (psql exit code)
+#
+# Context variables:
+#   Reads:
+#     - DBNAME: PostgreSQL database name (required)
+#     - DB_PASSWORD: Database password (optional, for password authentication)
+#     - DB_HOST: Database host (optional, default: localhost)
+#     - DB_PORT: Database port (optional, default: 5432)
+#     - DB_USER: Database user (optional, default: current user for peer authentication)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Circuit breaker state (via __circuit_breaker_execute)
+#
+# Side effects:
+#   - Executes psql command to run SQL script
+#   - Validates SQL file existence and readability (via __validate_input_file)
+#   - Modifies circuit breaker state for database operation
+#   - Writes log messages to stderr
+#   - Database operations: Executes SQL script
+#   - No file or network operations (except SQL file read)
+#
+# Notes:
+#   - Uses circuit breaker pattern (not simple retry loop)
+#   - Circuit breaker thresholds: 3 failures, TIMEOUT timeout, 300s recovery
+#   - Operation name is "database_operation_${SQL_FILE}" (unique per SQL file)
+#   - Supports peer authentication (default, no password) and password authentication
+#   - Uses PGPASSWORD environment variable for password authentication
+#   - MAX_ATTEMPTS parameter is accepted but not used (circuit breaker handles retries)
+#   - Validates SQL file before execution (prevents errors from missing files)
+#
+# Example:
+#   export DBNAME="osm_notes"
+#   __database_operation_with_retry "/path/to/script.sql"
+#   # Executes SQL script with circuit breaker protection
+#
+#   export DBNAME="osm_notes"
+#   export DB_PASSWORD="secret"
+#   export DB_HOST="db.example.com"
+#   __database_operation_with_retry "/path/to/script.sql" 3 120
+#   # Executes SQL script with password auth, 120s timeout
+#
+# Related: __circuit_breaker_execute() (circuit breaker implementation)
+# Related: __validate_input_file() (validates SQL file)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Database operation with retry
 function __database_operation_with_retry() {
  __log_start
@@ -475,6 +724,68 @@ function __handle_error_with_cleanup() {
  fi
 }
 
+##
+# Gets current status of circuit breaker for an operation
+# Retrieves and displays current circuit breaker state, failure count, and last failure time
+# for a specific operation. Useful for monitoring and debugging circuit breaker behavior.
+# Outputs status information to stdout (can be captured with command substitution).
+#
+# Parameters:
+#   $1: OPERATION_NAME - Name of the operation to check (required)
+#
+# Returns:
+#   0: Success - Status retrieved successfully
+#   1: Failure - Missing required parameter
+#
+# Error codes:
+#   0: Success - Status retrieved successfully
+#   1: Failure - OPERATION_NAME parameter is empty
+#
+# Error conditions:
+#   0: Success - Status information retrieved and displayed
+#   1: Missing parameter - OPERATION_NAME is empty
+#
+# Context variables:
+#   Reads:
+#     - CIRCUIT_BREAKER_STATE: Operation state array (associative array)
+#     - CIRCUIT_BREAKER_FAILURE_COUNT: Failure count array (associative array)
+#     - CIRCUIT_BREAKER_LAST_FAILURE_TIME: Last failure time array (associative array)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Outputs status information to stdout (4 lines: Operation, State, Failure Count, Last Failure Time)
+#   - Writes log messages to stderr
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Outputs status to stdout (use command substitution to capture)
+#   - Default state is CLOSED if operation has never been executed
+#   - Default failure count is 0 if operation has never failed
+#   - Default last failure time is 0 if operation has never failed
+#   - Useful for monitoring circuit breaker health
+#   - Can be used in scripts to check operation status before execution
+#
+# Output format:
+#   Operation: <operation_name>
+#   State: <CLOSED|OPEN|HALF_OPEN>
+#   Failure Count: <number>
+#   Last Failure Time: <timestamp>
+#
+# Example:
+#   STATUS=$(__get_circuit_breaker_status "download_file")
+#   echo "${STATUS}"
+#   # Outputs circuit breaker status for download_file operation
+#
+#   if __get_circuit_breaker_status "api_call"; then
+#     echo "Status retrieved"
+#   fi
+#
+# Related: __circuit_breaker_execute() (executes with circuit breaker)
+# Related: __reset_circuit_breaker() (resets circuit breaker)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Get circuit breaker status
 function __get_circuit_breaker_status() {
  __log_start
@@ -497,6 +808,61 @@ function __get_circuit_breaker_status() {
  __log_finish
 }
 
+##
+# Resets circuit breaker state for an operation
+# Manually resets circuit breaker to CLOSED state, clears failure count, and resets last
+# failure time. Useful for manual recovery when circuit breaker is stuck in OPEN state
+# or for testing purposes. Forces circuit breaker to allow operations immediately.
+#
+# Parameters:
+#   $1: OPERATION_NAME - Name of the operation to reset (required)
+#
+# Returns:
+#   0: Success - Circuit breaker reset successfully
+#   1: Failure - Missing required parameter
+#
+# Error codes:
+#   0: Success - Circuit breaker reset successfully
+#   1: Failure - OPERATION_NAME parameter is empty
+#
+# Error conditions:
+#   0: Success - Circuit breaker reset to CLOSED state
+#   1: Missing parameter - OPERATION_NAME is empty
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - CIRCUIT_BREAKER_STATE: Sets operation state to CLOSED
+#     - CIRCUIT_BREAKER_FAILURE_COUNT: Sets failure count to 0
+#     - CIRCUIT_BREAKER_LAST_FAILURE_TIME: Sets last failure time to 0
+#
+# Side effects:
+#   - Resets circuit breaker state arrays for the operation
+#   - Writes log messages to stderr
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Immediately allows operations to proceed (circuit breaker CLOSED)
+#   - Clears all failure tracking for the operation
+#   - Use with caution - bypasses circuit breaker protection
+#   - Useful for manual recovery after fixing underlying issues
+#   - Can be used for testing to reset circuit breaker state
+#   - Does not affect other operations (each operation has independent state)
+#
+# Example:
+#   __reset_circuit_breaker "download_file"
+#   # Resets circuit breaker for download_file operation
+#
+#   # After fixing network issue
+#   __reset_circuit_breaker "api_call"
+#   # Allows API calls to proceed immediately
+#
+# Related: __circuit_breaker_execute() (executes with circuit breaker)
+# Related: __get_circuit_breaker_status() (gets circuit breaker status)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Reset circuit breaker
 function __reset_circuit_breaker() {
  local OPERATION_NAME="${1}"

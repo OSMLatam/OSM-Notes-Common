@@ -136,6 +136,76 @@ function __common_create_failed_marker() {
  fi
 }
 
+##
+# Sends email alert about failed script execution
+# Sends formatted email notification about script failure to administrators. Called
+# automatically by __common_create_failed_marker() when SEND_ALERT_EMAIL is enabled.
+# Uses mutt command (required prerequisite) for SMTP email delivery. Email includes
+# error details, process information, recovery steps, and log file location.
+#
+# Parameters:
+#   $1: SCRIPT_NAME - Name of the script that failed (required)
+#   $2: ERROR_CODE - Error code for the failure (required)
+#   $3: ERROR_MESSAGE - Error message describing the failure (required)
+#   $4: REQUIRED_ACTION - Action required to fix the issue (required)
+#   $5: FAILED_FILE_PARAM - Path to failed execution marker file (optional, uses FAILED_EXECUTION_FILE if not provided)
+#   $6: TIMESTAMP - Timestamp of failure (optional, generated if not provided)
+#   $7: HOSTNAME_VAR - Hostname of server (optional, generated if not provided)
+#
+# Returns:
+#   0: Success - Email sent successfully (or skipped if mutt unavailable)
+#   1: Failure - Email sending failed (mutt command failed)
+#
+# Error codes:
+#   0: Success - Email sent successfully
+#   0: Success - Email skipped (mutt command failed, logged as warning)
+#   1: Failure - mutt command execution failed (non-critical, logged as warning)
+#
+# Error conditions:
+#   0: Success - Email sent successfully
+#   0: Success - Email sending failed but function continues (non-critical)
+#   1: Failure - mutt command failed (logged as warning, does not block execution)
+#
+# Context variables:
+#   Reads:
+#     - ADMIN_EMAIL: Email address for alerts (optional, default: notes@osm.lat)
+#     - FAILED_EXECUTION_FILE: Path to failed execution marker file (used if FAILED_FILE_PARAM not provided)
+#     - TMP_DIR: Temporary directory (optional, for log file path in email)
+#     - VERSION: Script version (optional, for email body)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Creates temporary file for email body (cleaned up after sending)
+#
+# Side effects:
+#   - Creates temporary file for email body content
+#   - Executes mutt command to send email
+#   - Removes temporary file after sending (or on failure)
+#   - Writes log messages to stderr
+#   - Network operations: Sends email via SMTP (mutt)
+#   - File operations: Creates temporary file for email body
+#   - No database operations
+#
+# Notes:
+#   - Called automatically by __common_create_failed_marker() when SEND_ALERT_EMAIL=true
+#   - Requires mutt command (checked in __checkPrereqsCommands)
+#   - Email failures are non-critical (logged as warning, does not block execution)
+#   - Email subject: "ALERT: OSM Notes <SCRIPT_NAME> Failed - <HOSTNAME>"
+#   - Email body includes: error details, process info, recovery steps, log file location
+#   - Temporary file is created in system temp directory (mktemp)
+#   - Temporary file is always cleaned up (even on failure)
+#   - Email sending failures are logged but do not prevent marker file creation
+#
+# Example:
+#   __common_send_failure_email "processAPINotes" 250 "Database connection failed" \
+#    "Check PostgreSQL service status" "/tmp/failed_execution" \
+#    "2025-01-27 10:30:00" "server.example.com"
+#   # Sends email alert about failed execution
+#
+# Related: __common_create_failed_marker() (creates marker and calls this function)
+# Related: __checkPrereqsCommands() (verifies mutt is available)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Sends an email alert about the failed execution.
 # This is called automatically by __common_create_failed_marker.
 # Uses mutt (required prerequisite for external SMTP).

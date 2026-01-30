@@ -427,6 +427,61 @@ function __validate_xml_structure_impl() {
  return 0
 }
 
+##
+# Validates CSV file structure and column count
+# Validates that a CSV file exists, is readable, is non-empty, has a header row,
+# and optionally matches expected column count. Checks for basic CSV structure
+# (header row, column separators). Used before CSV database imports.
+#
+# Parameters:
+#   $1: CSV_FILE - Path to CSV file to validate (required)
+#   $2: EXPECTED_COLUMNS - Expected column count or comma-separated column names (optional)
+#       If number: validates exact column count
+#       If string: counts columns in comma-separated list and validates count
+#
+# Returns:
+#   0: Success - CSV structure validation passed
+#   1: Failure - File validation failed, file empty, no header, or column count mismatch
+#
+# Error codes:
+#   0: Success - CSV file structure is valid
+#   1: Failure - File does not exist or is not readable (via __validate_input_file)
+#   1: Failure - CSV file is empty (no content)
+#   1: Failure - CSV file has no header row (first line is empty)
+#   1: Failure - Column count mismatch (if EXPECTED_COLUMNS provided)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads CSV file from filesystem (first line for header)
+#   - Executes head, tr, wc commands to check structure
+#   - Logs validation results to standard logger
+#   - No file modifications or network operations
+#
+# Notes:
+#   - Validates file existence and readability (via __validate_input_file)
+#   - Checks for non-empty file (must have content)
+#   - Validates header row exists (first line is non-empty)
+#   - Validates column count if EXPECTED_COLUMNS provided
+#   - Does not validate CSV data content (only structure)
+#   - Does not validate CSV escaping or quoting
+#   - Common validation function used before CSV database imports
+#
+# Example:
+#   __validate_csv_structure "/tmp/data.csv" 8
+#   # Validates CSV has exactly 8 columns
+#
+#   __validate_csv_structure "/tmp/data.csv" "id,name,email,phone"
+#   # Validates CSV has 4 columns (counts comma-separated list)
+#
+# Related: __validate_input_file() (validates file existence first)
+# Related: __validate_csv_dates() (validates date columns in CSV)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Validate CSV structure
 function __validate_csv_structure() {
  __log_start
@@ -625,6 +680,52 @@ function __validate_sql_structure() {
 }
 
 # Validate config file
+##
+# Validates configuration file structure and content
+# Validates that a configuration file exists, is readable, contains key-value pairs,
+# and has valid variable names. Checks for basic shell variable naming conventions
+# (must start with letter or underscore). Used for validating shell configuration files.
+#
+# Parameters:
+#   $1: CONFIG_FILE - Path to configuration file to validate (required)
+#
+# Returns:
+#   0: Success - Configuration file validation passed
+#   1: Failure - File validation failed, no key-value pairs, or invalid variable names
+#
+# Error codes:
+#   0: Success - Configuration file is valid
+#   1: Failure - File does not exist or is not readable (via __validate_input_file)
+#   1: Failure - No key-value pairs found (no '=' character in file)
+#   1: Failure - Invalid variable names found (does not start with letter/underscore)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads configuration file from filesystem
+#   - Executes grep commands to check file structure
+#   - Logs validation results to standard logger
+#   - No file modifications or network operations
+#
+# Notes:
+#   - Validates file existence and readability (via __validate_input_file)
+#   - Checks for key-value pairs (must contain '=' character)
+#   - Validates variable names (must start with letter or underscore, allows leading spaces)
+#   - Does not validate variable values (only structure)
+#   - Does not execute or source the configuration file
+#   - Common validation function used before loading configuration files
+#
+# Example:
+#   __validate_config_file "/etc/osm-notes/config.conf"
+#   # Validates configuration file structure
+#
+# Related: __validate_input_file() (validates file existence first)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_config_file() {
  __log_start
  local CONFIG_FILE="${1}"
@@ -854,6 +955,64 @@ function __validate_database_tables() {
 # Por defecto, la conexión a PostgreSQL se realiza usando peer (local, sin usuario/contraseña).
 # Los parámetros DBHOST, DBPORT y DBUSER solo son necesarios para pruebas en Docker, CI/CD
 # o entornos donde no se use peer.
+##
+# Validates that required PostgreSQL extensions are installed
+# Checks if specified PostgreSQL extensions are installed and enabled in the database.
+# Validates database connection first, then queries pg_available_extensions and
+# pg_extension to verify each extension is available and installed. Used before
+# operations that require specific PostgreSQL extensions (e.g., PostGIS, pg_trgm).
+#
+# Parameters:
+#   $1: DBNAME_PARAM - Database name (optional, uses DBNAME if not provided)
+#   $2: DBUSER_PARAM - Database user (optional, uses DB_USER if not provided)
+#   $3: DBHOST_PARAM - Database host (optional, uses DB_HOST if not provided)
+#   $4: DBPORT_PARAM - Database port (optional, uses DB_PORT if not provided)
+#   $5+: EXTENSIONS - One or more extension names to validate (required, at least one)
+#
+# Returns:
+#   0: Success - All extensions are installed
+#   1: Failure - Database connection failed, no extensions specified, or extension missing
+#
+# Error codes:
+#   0: Success - All specified extensions are installed
+#   1: Failure - Database name not provided (DBNAME_PARAM empty and DBNAME not set)
+#   1: Failure - No extensions specified for validation
+#   1: Failure - Database connection failed (via __validate_database_connection)
+#   1: Failure - One or more extensions are not installed
+#
+# Context variables:
+#   Reads:
+#     - DBNAME: Default database name if parameter not provided (optional)
+#     - DB_USER: Default database user if parameter not provided (optional)
+#     - DB_HOST: Default database host if parameter not provided (optional)
+#     - DB_PORT: Default database port if parameter not provided (optional)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Executes psql queries to check extension availability and installation
+#   - Queries pg_available_extensions and pg_extension system catalogs
+#   - Writes log messages to stderr
+#   - Database operations: SELECT queries on system catalogs
+#   - No file or network operations
+#
+# Notes:
+#   - Validates database connection before checking extensions
+#   - Checks both extension availability (pg_available_extensions) and installation (pg_extension)
+#   - Extension must be both available and installed to pass validation
+#   - Common extensions: postgis, pg_trgm, btree_gist, etc.
+#   - Used before operations that require specific extensions
+#   - Supports peer authentication (default) and password authentication
+#
+# Example:
+#   export DBNAME="osm_notes"
+#   __validate_database_extensions "osm_notes" "" "" "" "postgis" "pg_trgm"
+#   # Validates postgis and pg_trgm extensions are installed
+#
+# Related: __validate_database_connection() (validates connection first)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_database_extensions() {
  __log_start
  local DBNAME_PARAM="${1:-${DBNAME}}"
@@ -906,6 +1065,56 @@ function __validate_database_extensions() {
 }
 
 # Validate ISO8601 date format
+##
+# Validates ISO 8601 date format string
+# Validates that a date string conforms to ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ or
+# YYYY-MM-DDTHH:MM:SS+HH:MM). Checks format pattern and validates date component ranges
+# (year, month, day, hour, minute, second). Used for validating dates in XML/JSON processing.
+#
+# Parameters:
+#   $1: DATE_STRING - Date string to validate (required)
+#   $2: DESCRIPTION - Description of date for error messages (optional, default: "Date")
+#
+# Returns:
+#   0: Success - Date string is valid ISO 8601 format
+#   1: Failure - Date string is empty, format invalid, or date components out of range
+#
+# Error codes:
+#   0: Success - Date string is valid ISO 8601 format
+#   1: Failure - Date string is empty
+#   1: Failure - Date format does not match ISO 8601 pattern
+#   1: Failure - Date components are out of valid range (month > 12, day > 31, etc.)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Parses date string using grep and cut commands
+#   - Validates date component ranges
+#   - Logs validation results to standard logger
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Validates ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ or YYYY-MM-DDTHH:MM:SS+HH:MM
+#   - Validates date component ranges: month (1-12), day (1-31), hour (0-23), minute (0-59), second (0-59)
+#   - Does not validate leap years or month-specific day limits (e.g., February 30)
+#   - Does not validate timezone offsets (only format)
+#   - Common validation function used in XML/JSON date validation
+#
+# Example:
+#   __validate_iso8601_date "2025-01-27T10:30:00Z" "Created date"
+#   # Validates ISO 8601 date format
+#
+#   __validate_iso8601_date "2025-01-27T10:30:00+02:00" "Updated date"
+#   # Validates ISO 8601 date with timezone offset
+#
+# Related: __validate_xml_dates() (validates dates in XML files)
+# Related: __validate_csv_dates() (validates dates in CSV files)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_iso8601_date() {
  __log_start
  local DATE_STRING="${1}"
@@ -1054,6 +1263,66 @@ function __validate_iso8601_date() {
 #
 # Related: __validate_xml_dates_lightweight() (lightweight validation for large files)
 # Related: __validate_iso8601_date() (ISO 8601 date validation)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
+##
+# Validates ISO 8601 dates in XML files using XPath queries
+# Validates date formats in XML files using XPath queries or default patterns.
+# Automatically switches to lightweight validation for large files (>500MB) to improve
+# performance. Supports both ISO 8601 (YYYY-MM-DDTHH:MM:SSZ) and UTC (YYYY-MM-DD HH:MM:SS UTC)
+# formats. Uses xmllint for XPath queries on smaller files, grep for large files.
+#
+# Parameters:
+#   $1: XML_FILE - Path to XML file to validate (required)
+#   $2+: XPATH_QUERIES - XPath expressions to locate date attributes/elements (optional)
+#       Default: validates all ISO 8601 dates found in file using grep
+#       Examples: "//note/@created_at", "//note/@closed_at", "//note/@updated_at"
+#
+# Returns:
+#   0: Success - All dates are valid (or no dates found)
+#   1: Failure - Invalid dates found, file validation failed, or XML structure invalid
+#
+# Error codes:
+#   0: Success - All dates validated successfully
+#   1: Failure - XML file validation failed (via __validate_xml_structure)
+#   1: Failure - Invalid ISO 8601 dates found in XML
+#   1: Failure - Invalid UTC dates found in XML
+#   1: Failure - Malformed dates found (contains invalid characters)
+#
+# Context variables:
+#   Reads:
+#     - STRICT_MODE: If "true", fails immediately on first invalid date (optional, default: false)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file from filesystem
+#   - Executes xmllint for XPath queries (smaller files) or grep (large files)
+#   - Validates dates using __validate_iso8601_date and __validate_date_format_utc
+#   - Logs validation results to standard logger
+#   - File operations: Reads XML file
+#   - No database or network operations
+#
+# Notes:
+#   - Automatically uses lightweight validation for files >500MB (via __validate_xml_dates_lightweight)
+#   - Lightweight validation samples dates (first 100) for performance
+#   - Standard validation validates all dates found via XPath queries
+#   - Supports STRICT_MODE: fails immediately on first invalid date if enabled
+#   - Validates both ISO 8601 and UTC date formats
+#   - Common validation function used before XML processing
+#
+# Example:
+#   __validate_xml_dates "/tmp/notes.xml" "//note/@created_at" "//note/@closed_at"
+#   # Validates created_at and closed_at dates in XML
+#
+#   export STRICT_MODE=true
+#   __validate_xml_dates "/tmp/notes.xml"
+#   # Validates all dates, fails immediately on first invalid date
+#
+# Related: __validate_xml_dates_lightweight() (lightweight validation for large files)
+# Related: __validate_iso8601_date() (validates ISO 8601 date format)
+# Related: __validate_xml_structure() (validates XML structure first)
 # Related: STANDARD_ERROR_CODES.md (error code definitions)
 ##
 function __validate_xml_dates() {
@@ -1209,6 +1478,62 @@ function __validate_xml_dates() {
  return 0
 }
 
+##
+# Validates ISO 8601 dates in large XML files using lightweight sampling
+# Lightweight version of XML date validation optimized for large files (>500MB).
+# Samples dates using grep instead of full XPath parsing for performance. Validates
+# a sample of dates (default: 100) to detect common issues without processing entire file.
+# Automatically called by __validate_xml_dates() for large files.
+#
+# Parameters:
+#   $1: XML_FILE - Path to XML file to validate (required)
+#   $2+: XPATH_QUERIES - XPath expressions (optional, not used in lightweight mode)
+#   $3: STRICT_MODE - If "true", fails immediately on first invalid date (optional, default: false)
+#
+# Returns:
+#   0: Success - Sample dates are valid (or no dates found)
+#   1: Failure - Invalid dates found in sample or malformed dates detected
+#
+# Error codes:
+#   0: Success - Sample dates validated successfully
+#   1: Failure - Malformed dates found (contains invalid characters)
+#   1: Failure - Invalid dates found in sample (strict mode: immediate failure)
+#
+# Context variables:
+#   Reads:
+#     - STRICT_MODE: If "true", fails immediately on first invalid date (optional, default: false)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads XML file using grep (samples dates, does not parse full XML)
+#   - Validates sample of dates (default: 100 dates)
+#   - Logs validation results to standard logger
+#   - File operations: Reads XML file (grep operations)
+#   - No database or network operations
+#
+# Notes:
+#   - Optimized for large files: uses grep instead of xmllint (much faster)
+#   - Samples dates: validates first 100 dates found (performance optimization)
+#   - Detects malformed dates: finds dates with invalid characters (letters, etc.)
+#   - In strict mode, fails immediately on first invalid date
+#   - In normal mode, continues validation and reports all errors
+#   - Called automatically by __validate_xml_dates() for files >500MB
+#   - Does not validate all dates (only sample) - trade-off for performance
+#
+# Example:
+#   __validate_xml_dates_lightweight "/tmp/large_notes.xml" "" "false"
+#   # Validates sample of dates in large XML file
+#
+#   export STRICT_MODE=true
+#   __validate_xml_dates_lightweight "/tmp/large_notes.xml"
+#   # Validates sample, fails immediately on first invalid date
+#
+# Related: __validate_xml_dates() (calls this for large files)
+# Related: __validate_iso8601_date() (validates ISO 8601 date format)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Lightweight XML date validation for large files
 function __validate_xml_dates_lightweight() {
  __log_start
@@ -1332,6 +1657,57 @@ function __validate_xml_dates_lightweight() {
 }
 
 # Validate CSV dates
+##
+# Validates ISO 8601 dates in CSV file columns
+# Validates date formats in specified CSV columns. Locates columns by name in header row,
+# then validates all date values in those columns. Supports ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
+# Used before CSV database imports to ensure date data integrity.
+#
+# Parameters:
+#   $1: CSV_FILE - Path to CSV file to validate (required)
+#   $2+: DATE_COLUMNS - Column names containing dates to validate (required, at least one)
+#       Examples: "created_at", "closed_at", "updated_at"
+#
+# Returns:
+#   0: Success - All dates are valid (or columns not found)
+#   1: Failure - CSV structure validation failed, column not found, or invalid dates found
+#
+# Error codes:
+#   0: Success - All dates validated successfully
+#   1: Failure - CSV structure validation failed (via __validate_csv_structure)
+#   1: Failure - Date column not found in CSV header
+#   1: Failure - Invalid ISO 8601 dates found in CSV columns
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads CSV file from filesystem (header and data rows)
+#   - Executes head, tail, cut, grep commands to extract and validate dates
+#   - Validates dates using __validate_iso8601_date
+#   - Logs validation results to standard logger
+#   - File operations: Reads CSV file
+#   - No database or network operations
+#
+# Notes:
+#   - Validates CSV structure first (via __validate_csv_structure)
+#   - Locates columns by name in header row (case-sensitive)
+#   - Validates all date values in specified columns (skips header row)
+#   - Only validates ISO 8601 format dates (YYYY-MM-DDTHH:MM:SSZ)
+#   - Column names must match exactly (case-sensitive)
+#   - Common validation function used before CSV database imports
+#
+# Example:
+#   __validate_csv_dates "/tmp/notes.csv" "created_at" "closed_at"
+#   # Validates created_at and closed_at columns in CSV
+#
+# Related: __validate_csv_structure() (validates CSV structure first)
+# Related: __validate_iso8601_date() (validates ISO 8601 date format)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_csv_dates() {
  local CSV_FILE="${1}"
  local DATE_COLUMNS=("${@:2}")
@@ -1447,6 +1823,54 @@ function __validate_file_checksum() {
 }
 
 # Validate file checksum from file
+##
+# Validates file integrity by comparing checksum from a checksum file
+# Extracts expected checksum from a checksum file (MD5, SHA256, etc.) and validates the target file
+# against it. Supports multiple checksum file formats: filename-based lookup or single-line format.
+# Skips actual checksum comparison in test/hybrid mode but still validates file/checksum extraction.
+#
+# Parameters:
+#   $1: File path - Path to file to validate (required)
+#   $2: Checksum file - Path to file containing expected checksum (required)
+#   $3: Algorithm - Checksum algorithm to use (optional, default: sha256, supports: md5, sha1, sha256, sha512)
+#
+# Returns:
+#   0: Success - File checksum matches expected value or test mode enabled
+#   1: Failure - File not found, checksum file not found/unreadable, checksum extraction failed, or checksum mismatch
+#
+# Error codes:
+#   0: Success - Checksum validated successfully or test mode (skipped validation)
+#   1: Failure - File validation failed, checksum file missing/unreadable, checksum extraction failed, or checksum mismatch
+#
+# Context variables:
+#   Reads:
+#     - HYBRID_MOCK_MODE: If set, skips checksum validation (optional)
+#     - TEST_MODE: If set, skips checksum validation (optional)
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads target file and checksum file from filesystem
+#   - Executes checksum calculation command (md5sum, sha256sum, etc.)
+#   - Logs validation results to standard logger
+#   - No file modifications or network operations
+#
+# Checksum file formats supported:
+#   1. Filename-based: "checksum_value  filename.ext" (standard format)
+#   2. Single-line: "checksum_value" (first field extracted)
+#
+# Example:
+#   if __validate_file_checksum_from_file "/tmp/data.tar.gz" "/tmp/data.tar.gz.md5" "md5"; then
+#     echo "File integrity verified"
+#   else
+#     echo "Checksum mismatch"
+#   fi
+#
+# Related: __validate_file_checksum() (validates checksum directly)
+# Related: __validate_input_file() (validates file existence/readability)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_file_checksum_from_file() {
  __log_start
  local FILE_PATH="${1}"
@@ -1512,6 +1936,63 @@ function __validate_file_checksum_from_file() {
  return 0
 }
 
+##
+# Generates checksum for a file using specified algorithm
+# Calculates checksum (MD5, SHA1, SHA256, SHA512) for a file and optionally saves
+# it to a checksum file. Outputs checksum to stdout for capture. Supports multiple
+# checksum algorithms. Used for file integrity verification and checksum file generation.
+#
+# Parameters:
+#   $1: FILE_PATH - Path to file to generate checksum for (required)
+#   $2: ALGORITHM - Checksum algorithm to use (optional, default: sha256)
+#       Supported: md5, sha1, sha256, sha512
+#   $3: OUTPUT_FILE - Path to save checksum file (optional, if not provided, outputs to stdout only)
+#
+# Returns:
+#   0: Success - Checksum generated successfully
+#   1: Failure - File validation failed or invalid algorithm
+#
+# Error codes:
+#   0: Success - Checksum generated successfully
+#   1: Failure - File does not exist or is not readable (via __validate_input_file)
+#   1: Failure - Invalid algorithm specified (not md5, sha1, sha256, or sha512)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies:
+#     - Creates checksum file if OUTPUT_FILE provided
+#
+# Side effects:
+#   - Reads file from filesystem
+#   - Executes checksum command (md5sum, sha1sum, sha256sum, sha512sum)
+#   - Creates checksum file if OUTPUT_FILE provided (format: checksum + spaces + filename)
+#   - Outputs checksum to stdout (for capture with command substitution)
+#   - Logs validation results to standard logger
+#   - File operations: Reads input file, creates checksum file (if OUTPUT_FILE provided)
+#   - No database or network operations
+#
+# Notes:
+#   - Outputs checksum to stdout (use command substitution to capture)
+#   - Checksum file format: "checksum  filename" (standard md5sum/sha256sum format)
+#   - If OUTPUT_FILE provided, creates checksum file in standard format
+#   - If OUTPUT_FILE not provided, only outputs checksum value to stdout
+#   - Common checksum algorithms: md5 (fast), sha256 (secure, default), sha512 (most secure)
+#   - Used for generating checksum files for file integrity verification
+#
+# Example:
+#   CHECKSUM=$(__generate_file_checksum "/tmp/file.txt" "sha256")
+#   echo "Checksum: ${CHECKSUM}"
+#   # Generates SHA256 checksum and captures it
+#
+#   __generate_file_checksum "/tmp/file.txt" "md5" "/tmp/file.txt.md5"
+#   # Generates MD5 checksum and saves to file
+#
+# Related: __validate_file_checksum() (validates checksum directly)
+# Related: __validate_file_checksum_from_file() (validates checksum from file)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Generate file checksum
 function __generate_file_checksum() {
  __log_start
@@ -1577,6 +2058,56 @@ function __generate_file_checksum() {
  return 0
 }
 
+##
+# Validates checksums for all files in a directory
+# Validates checksums for all files in a directory against a checksum file. Iterates
+# through all files in directory, extracts relative paths, and validates each file's
+# checksum. Used for verifying integrity of directory contents (e.g., downloaded datasets).
+#
+# Parameters:
+#   $1: DIRECTORY - Path to directory containing files to validate (required)
+#   $2: CHECKSUM_FILE - Path to checksum file containing expected checksums (required)
+#   $3: ALGORITHM - Checksum algorithm to use (optional, default: sha256)
+#       Supported: md5, sha1, sha256, sha512
+#
+# Returns:
+#   0: Success - All file checksums validated successfully
+#   1: Failure - Directory validation failed, checksum file validation failed, or checksum mismatch
+#
+# Error codes:
+#   0: Success - All files validated successfully
+#   1: Failure - Directory does not exist or is not accessible
+#   1: Failure - Checksum file validation failed (via __validate_input_file)
+#   1: Failure - One or more file checksums do not match expected values
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Finds all files in directory using find command
+#   - Validates each file's checksum using __validate_file_checksum_from_file
+#   - Logs validation results to standard logger
+#   - File operations: Reads directory contents, reads checksum file, reads files for checksum calculation
+#   - No database or network operations
+#
+# Notes:
+#   - Validates all files found in directory (recursive, if find is recursive)
+#   - Uses relative paths from directory root for checksum file lookup
+#   - Stops on first checksum mismatch (but logs all failures)
+#   - Common validation function used for verifying downloaded datasets
+#   - Checksum file format: "checksum  relative/path/to/file" (standard format)
+#
+# Example:
+#   __validate_directory_checksums "/tmp/downloaded_data" "/tmp/checksums.md5" "md5"
+#   # Validates all files in directory against MD5 checksums
+#
+# Related: __validate_file_checksum_from_file() (validates individual file checksum)
+# Related: __generate_file_checksum() (generates checksum for file)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Validate directory checksums
 function __validate_directory_checksums() {
  __log_start
@@ -1621,6 +2152,54 @@ function __validate_directory_checksums() {
  return 0
 }
 
+##
+# Validates JSON file against JSON Schema specification
+# Validates that a JSON file conforms to a JSON Schema specification using ajv command.
+# Validates JSON file existence and schema file existence, then uses ajv to perform
+# schema validation. Used for ensuring JSON data conforms to expected structure and types.
+#
+# Parameters:
+#   $1: JSON_FILE - Path to JSON file to validate (required)
+#   $2: SCHEMA_FILE - Path to JSON Schema file (required)
+#
+# Returns:
+#   0: Success - JSON file conforms to schema
+#   1: Failure - File validation failed, ajv unavailable, or schema validation failed
+#
+# Error codes:
+#   0: Success - JSON file conforms to schema
+#   1: Failure - JSON file does not exist or is not readable (via __validate_input_file)
+#   1: Failure - Schema file does not exist or is not readable (via __validate_input_file)
+#   1: Failure - ajv command not available (required dependency)
+#   1: Failure - JSON file does not conform to schema (schema validation failed)
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Reads JSON file and schema file from filesystem
+#   - Executes ajv command to validate JSON against schema
+#   - Logs validation results to standard logger
+#   - File operations: Reads JSON file and schema file
+#   - No database or network operations
+#
+# Notes:
+#   - Requires ajv command (JSON Schema validator, installed via npm)
+#   - Validates file existence and readability before schema validation
+#   - Schema validation checks structure, types, required fields, formats, etc.
+#   - Common validation function used for API response validation
+#   - Used in conjunction with __validate_json_structure() (validates syntax first)
+#
+# Example:
+#   __validate_json_schema "/tmp/api_response.json" "/path/to/schema.json"
+#   # Validates API response against JSON Schema
+#
+# Related: __validate_json_structure() (validates JSON syntax first)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Validate JSON schema
 function __validate_json_schema() {
  __log_start
@@ -1656,6 +2235,60 @@ function __validate_json_schema() {
  return 0
 }
 
+##
+# Validates geographic coordinates (latitude and longitude) with range and precision checks
+# Validates that latitude and longitude values are numeric, within valid ranges (latitude: -90 to 90,
+# longitude: -180 to 180), and optionally checks decimal precision. Provides detailed error reporting
+# for invalid coordinates. Used for validating geographic data in notes, boundaries, and other
+# geospatial operations.
+#
+# Parameters:
+#   $1: LATITUDE - Latitude value to validate (required, must be numeric)
+#   $2: LONGITUDE - Longitude value to validate (required, must be numeric)
+#   $3: PRECISION - Maximum decimal places allowed (optional, default: 7)
+#
+# Returns:
+#   0: Success - Coordinates are valid
+#   1: Failure - Coordinates are invalid (non-numeric, out of range, or precision exceeded)
+#
+# Error codes:
+#   0: Success - Coordinates are valid
+#   1: Failure - Latitude is not numeric
+#   1: Failure - Longitude is not numeric
+#   1: Failure - Latitude is outside valid range (-90 to 90)
+#   1: Failure - Longitude is outside valid range (-180 to 180)
+#   1: Failure - Coordinate precision exceeds maximum allowed
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Validates coordinate values using regex and bc (for range checks)
+#   - Logs validation errors to standard logger
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Validates numeric format using regex (allows negative numbers and decimals)
+#   - Validates latitude range: -90 to 90 degrees
+#   - Validates longitude range: -180 to 180 degrees
+#   - Precision check counts decimal places (optional, default: 7)
+#   - Uses bc command for floating-point range comparisons
+#   - Common validation function used in geospatial data processing
+#   - Provides detailed error messages for each validation failure
+#
+# Example:
+#   __validate_coordinates 45.1234567 -73.9876543
+#   # Validates coordinates with default precision (7 decimal places)
+#
+#   __validate_coordinates 45.123 -73.987 3
+#   # Validates coordinates with precision limit of 3 decimal places
+#
+# Related: __validate_numeric_range() (validates numeric ranges)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Validate coordinates (enhanced version with precision control and better error reporting)
 function __validate_coordinates() {
  __log_start
@@ -1719,6 +2352,57 @@ function __validate_coordinates() {
 }
 
 # Validate numeric range
+##
+# Validates that a numeric value is within specified range
+# Validates that a value is numeric and falls within the specified minimum and maximum range.
+# Uses bc command for floating-point comparisons. Provides detailed error messages for
+# out-of-range values. Used for validating numeric parameters and configuration values.
+#
+# Parameters:
+#   $1: VALUE - Numeric value to validate (required)
+#   $2: MIN - Minimum allowed value (required)
+#   $3: MAX - Maximum allowed value (required)
+#   $4: DESCRIPTION - Description of value for error messages (optional, default: "Value")
+#
+# Returns:
+#   0: Success - Value is within valid range
+#   1: Failure - Value is not numeric or is outside valid range
+#
+# Error codes:
+#   0: Success - Value is numeric and within range
+#   1: Failure - Value is not numeric (does not match numeric pattern)
+#   1: Failure - Value is less than MIN
+#   1: Failure - Value is greater than MAX
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity (only logs in TRACE mode)
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Validates numeric format using regex
+#   - Executes bc command for floating-point range comparisons
+#   - Logs validation results to standard logger (only in TRACE mode to reduce verbosity)
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Validates numeric format using regex (allows negative numbers and decimals)
+#   - Uses bc command for floating-point comparisons (supports decimals)
+#   - Only logs in TRACE mode to reduce log verbosity (common validation function)
+#   - Common validation function used for parameter validation
+#   - Supports both integer and floating-point values
+#
+# Example:
+#   __validate_numeric_range 5 1 10 "Thread count"
+#   # Validates thread count is between 1 and 10
+#
+#   __validate_numeric_range 45.5 -90 90 "Latitude"
+#   # Validates latitude is between -90 and 90
+#
+# Related: __validate_coordinates() (validates geographic coordinates)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 function __validate_numeric_range() {
  __log_start
  local VALUE="${1}"
@@ -1749,6 +2433,53 @@ function __validate_numeric_range() {
  return 0
 }
 
+##
+# Validates that a string matches a specified regex pattern
+# Validates that a string matches a regular expression pattern. Uses Bash regex matching
+# ([[ string =~ pattern ]]). Provides error message if pattern does not match. Used for
+# validating string formats (e.g., email addresses, identifiers, file names).
+#
+# Parameters:
+#   $1: STRING - String value to validate (required)
+#   $2: PATTERN - Regular expression pattern to match against (required)
+#   $3: DESCRIPTION - Description of string for error messages (optional, default: "String")
+#
+# Returns:
+#   0: Success - String matches pattern
+#   1: Failure - String does not match pattern
+#
+# Error codes:
+#   0: Success - String matches the specified pattern
+#   1: Failure - String does not match the pattern
+#
+# Context variables:
+#   Reads:
+#     - LOG_LEVEL: Controls logging verbosity (only logs in TRACE mode)
+#   Sets: None
+#   Modifies: None
+#
+# Side effects:
+#   - Validates string against regex pattern using Bash regex matching
+#   - Logs validation results to standard logger (only in TRACE mode to reduce verbosity)
+#   - No file, database, or network operations
+#
+# Notes:
+#   - Uses Bash regex matching ([[ string =~ pattern ]])
+#   - Pattern is a Bash extended regular expression (ERE)
+#   - Only logs in TRACE mode to reduce log verbosity (common validation function)
+#   - Common validation function used for string format validation
+#   - Pattern matching is case-sensitive
+#
+# Example:
+#   __validate_string_pattern "user@example.com" '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' "Email"
+#   # Validates email format
+#
+#   __validate_string_pattern "file_123" '^[a-zA-Z0-9_]+$' "Filename"
+#   # Validates filename contains only alphanumeric and underscore
+#
+# Related: __validate_numeric_range() (validates numeric ranges)
+# Related: STANDARD_ERROR_CODES.md (error code definitions)
+##
 # Validate string pattern
 function __validate_string_pattern() {
  __log_start
