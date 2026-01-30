@@ -204,9 +204,10 @@ evaluate_test_coverage() {
     
     # Find all scripts in root directory
     local scripts=()
+    # Use explicit || true to handle find/sort errors gracefully
     while IFS= read -r -d '' script; do
         scripts+=("${script}")
-    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z)
+    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z || true)
     
     if [[ ${#scripts[@]} -eq 0 ]]; then
         print_message "${YELLOW}" "⚠ No scripts found in root directory, skipping coverage evaluation"
@@ -269,7 +270,13 @@ evaluate_test_coverage() {
 
 # Run coverage evaluation (non-blocking)
 if [[ -d "${PROJECT_ROOT}/tests" ]]; then
-    evaluate_test_coverage "." "tests" || true
+    # Invoke function separately to avoid shellcheck SC2310 warning
+    evaluate_test_coverage "." "tests"
+    coverage_status=$?
+    if [[ ${coverage_status} -ne 0 ]]; then
+        # Coverage evaluation failed, but we continue (non-blocking)
+        print_message "${YELLOW}" "⚠ Test coverage evaluation encountered issues, continuing..."
+    fi
 else
     print_message "${YELLOW}" "⚠ No tests/ directory found, skipping coverage evaluation"
 fi

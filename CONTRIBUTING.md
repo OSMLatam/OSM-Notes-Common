@@ -103,11 +103,11 @@ declare -r ERROR_INVALID_ARGUMENT=242
 
 #### File Naming Convention
 
-- **Process files**: `processAPINotes_21_createApiTables.sql`
+- **Process files**: `processAPINotes_20_createApiTables.sql`
   > **Note:** ETL files are maintained in
   > [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics).
-- **Function files**: `functionsProcess_21_createFunctionToGetCountry.sql`
-- **Drop files**: `processAPINotes_12_dropApiTables.sql`
+- **Function files**: `functionsProcess_20_createFunctionToGetCountry.sql`
+- **Drop files**: `processAPINotes_10_dropApiTables.sql`
 
 #### SQL Code Standards
 
