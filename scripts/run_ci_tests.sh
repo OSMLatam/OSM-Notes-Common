@@ -145,47 +145,47 @@ evaluate_test_coverage() {
     # shellcheck disable=SC2034
     local scripts_dir="${1:-.}"
     local tests_dir="${2:-tests}"
-    
+
     print_message "${BLUE}" "Evaluating test coverage..."
-    
+
     # Count test files for a script
     count_test_files() {
         local script_path="${1}"
         local script_name
         script_name=$(basename "${script_path}" .sh)
-        
+
         local test_count=0
-        
+
         # Check unit tests
         if [[ -d "${PROJECT_ROOT}/${tests_dir}/unit" ]]; then
             if find "${PROJECT_ROOT}/${tests_dir}/unit" -name "test_${script_name}.sh" -o -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" 2>/dev/null | grep -q .; then
                 test_count=$(find "${PROJECT_ROOT}/${tests_dir}/unit" \( -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" \) -type f 2>/dev/null | wc -l | tr -d ' ')
             fi
         fi
-        
+
         # Check integration tests
         if [[ -d "${PROJECT_ROOT}/${tests_dir}/integration" ]]; then
             if find "${PROJECT_ROOT}/${tests_dir}/integration" -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" 2>/dev/null | grep -q .; then
                 test_count=$((test_count + $(find "${PROJECT_ROOT}/${tests_dir}/integration" \( -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" \) -type f 2>/dev/null | wc -l | tr -d ' ')))
             fi
         fi
-        
+
         # Also check tests directory directly (for simpler structures)
         if [[ -d "${PROJECT_ROOT}/${tests_dir}" ]]; then
             if find "${PROJECT_ROOT}/${tests_dir}" -maxdepth 1 -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" 2>/dev/null | grep -q .; then
                 test_count=$((test_count + $(find "${PROJECT_ROOT}/${tests_dir}" -maxdepth 1 \( -name "*${script_name}*.sh" -o -name "*${script_name}*.bats" \) -type f 2>/dev/null | wc -l | tr -d ' ')))
             fi
         fi
-        
+
         echo "${test_count}"
     }
-    
+
     # Calculate coverage percentage
     calculate_coverage() {
         local script_path="${1}"
         local test_count
         test_count=$(count_test_files "${script_path}")
-        
+
         if [[ ${test_count} -gt 0 ]]; then
             # Heuristic: 1 test = 40%, 2 tests = 60%, 3+ tests = 80%
             local coverage=0
@@ -201,25 +201,24 @@ evaluate_test_coverage() {
             echo "0"
         fi
     }
-    
+
     # Find all scripts in root directory
     local scripts=()
-    # Use explicit || true to handle find/sort errors gracefully
     while IFS= read -r -d '' script; do
         scripts+=("${script}")
-    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z || true)
-    
+    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z)
+
     if [[ ${#scripts[@]} -eq 0 ]]; then
         print_message "${YELLOW}" "⚠ No scripts found in root directory, skipping coverage evaluation"
         return 0
     fi
-    
+
     local total_scripts=${#scripts[@]}
     local scripts_with_tests=0
     local scripts_above_threshold=0
     local total_coverage=0
     local coverage_count=0
-    
+
     for script in "${scripts[@]}"; do
         local script_name
         script_name=$(basename "${script}")
@@ -227,26 +226,26 @@ evaluate_test_coverage() {
         test_count=$(count_test_files "${script}")
         local coverage
         coverage=$(calculate_coverage "${script}")
-        
+
         if [[ ${test_count} -gt 0 ]]; then
             scripts_with_tests=$((scripts_with_tests + 1))
             if [[ "${coverage}" =~ ^[0-9]+$ ]] && [[ ${coverage} -gt 0 ]]; then
                 total_coverage=$((total_coverage + coverage))
                 coverage_count=$((coverage_count + 1))
-                
+
                 if [[ ${coverage} -ge 80 ]]; then
                     scripts_above_threshold=$((scripts_above_threshold + 1))
                 fi
             fi
         fi
     done
-    
+
     # Calculate overall coverage
     local overall_coverage=0
     if [[ ${coverage_count} -gt 0 ]]; then
         overall_coverage=$((total_coverage / coverage_count))
     fi
-    
+
     echo
     echo "Coverage Summary:"
     echo "  Total scripts: ${total_scripts}"
@@ -254,7 +253,7 @@ evaluate_test_coverage() {
     echo "  Scripts above 80% coverage: ${scripts_above_threshold}"
     echo "  Average coverage: ${overall_coverage}%"
     echo
-    
+
     if [[ ${overall_coverage} -ge 80 ]]; then
         print_message "${GREEN}" "✓ Coverage target met (${overall_coverage}% >= 80%)"
     elif [[ ${overall_coverage} -ge 50 ]]; then
@@ -262,7 +261,7 @@ evaluate_test_coverage() {
     else
         print_message "${YELLOW}" "⚠ Coverage significantly below target (${overall_coverage}% < 50%)"
     fi
-    
+
     echo
     print_message "${BLUE}" "Note: This is an estimated coverage based on test file presence."
     print_message "${BLUE}" "For accurate coverage, use code instrumentation tools like bashcov."
@@ -270,13 +269,7 @@ evaluate_test_coverage() {
 
 # Run coverage evaluation (non-blocking)
 if [[ -d "${PROJECT_ROOT}/tests" ]]; then
-    # Invoke function separately to avoid shellcheck SC2310 warning
-    evaluate_test_coverage "." "tests"
-    coverage_status=$?
-    if [[ ${coverage_status} -ne 0 ]]; then
-        # Coverage evaluation failed, but we continue (non-blocking)
-        print_message "${YELLOW}" "⚠ Test coverage evaluation encountered issues, continuing..."
-    fi
+    evaluate_test_coverage "." "tests" || true
 else
     print_message "${YELLOW}" "⚠ No tests/ directory found, skipping coverage evaluation"
 fi
