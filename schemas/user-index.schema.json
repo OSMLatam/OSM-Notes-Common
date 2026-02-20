@@ -24,7 +24,11 @@
       },
       "contributor_type_name": {
         "type": ["string", "null"],
-        "description": "Contributor type name (human-readable)"
+        "description": "Contributor type name (human-readable, legacy)"
+      },
+      "contributor_type_name_en": {
+        "type": ["string", "null"],
+        "description": "Contributor type name in English (for UI/display)"
       },
       "date_starting_creating_notes": {
         "type": ["string", "null"],
