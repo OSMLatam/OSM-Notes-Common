@@ -30,6 +30,14 @@
         "type": ["string", "null"],
         "description": "Contributor type name in English (for UI/display)"
       },
+      "experience_level_id": {
+        "type": ["integer", "null"],
+        "description": "Experience level ID (1=newcomer to 7=legend)"
+      },
+      "experience_level": {
+        "type": ["string", "null"],
+        "description": "Experience level name (newcomer, beginner, intermediate, advanced, expert, master, legend)"
+      },
       "date_starting_creating_notes": {
         "type": ["string", "null"],
         "description": "Date when user started creating notes"
