@@ -469,16 +469,18 @@ __log_start() {
  __logger_function_start_time="${start_time}"
  __logger_start_time_stack+=("${start_time}")
 
- # Log the start with special format
- local message="#-- STARTED ${function_name^^} IN ${simplified_script_name^^}"
- local caller_info
- caller_info=$(__get_caller_info)
- local formatted_message
- formatted_message=$(__format_log_message "INFO" "${message}" "${caller_info}")
+ # Only output start/finish messages when log level is DEBUG or TRACE
+ if __should_log_message "DEBUG"; then
+  local message="#-- STARTED ${function_name^^} IN ${simplified_script_name^^}"
+  local caller_info
+  caller_info=$(__get_caller_info)
+  local formatted_message
+  formatted_message=$(__format_log_message "INFO" "${message}" "${caller_info}")
 
- __output_log "${formatted_message}"
- # Add empty line after start message as expected by tests
- __output_log ""
+  __output_log "${formatted_message}"
+  # Add empty line after start message as expected by tests
+  __output_log ""
+ fi
 }
 
 # Finish timing a function
@@ -518,21 +520,23 @@ __log_finish() {
  local minutes=$(((execution_time % 3600) / 60))
  local seconds=$((execution_time % 60))
 
- # Log the finish with special format and timing
- local message="|-- FINISHED ${function_name^^} IN ${simplified_script_name^^}"
- local caller_info
- caller_info=$(__get_caller_info)
- local formatted_message
- formatted_message=$(__format_log_message "INFO" "${message}" "${caller_info}")
+ # Only output start/finish messages when log level is DEBUG or TRACE
+ if __should_log_message "DEBUG"; then
+  local message="|-- FINISHED ${function_name^^} IN ${simplified_script_name^^}"
+  local caller_info
+  caller_info=$(__get_caller_info)
+  local formatted_message
+  formatted_message=$(__format_log_message "INFO" "${message}" "${caller_info}")
 
- __output_log "${formatted_message}"
+  __output_log "${formatted_message}"
 
- # Add timing information in the format expected by tests
- local timing_message="|-- Took: ${hours}h:${minutes}m:${seconds}s"
- __output_log "${timing_message}"
+  # Add timing information in the format expected by tests
+  local timing_message="|-- Took: ${hours}h:${minutes}m:${seconds}s"
+  __output_log "${timing_message}"
 
- # Add empty line after finish message as expected by tests
- __output_log ""
+  # Add empty line after finish message as expected by tests
+  __output_log ""
+ fi
 }
 
 # Default log function (original behavior)
