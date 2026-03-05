@@ -1,0 +1,1036 @@
+# OSM Notes API - OpenAPI 3.0 specification
+# Canonical version: OSM-Notes-Common repo at schemas/openapi/notes-api-v1.yaml
+# This API serves the notes-api/v1 and related endpoints.
+
+openapi: 3.0.0
+info:
+  title: OSM Notes API
+  version: "0.1.0"
+  description: |
+    REST API for OSM Notes Analytics and Ingestion. Provides programmatic access to
+    user profiles, country analytics, notes, and real-time metrics.
+  contact:
+    name: OSM Notes Team
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://notes-api.osm.lat
+    description: Production server
+
+security:
+  - UserAgent: []
+
+components:
+  securitySchemes:
+    UserAgent:
+      type: apiKey
+      in: header
+      name: User-Agent
+      description: "User-Agent header required for all requests. Format: AppName/Version (Contact)"
+
+  schemas:
+    Error:
+      type: object
+      required: [error, message, statusCode]
+      properties:
+        error:
+          type: string
+          description: Error type name
+          example: Bad Request
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid note ID
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+    Note:
+      type: object
+      required: [note_id, latitude, longitude, status, created_at]
+      properties:
+        note_id:
+          type: integer
+          description: OSM note ID
+          example: 12345
+        latitude:
+          type: number
+          format: float
+          description: Latitude coordinate
+          example: 4.6097
+        longitude:
+          type: number
+          format: float
+          description: Longitude coordinate
+          example: -74.0817
+        status:
+          type: string
+          enum: [open, closed, reopened]
+          description: Note status
+          example: open
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-15T10:30:00Z"
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Closing timestamp
+        id_user:
+          type: integer
+          nullable: true
+          example: 67890
+        id_country:
+          type: integer
+          nullable: true
+          example: 42
+        comments_count:
+          type: integer
+          example: 3
+
+    NoteComment:
+      type: object
+      properties:
+        comment_id:
+          type: integer
+          example: 1
+        note_id:
+          type: integer
+          example: 12345
+        user_id:
+          type: integer
+          nullable: true
+          example: 67890
+        username:
+          type: string
+          nullable: true
+          example: test_user
+        action:
+          type: string
+          example: opened
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        text:
+          type: string
+          nullable: true
+          example: This is a test note
+
+    UserProfile:
+      type: object
+      properties:
+        dimension_user_id:
+          type: integer
+          example: 123
+        user_id:
+          type: integer
+          example: 12345
+        username:
+          type: string
+          nullable: true
+          example: test_user
+        history_whole_open:
+          type: integer
+          example: 100
+        history_whole_closed:
+          type: integer
+          example: 50
+        history_whole_commented:
+          type: integer
+          example: 75
+        avg_days_to_resolution:
+          type: number
+          format: float
+          nullable: true
+          example: 5.5
+        resolution_rate:
+          type: number
+          format: float
+          nullable: true
+          example: 50.0
+
+    CountryProfile:
+      type: object
+      properties:
+        dimension_country_id:
+          type: integer
+          example: 45
+        country_id:
+          type: integer
+          example: 42
+        country_name:
+          type: string
+          nullable: true
+          example: Colombia
+        iso_alpha2:
+          type: string
+          nullable: true
+          example: CO
+        history_whole_open:
+          type: integer
+          example: 1000
+        history_whole_closed:
+          type: integer
+          example: 800
+        resolution_rate:
+          type: number
+          format: float
+          nullable: true
+          example: 80.0
+
+    GlobalAnalytics:
+      type: object
+      properties:
+        dimension_global_id:
+          type: integer
+          example: 1
+        history_whole_open:
+          type: integer
+          example: 1000000
+        history_whole_closed:
+          type: integer
+          example: 800000
+        currently_open_count:
+          type: integer
+          nullable: true
+          example: 200000
+        resolution_rate:
+          type: number
+          format: float
+          nullable: true
+          example: 80.0
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 250
+        total_pages:
+          type: integer
+          example: 13
+
+    TrendEntry:
+      type: object
+      properties:
+        year:
+          type: string
+        open:
+          type: integer
+        closed:
+          type: integer
+
+    TrendsResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [users, countries, global]
+        entity_id:
+          type: integer
+        entity_name:
+          type: string
+          nullable: true
+        trends:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendEntry"
+        working_hours:
+          type: array
+          items:
+            type: integer
+          description: Array of 168 numbers (24h * 7 days)
+
+paths:
+  /notes-api/v1:
+    get:
+      summary: Get API version information
+      tags: [Info]
+      security:
+        - UserAgent: []
+      responses:
+        "200":
+          description: API version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: OSM Notes API
+                  version:
+                    type: string
+                    example: "0.1.0"
+                  apiVersion:
+                    type: string
+                    example: v1
+                  status:
+                    type: string
+                    example: operational
+
+  /health:
+    get:
+      summary: Health check endpoint
+      tags: [Health]
+      description: Verifies the status of the API and its dependencies
+      responses:
+        "200":
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  database:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [up, down]
+                      responseTime:
+                        type: integer
+                  redis:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [up, down, not_configured]
+        "503":
+          description: Service unhealthy
+
+  /metrics:
+    get:
+      summary: Prometheus metrics endpoint
+      tags: [Metrics]
+      description: Exposes metrics in Prometheus format for monitoring
+      responses:
+        "200":
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  # HELP http_requests_total Total number of HTTP requests
+                  # TYPE http_requests_total counter
+
+  /notes-api/v1/notes:
+    get:
+      summary: Search notes with filters
+      tags: [Notes]
+      description: |
+        Basic search supports standard filters. Advanced search is enabled when
+        text or operator parameters are provided (text search in comments, AND/OR).
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: integer
+          description: Filter by country ID
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [open, closed, reopened]
+          description: Filter by status
+        - in: query
+          name: user_id
+          schema:
+            type: integer
+          description: Filter by user ID
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+          description: Filter notes created from this date (YYYY-MM-DD)
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+          description: Filter notes created until this date (YYYY-MM-DD)
+        - in: query
+          name: bbox
+          schema:
+            type: string
+          description: Bounding box (min_lon,min_lat,max_lon,max_lat)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Results per page
+        - in: query
+          name: text
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 500
+          description: Search text in note comments (enables advanced search)
+        - in: query
+          name: operator
+          schema:
+            type: string
+            enum: [AND, OR]
+            default: AND
+          description: Logical operator to combine filters
+      responses:
+        "200":
+          description: Search results with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                  filters:
+                    type: object
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/notes/{note_id}:
+    get:
+      summary: Get a note by ID
+      tags: [Notes]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: note_id
+          required: true
+          schema:
+            type: integer
+          description: OSM note ID
+      responses:
+        "200":
+          description: Note details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Note"
+        "400":
+          description: Invalid note ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Note not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/notes/{note_id}/comments:
+    get:
+      summary: Get comments for a note
+      tags: [Notes]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: note_id
+          required: true
+          schema:
+            type: integer
+          description: OSM note ID
+      responses:
+        "200":
+          description: List of note comments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NoteComment"
+                  count:
+                    type: integer
+                    example: 2
+        "400":
+          description: Invalid note ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/users/{user_id}:
+    get:
+      summary: Get user profile by ID
+      tags: [Users]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+          description: OSM user ID
+      responses:
+        "200":
+          description: User profile with analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/UserProfile"
+        "400":
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/users/rankings:
+    get:
+      summary: Get user rankings by metric
+      tags: [Users]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: metric
+          required: true
+          schema:
+            type: string
+            enum:
+              - history_whole_open
+              - history_whole_closed
+              - history_whole_commented
+              - resolution_rate
+              - avg_days_to_resolution
+          description: Metric to rank by
+        - in: query
+          name: country
+          schema:
+            type: integer
+          description: Filter by country ID (optional)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of results
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        "200":
+          description: User rankings
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/countries/{country_id}:
+    get:
+      summary: Get country profile by ID
+      tags: [Countries]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: country_id
+          required: true
+          schema:
+            type: integer
+          description: Country ID
+      responses:
+        "200":
+          description: Country profile with analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CountryProfile"
+        "400":
+          description: Invalid country ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Country not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/countries/rankings:
+    get:
+      summary: Get country rankings by metric
+      tags: [Countries]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: metric
+          required: true
+          schema:
+            type: string
+            enum:
+              - history_whole_open
+              - history_whole_closed
+              - resolution_rate
+              - avg_days_to_resolution
+              - notes_health_score
+          description: Metric to rank by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of results
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        "200":
+          description: Country rankings
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/analytics/global:
+    get:
+      summary: Get global analytics and statistics
+      tags: [Analytics]
+      security:
+        - UserAgent: []
+      responses:
+        "200":
+          description: Global analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GlobalAnalytics"
+        "404":
+          description: Global analytics not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/analytics/comparison:
+    get:
+      summary: Compare users or countries by their metrics
+      tags: [Analytics]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [users, countries]
+          description: Type of entities to compare
+        - in: query
+          name: ids
+          required: true
+          schema:
+            type: string
+          description: Comma-separated list of IDs (max 10)
+      responses:
+        "200":
+          description: Comparison result with metrics per entity
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/analytics/trends:
+    get:
+      summary: Get temporal trends for users, countries, or global
+      tags: [Analytics]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [users, countries, global]
+          description: Type of entity for trends
+        - in: query
+          name: user_id
+          schema:
+            type: integer
+          description: User ID (required if type is users)
+        - in: query
+          name: country_id
+          schema:
+            type: integer
+          description: Country ID (required if type is countries)
+      responses:
+        "200":
+          description: Trends data with temporal analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendsResult"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Entity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/search/users:
+    get:
+      summary: Search users by username or user_id
+      tags: [Search]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: Search query (username pattern or user_id)
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        username:
+                          type: string
+                        history_whole_open:
+                          type: integer
+                        history_whole_closed:
+                          type: integer
+        "400":
+          description: Invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/search/countries:
+    get:
+      summary: Search countries by name, ISO code, or country_id
+      tags: [Search]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: Search query (name pattern, ISO code, or country_id)
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        country_id:
+                          type: integer
+                        country_name:
+                          type: string
+                        iso_alpha2:
+                          type: string
+        "400":
+          description: Invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/hashtags:
+    get:
+      summary: Get list of hashtags with usage counts
+      tags: [Hashtags]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Results per page
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order (by count)
+      responses:
+        "200":
+          description: List of hashtags with counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hashtag:
+                          type: string
+                        count:
+                          type: integer
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /notes-api/v1/hashtags/{hashtag}:
+    get:
+      summary: Get details for a specific hashtag
+      tags: [Hashtags]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: hashtag
+          required: true
+          schema:
+            type: string
+          description: Hashtag name (without #)
+      responses:
+        "200":
+          description: Hashtag details with users and countries using it
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hashtag:
+                    type: string
+                  users_count:
+                    type: integer
+                  countries_count:
+                    type: integer
+        "400":
+          description: Invalid hashtag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Hashtag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
