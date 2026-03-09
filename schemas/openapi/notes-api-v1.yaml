@@ -5,7 +5,7 @@
 openapi: 3.0.0
 info:
   title: OSM Notes API
-  version: "0.1.0"
+  version: '0.1.0'
   description: |
     REST API for OSM Notes Analytics and Ingestion. Provides programmatic access to
     user profiles, country analytics, notes, and real-time metrics.
@@ -30,7 +30,7 @@ components:
       type: apiKey
       in: header
       name: User-Agent
-      description: "User-Agent header required for all requests. Format: AppName/Version (Contact)"
+      description: 'User-Agent header required for all requests. Format: AppName/Version (Contact)'
 
   schemas:
     Error:
@@ -77,7 +77,7 @@ components:
           type: string
           format: date-time
           description: Creation timestamp
-          example: "2024-01-15T10:30:00Z"
+          example: '2024-01-15T10:30:00Z'
         closed_at:
           type: string
           format: date-time
@@ -118,7 +118,7 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2024-01-15T10:30:00Z"
+          example: '2024-01-15T10:30:00Z'
         text:
           type: string
           nullable: true
@@ -248,7 +248,7 @@ components:
         trends:
           type: array
           items:
-            $ref: "#/components/schemas/TrendEntry"
+            $ref: '#/components/schemas/TrendEntry'
         working_hours:
           type: array
           items:
@@ -263,7 +263,7 @@ paths:
       security:
         - UserAgent: []
       responses:
-        "200":
+        '200':
           description: API version information
           content:
             application/json:
@@ -275,7 +275,7 @@ paths:
                     example: OSM Notes API
                   version:
                     type: string
-                    example: "0.1.0"
+                    example: '0.1.0'
                   apiVersion:
                     type: string
                     example: v1
@@ -289,7 +289,7 @@ paths:
       tags: [Health]
       description: Verifies the status of the API and its dependencies
       responses:
-        "200":
+        '200':
           description: Health status
           content:
             application/json:
@@ -317,7 +317,7 @@ paths:
                       status:
                         type: string
                         enum: [up, down, not_configured]
-        "503":
+        '503':
           description: Service unhealthy
 
   /metrics:
@@ -326,7 +326,7 @@ paths:
       tags: [Metrics]
       description: Exposes metrics in Prometheus format for monitoring
       responses:
-        "200":
+        '200':
           description: Metrics in Prometheus format
           content:
             text/plain:
@@ -409,7 +409,7 @@ paths:
             default: AND
           description: Logical operator to combine filters
       responses:
-        "200":
+        '200':
           description: Search results with pagination
           content:
             application/json:
@@ -419,23 +419,23 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Note"
+                      $ref: '#/components/schemas/Note'
                   pagination:
-                    $ref: "#/components/schemas/Pagination"
+                    $ref: '#/components/schemas/Pagination'
                   filters:
                     type: object
-        "400":
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/notes/{note_id}:
     get:
@@ -451,7 +451,7 @@ paths:
             type: integer
           description: OSM note ID
       responses:
-        "200":
+        '200':
           description: Note details
           content:
             application/json:
@@ -459,25 +459,25 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Note"
-        "400":
+                    $ref: '#/components/schemas/Note'
+        '400':
           description: Invalid note ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "404":
+                $ref: '#/components/schemas/Error'
+        '404':
           description: Note not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/notes/{note_id}/comments:
     get:
@@ -493,7 +493,7 @@ paths:
             type: integer
           description: OSM note ID
       responses:
-        "200":
+        '200':
           description: List of note comments
           content:
             application/json:
@@ -503,22 +503,98 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/NoteComment"
+                      $ref: '#/components/schemas/NoteComment'
                   count:
                     type: integer
                     example: 2
-        "400":
+        '400':
           description: Invalid note ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
+
+  /notes-api/v1/users:
+    get:
+      summary: List all users with pagination
+      tags: [Users]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [user_id, username, history_whole_open, history_whole_closed, resolution_rate]
+            default: user_id
+          description: Sort field
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        '200':
+          description: Paginated list of users
+          headers:
+            X-Total-Count:
+              description: Total number of users
+              schema:
+                type: integer
+            X-Page:
+              description: Current page number
+              schema:
+                type: integer
+            X-Per-Page:
+              description: Items per page
+              schema:
+                type: integer
+            X-Total-Pages:
+              description: Total number of pages
+              schema:
+                type: integer
+            Link:
+              description: Pagination links (RFC 5988)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProfile'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/users/{user_id}:
     get:
@@ -534,7 +610,7 @@ paths:
             type: integer
           description: OSM user ID
       responses:
-        "200":
+        '200':
           description: User profile with analytics
           content:
             application/json:
@@ -542,25 +618,25 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/UserProfile"
-        "400":
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
           description: Invalid user ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "404":
+                $ref: '#/components/schemas/Error'
+        '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/users/rankings:
     get:
@@ -602,24 +678,100 @@ paths:
             default: desc
           description: Sort order
       responses:
-        "200":
+        '200':
           description: User rankings
           content:
             application/json:
               schema:
                 type: object
-        "400":
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
+
+  /notes-api/v1/countries:
+    get:
+      summary: List all countries with pagination
+      tags: [Countries]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [country_id, country_name, history_whole_open, history_whole_closed, resolution_rate]
+            default: country_name
+          description: Sort field
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
+      responses:
+        '200':
+          description: Paginated list of countries
+          headers:
+            X-Total-Count:
+              description: Total number of countries
+              schema:
+                type: integer
+            X-Page:
+              description: Current page number
+              schema:
+                type: integer
+            X-Per-Page:
+              description: Items per page
+              schema:
+                type: integer
+            X-Total-Pages:
+              description: Total number of pages
+              schema:
+                type: integer
+            Link:
+              description: Pagination links (RFC 5988)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CountryProfile'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/countries/{country_id}:
     get:
@@ -635,7 +787,7 @@ paths:
             type: integer
           description: Country ID
       responses:
-        "200":
+        '200':
           description: Country profile with analytics
           content:
             application/json:
@@ -643,25 +795,25 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/CountryProfile"
-        "400":
+                    $ref: '#/components/schemas/CountryProfile'
+        '400':
           description: Invalid country ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "404":
+                $ref: '#/components/schemas/Error'
+        '404':
           description: Country not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/countries/rankings:
     get:
@@ -698,24 +850,24 @@ paths:
             default: desc
           description: Sort order
       responses:
-        "200":
+        '200':
           description: Country rankings
           content:
             application/json:
               schema:
                 type: object
-        "400":
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/analytics/global:
     get:
@@ -724,7 +876,7 @@ paths:
       security:
         - UserAgent: []
       responses:
-        "200":
+        '200':
           description: Global analytics data
           content:
             application/json:
@@ -732,19 +884,19 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/GlobalAnalytics"
-        "404":
+                    $ref: '#/components/schemas/GlobalAnalytics'
+        '404':
           description: Global analytics not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/analytics/comparison:
     get:
@@ -767,24 +919,24 @@ paths:
             type: string
           description: Comma-separated list of IDs (max 10)
       responses:
-        "200":
+        '200':
           description: Comparison result with metrics per entity
           content:
             application/json:
               schema:
                 type: object
-        "400":
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/analytics/trends:
     get:
@@ -811,30 +963,30 @@ paths:
             type: integer
           description: Country ID (required if type is countries)
       responses:
-        "200":
+        '200':
           description: Trends data with temporal analysis
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TrendsResult"
-        "400":
+                $ref: '#/components/schemas/TrendsResult'
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "404":
+                $ref: '#/components/schemas/Error'
+        '404':
           description: Entity not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/search/users:
     get:
@@ -850,7 +1002,7 @@ paths:
             type: string
           description: Search query (username pattern or user_id)
       responses:
-        "200":
+        '200':
           description: Search results
           content:
             application/json:
@@ -870,18 +1022,18 @@ paths:
                           type: integer
                         history_whole_closed:
                           type: integer
-        "400":
+        '400':
           description: Invalid query parameter
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/search/countries:
     get:
@@ -897,7 +1049,7 @@ paths:
             type: string
           description: Search query (name pattern, ISO code, or country_id)
       responses:
-        "200":
+        '200':
           description: Search results
           content:
             application/json:
@@ -915,18 +1067,18 @@ paths:
                           type: string
                         iso_alpha2:
                           type: string
-        "400":
+        '400':
           description: Invalid query parameter
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/hashtags:
     get:
@@ -958,7 +1110,7 @@ paths:
             default: desc
           description: Sort order (by count)
       responses:
-        "200":
+        '200':
           description: List of hashtags with counts
           content:
             application/json:
@@ -975,19 +1127,19 @@ paths:
                         count:
                           type: integer
                   pagination:
-                    $ref: "#/components/schemas/Pagination"
-        "400":
+                    $ref: '#/components/schemas/Pagination'
+        '400':
           description: Invalid parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 
   /notes-api/v1/hashtags/{hashtag}:
     get:
@@ -1003,7 +1155,7 @@ paths:
             type: string
           description: Hashtag name (without #)
       responses:
-        "200":
+        '200':
           description: Hashtag details with users and countries using it
           content:
             application/json:
@@ -1016,21 +1168,21 @@ paths:
                     type: integer
                   countries_count:
                     type: integer
-        "400":
+        '400':
           description: Invalid hashtag
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "404":
+                $ref: '#/components/schemas/Error'
+        '404':
           description: Hashtag not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "500":
+                $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
