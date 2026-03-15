@@ -206,7 +206,7 @@ evaluate_test_coverage() {
     local scripts=()
     while IFS= read -r -d '' script; do
         scripts+=("${script}")
-    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z)
+    done < <(find "${PROJECT_ROOT}" -maxdepth 1 -name "*.sh" -type f -print0 2>/dev/null | sort -z || true)
 
     if [[ ${#scripts[@]} -eq 0 ]]; then
         print_message "${YELLOW}" "⚠ No scripts found in root directory, skipping coverage evaluation"
@@ -269,7 +269,7 @@ evaluate_test_coverage() {
 
 # Run coverage evaluation (non-blocking)
 if [[ -d "${PROJECT_ROOT}/tests" ]]; then
-    evaluate_test_coverage "." "tests" || true
+    (evaluate_test_coverage "." "tests")
 else
     print_message "${YELLOW}" "⚠ No tests/ directory found, skipping coverage evaluation"
 fi

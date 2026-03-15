@@ -408,6 +408,10 @@ function __set_log_file() {
   return 1
  }
 
- # Silently set log file - only log errors
+ # Set logger file descriptor so __output_log (bash_logger) writes to this file.
+ # Without this, __log_fd is never set and log lines may not appear in the log file.
+ if declare -p __log_fd &>/dev/null 2>&1; then
+  exec {__log_fd}>> "${LOG_FILE}"
+ fi
  return 0
 }
