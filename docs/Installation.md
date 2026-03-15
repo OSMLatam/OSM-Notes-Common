@@ -42,13 +42,13 @@ This guide walks you step-by-step through the complete installation of all 8 pro
 
 ```bash
 # PostgreSQL with PostGIS
-sudo apt-get install postgresql postgresql-contrib postgis
+sudo apt-get install postgresql postgis
 
 # Basic tools
 sudo apt-get install curl jq parallel
 
 # Node.js (for API and Viewer)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Java (for GeoServer/WMS)
