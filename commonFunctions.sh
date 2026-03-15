@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-12-13
-VERSION="2025-12-13"
+# Version: 2026-03-15
+VERSION="2026-03-15"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -80,6 +80,9 @@ if [[ -z "${SCRIPT_BASE_DIRECTORY:-}" ]]; then
   SCRIPT_BASE_DIRECTORY="$(cd "${CURRENT_DIR}/../.." && pwd)"
  fi
 fi
+
+# Data directory for backups (noteLocation, countries, maritimes). Override via DATA_DIR.
+export DATA_DIR="${DATA_DIR:-${SCRIPT_BASE_DIRECTORY}/data}"
 
 # Load bash logger functions - this provides all logging functionality
 if [[ -f "${SCRIPT_BASE_DIRECTORY}/lib/osm-common/bash_logger.sh" ]]; then
