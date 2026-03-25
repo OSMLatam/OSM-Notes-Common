@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2026-03-15
-VERSION="2026-03-15"
+# Version: 2026-03-24
+VERSION="2026-03-24"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -171,6 +171,41 @@ function __validation {
 }
 
 ##
+# Validates GNU awk (gawk) is installed and is the GNU implementation.
+# Scripts under awk/extract_*.awk require gawk (e.g. match() with array capture);
+# Debian's default mawk fails on those.
+#
+# Parameters:
+#   None
+#
+# Returns:
+#   Exits with ERROR_MISSING_LIBRARY if gawk is missing or not GNU Awk
+#   Returns 0 on success
+#
+# Related: __checkPrereqsCommands() (calls this when checking CLI tools)
+##
+function __validate_gnu_awk {
+ __logd "Checking GNU awk (gawk)."
+ local GAWK_BIN
+ GAWK_BIN="$(type -P gawk 2> /dev/null || true)"
+ if [[ -z "${GAWK_BIN}" ]]; then
+  __loge "ERROR: GNU awk (gawk) is missing or not in PATH."
+  __loge "Install gawk (e.g. Debian/Ubuntu: sudo apt-get install gawk)."
+  __loge "The default mawk does not support the GNU awk features used in awk/extract_*.awk."
+  # shellcheck disable=SC2154
+  exit "${ERROR_MISSING_LIBRARY}"
+ fi
+ # shellcheck disable=SC2312
+ if ! "${GAWK_BIN}" -W version 2>&1 | head -1 | grep -q "GNU Awk"; then
+  __loge "ERROR: '${GAWK_BIN}' does not appear to be GNU awk (gawk)."
+  __loge "Install gawk and ensure 'type -P gawk' resolves to the GNU binary."
+  # shellcheck disable=SC2154
+  exit "${ERROR_MISSING_LIBRARY}"
+ fi
+ return 0
+}
+
+##
 # Checks that all required system commands are available
 # Validates that essential commands required by the OSM-Notes system are installed
 # and available in PATH. Exits with ERROR_MISSING_LIBRARY if any required command
@@ -212,6 +247,7 @@ function __validation {
 #     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
 #     - jq: JSON processor
 #     - ogr2ogr, gdalinfo: Geospatial tools
+#     - gawk: GNU Awk (see __validate_gnu_awk; not mawk)
 #   Optional (warns only):
 #     - xmllint: XML validator (optional, can skip with SKIP_XML_VALIDATION=true)
 #
@@ -272,6 +308,8 @@ function __checkPrereqsCommands {
   __loge "ERROR: Missing required commands: ${MISSING_COMMANDS[*]}"
   exit "${ERROR_MISSING_LIBRARY}"
  fi
+
+ __validate_gnu_awk
 
  __logi "All required commands are available."
  __log_finish
@@ -413,7 +451,7 @@ function __set_log_file() {
 
  # Set logger file descriptor so __output_log (bash_logger) writes to this file.
  # Without this, __log_fd is never set and log lines may not appear in the log file.
- if declare -p __log_fd &>/dev/null 2>&1; then
+ if declare -p __log_fd &> /dev/null 2>&1; then
   exec {__log_fd}>> "${LOG_FILE}"
  fi
  return 0
