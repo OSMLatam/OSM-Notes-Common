@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2026-03-24
-VERSION="2026-03-24"
+# Version: 2026-03-25
+VERSION="2026-03-25"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
