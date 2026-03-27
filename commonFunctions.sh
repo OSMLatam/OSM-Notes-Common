@@ -428,6 +428,76 @@ function __compare_semver {
  return 0
 }
 
+# Converts wildcard max version X.Y.x to an exclusive upper bound X.(Y+1).0.
+# Parameters:
+#   $1: max version expression
+# Returns:
+#   echoes effective max version
+function __effective_max_version {
+ local MAX_VERSION="${1}"
+ if [[ "${MAX_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[xX]$ ]]; then
+  echo "${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+  return 0
+ fi
+ echo "${MAX_VERSION}"
+}
+
+# Validates a consumer contract against a target schema version.
+# Parameters:
+#   $1: consumer id (ingestion, api, wms, monitoring, ...)
+#   $2: target schema version (MAJOR.MINOR.PATCH)
+# Returns:
+#   0 if contract supports the target version; 1 otherwise
+function __validate_schema_contract_target {
+ local CONSUMER="${1}"
+ local TARGET_VERSION="${2}"
+
+ if ! declare -f __set_schema_contract_range > /dev/null 2>&1; then
+  __loge "ERROR: __set_schema_contract_range is not available."
+  return 1
+ fi
+
+ unset SCHEMA_COMPONENT EXPECTED_SCHEMA_MIN EXPECTED_SCHEMA_MAX
+ export SCHEMA_CONSUMER="${CONSUMER}"
+ __set_schema_contract_range "${SCHEMA_CONSUMER}"
+
+ local COMPONENT="${SCHEMA_COMPONENT:-}"
+ local MIN_VERSION="${EXPECTED_SCHEMA_MIN:-}"
+ local MAX_VERSION="${EXPECTED_SCHEMA_MAX:-}"
+
+ if [[ -z "${COMPONENT}" ]] || [[ -z "${MIN_VERSION}" ]]; then
+  __loge "ERROR: Incomplete contract for consumer=${CONSUMER}"
+  return 1
+ fi
+
+ local MIN_COMPARISON
+ MIN_COMPARISON=$(__compare_semver "${TARGET_VERSION}" "${MIN_VERSION}")
+ if [[ "${MIN_COMPARISON}" == "-1" ]]; then
+  __loge "ERROR: ${CONSUMER} requires >= ${MIN_VERSION}, target is ${TARGET_VERSION}"
+  return 1
+ fi
+
+ if [[ -n "${MAX_VERSION}" ]]; then
+  local EFFECTIVE_MAX
+  local MAX_COMPARISON
+  EFFECTIVE_MAX=$(__effective_max_version "${MAX_VERSION}")
+  MAX_COMPARISON=$(__compare_semver "${TARGET_VERSION}" "${EFFECTIVE_MAX}")
+
+  if [[ "${MAX_VERSION}" =~ \.[xX]$ ]]; then
+   if [[ "${MAX_COMPARISON}" != "-1" ]]; then
+    __loge "ERROR: ${CONSUMER} max is ${MAX_VERSION}, target is ${TARGET_VERSION}"
+    return 1
+   fi
+  elif [[ "${MAX_COMPARISON}" == "1" ]]; then
+   __loge "ERROR: ${CONSUMER} max is ${MAX_VERSION}, target is ${TARGET_VERSION}"
+   return 1
+  fi
+ fi
+
+ __logi "OK: ${CONSUMER} (${COMPONENT}) supports ${TARGET_VERSION}"
+ return 0
+}
+
 # Validates database schema version compatibility.
 # Expected configuration:
 #   EXPECTED_SCHEMA_MIN=1.1.0
