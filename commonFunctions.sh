@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2026-03-25
-VERSION="2026-03-25"
+# Version: 2026-03-27
+VERSION="2026-03-27"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -390,6 +390,89 @@ function __checkPrereqs_functions {
  fi
 
  __logi "All required functions are available."
+ __log_finish
+}
+
+# Compares two semantic versions (MAJOR.MINOR.PATCH).
+# Returns:
+#   0 if versions are equal
+#   1 if first version is greater
+#  -1 if first version is lower
+function __compare_semver {
+ local VERSION_A="${1}"
+ local VERSION_B="${2}"
+ local IFS='.'
+ local -a A B
+ read -r -a A <<< "${VERSION_A}"
+ read -r -a B <<< "${VERSION_B}"
+ local I
+ for I in 0 1 2; do
+  local AV="${A[${I}]:-0}"
+  local BV="${B[${I}]:-0}"
+  if ((AV > BV)); then
+   echo 1
+   return 0
+  fi
+  if ((AV < BV)); then
+   echo -1
+   return 0
+  fi
+ done
+ echo 0
+ return 0
+}
+
+# Validates database schema version compatibility.
+# Expected configuration:
+#   EXPECTED_SCHEMA_MIN=1.1.0
+#   EXPECTED_SCHEMA_MAX=1.1.x (optional, empty means no upper bound)
+function __assert_schema_compatible {
+ __log_start
+ local SCHEMA_COMPONENT="${SCHEMA_COMPONENT:-core}"
+ local MIN_VERSION="${EXPECTED_SCHEMA_MIN:-1.1.0}"
+ local MAX_VERSION="${EXPECTED_SCHEMA_MAX:-}"
+ local DB_VERSION
+ local EFFECTIVE_MAX_VERSION="${MAX_VERSION}"
+ local MAX_EXCLUSIVE=false
+
+ DB_VERSION=$(psql -d "${DBNAME}" -Atq -c \
+  "SELECT version FROM schema_version WHERE component='${SCHEMA_COMPONENT}'" \
+  2> /dev/null | head -1 || true)
+
+ if [[ -z "${DB_VERSION}" ]]; then
+  __loge "ERROR: Missing schema version for component=${SCHEMA_COMPONENT}"
+  __loge "ERROR: Run base schema setup before executing this script."
+  exit "${ERROR_DATA_VALIDATION}"
+ fi
+
+ local CMP_MIN
+ CMP_MIN=$(__compare_semver "${DB_VERSION}" "${MIN_VERSION}")
+ if [[ "${CMP_MIN}" == "-1" ]]; then
+  __loge "ERROR: Incompatible schema version ${DB_VERSION} < ${MIN_VERSION}"
+  exit "${ERROR_DATA_VALIDATION}"
+ fi
+
+ # Supports wildcard upper bounds:
+ # - 1.1.x means version must be lower than 1.2.0 (exclusive).
+ if [[ "${MAX_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[xX]$ ]]; then
+  EFFECTIVE_MAX_VERSION="${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+  MAX_EXCLUSIVE=true
+ fi
+
+ if [[ -n "${MAX_VERSION}" ]]; then
+  local CMP_MAX
+  CMP_MAX=$(__compare_semver "${DB_VERSION}" "${EFFECTIVE_MAX_VERSION}")
+  if [[ "${MAX_EXCLUSIVE}" == "true" ]] && [[ "${CMP_MAX}" != "-1" ]]; then
+   __loge "ERROR: Incompatible schema version ${DB_VERSION} >= ${MAX_VERSION}"
+   exit "${ERROR_DATA_VALIDATION}"
+  fi
+  if [[ "${MAX_EXCLUSIVE}" != "true" ]] && [[ "${CMP_MAX}" == "1" ]]; then
+   __loge "ERROR: Incompatible schema version ${DB_VERSION} > ${MAX_VERSION}"
+   exit "${ERROR_DATA_VALIDATION}"
+  fi
+ fi
+
+ __logi "Schema version ${DB_VERSION} is compatible for ${SCHEMA_COMPONENT}"
  __log_finish
 }
 
