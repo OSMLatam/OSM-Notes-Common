@@ -84,6 +84,12 @@ fi
 # Data directory for backups (noteLocation, countries, maritimes). Override via DATA_DIR.
 export DATA_DIR="${DATA_DIR:-${SCRIPT_BASE_DIRECTORY}/data}"
 
+# Load central schema compatibility contracts if present.
+if [[ -f "${SCRIPT_BASE_DIRECTORY}/etc/schema_compatibility.sh" ]]; then
+ # shellcheck source=etc/schema_compatibility.sh
+ source "${SCRIPT_BASE_DIRECTORY}/etc/schema_compatibility.sh"
+fi
+
 # Load bash logger functions - this provides all logging functionality
 if [[ -f "${SCRIPT_BASE_DIRECTORY}/lib/osm-common/bash_logger.sh" ]]; then
  # shellcheck source=lib/osm-common/bash_logger.sh
@@ -428,6 +434,9 @@ function __compare_semver {
 #   EXPECTED_SCHEMA_MAX=1.1.x (optional, empty means no upper bound)
 function __assert_schema_compatible {
  __log_start
+ if declare -f __set_schema_contract_range > /dev/null 2>&1; then
+  __set_schema_contract_range "${SCHEMA_CONSUMER:-ingestion}"
+ fi
  local SCHEMA_COMPONENT="${SCHEMA_COMPONENT:-core}"
  local MIN_VERSION="${EXPECTED_SCHEMA_MIN:-1.1.0}"
  local MAX_VERSION="${EXPECTED_SCHEMA_MAX:-}"
