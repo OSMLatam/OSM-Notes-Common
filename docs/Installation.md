@@ -299,6 +299,7 @@ docker run -d -p 8080:8080 \
 ```bash
 cp etc/wms.properties.sh.example etc/wms.properties.sh
 nano etc/wms.properties.sh  # Configure database and GeoServer
+# Optional: etc/wms.properties.extras.sh.example -> wms.properties.extras.sh (see OSM-Notes-WMS etc/README.md)
 ```
 
 #### 3.4 Install WMS Components
