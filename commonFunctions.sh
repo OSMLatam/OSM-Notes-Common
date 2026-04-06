@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2026-03-27
-VERSION="2026-03-27"
+# Version: 2026-04-06
+VERSION="2026-04-06"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -250,8 +250,8 @@ function __validate_gnu_awk {
 #     - psql: PostgreSQL client
 #     - curl: HTTP client
 #     - grep: Text search
-#     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
 #     - jq: JSON processor
+#     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
 #     - ogr2ogr, gdalinfo: Geospatial tools
 #     - gawk: GNU Awk (see __validate_gnu_awk; not mawk)
 #   Optional (warns only):
@@ -278,7 +278,7 @@ function __checkPrereqsCommands {
  local MISSING_COMMANDS=()
 
  # Check basic commands (required)
- for CMD in psql curl grep; do
+ for CMD in psql curl grep jq; do
   if ! command -v "${CMD}" > /dev/null 2>&1; then
    MISSING_COMMANDS+=("${CMD}")
   fi
@@ -296,11 +296,6 @@ function __checkPrereqsCommands {
    MISSING_COMMANDS+=("${CMD}")
   fi
  done
-
- # Check JSON processing commands
- if ! command -v jq > /dev/null 2>&1; then
-  MISSING_COMMANDS+=("jq")
- fi
 
  # Check geospatial processing commands
  for CMD in ogr2ogr gdalinfo; do
