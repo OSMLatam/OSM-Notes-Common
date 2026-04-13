@@ -4,8 +4,8 @@
 # This file contains error handling and retry functions.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-11-25
-VERSION="2025-11-25"
+# Version: 2026-04-11
+VERSION="2026-04-11"
 
 # shellcheck disable=SC2317,SC2155,SC2312
 
@@ -607,7 +607,11 @@ function __check_network_connectivity() {
  __logi "=== CHECKING NETWORK CONNECTIVITY ==="
  __logd "Testing connectivity to ${TEST_URL} with timeout ${TIMEOUT}s"
 
- if timeout "${TIMEOUT}" curl -s --max-time "${TIMEOUT}" "${TEST_URL}" > /dev/null 2>&1; then
+ local -a NET_CONNECT_CURL=(curl -s --max-time "${TIMEOUT}")
+ if declare -f __append_curl_download_headers > /dev/null 2>&1; then
+  __append_curl_download_headers NET_CONNECT_CURL
+ fi
+ if timeout "${TIMEOUT}" "${NET_CONNECT_CURL[@]}" "${TEST_URL}" > /dev/null 2>&1; then
   __logi "Network connectivity confirmed"
   __logi "=== NETWORK CONNECTIVITY CHECK COMPLETED SUCCESSFULLY ==="
   __log_finish

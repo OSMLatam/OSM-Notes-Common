@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2026-04-06
-VERSION="2026-04-06"
+# Version: 2026-04-11
+VERSION="2026-04-11"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -27,6 +27,42 @@ if [[ -z "${ERROR_GEOJSON_CONVERSION:-}" ]]; then declare -r ERROR_GEOJSON_CONVE
 if [[ -z "${ERROR_INTERNET_ISSUE:-}" ]]; then declare -r ERROR_INTERNET_ISSUE=251; fi
 if [[ -z "${ERROR_DATA_VALIDATION:-}" ]]; then declare -r ERROR_DATA_VALIDATION=252; fi
 if [[ -z "${ERROR_GENERAL:-}" ]]; then declare -r ERROR_GENERAL=255; fi
+
+##
+# Appends User-Agent and optional Referer -H options to a curl option array.
+# Uses DOWNLOAD_USER_AGENT and DOWNLOAD_REFERER from properties when set.
+#
+# Parameters:
+#   $1 - Name of bash array variable (nameref) to append -H options to.
+##
+function __append_curl_download_headers() {
+ # shellcheck disable=SC2178
+ local -n __curl_hdr_opts="${1:?curl option array name required}"
+ if [[ -n "${DOWNLOAD_USER_AGENT:-}" ]]; then
+  __curl_hdr_opts+=(-H "User-Agent: ${DOWNLOAD_USER_AGENT}")
+ fi
+ if [[ -n "${DOWNLOAD_REFERER:-}" ]]; then
+  __curl_hdr_opts+=(-H "Referer: ${DOWNLOAD_REFERER}")
+ fi
+}
+
+##
+# Builds escaped -H fragments for curl inside a string passed to eval or
+# __retry_file_operation. Uses DOWNLOAD_USER_AGENT and DOWNLOAD_REFERER.
+#
+# Returns:
+#   Prints a fragment such as: -H "User-Agent: ..." -H "Referer: ..."
+##
+function __curl_download_headers_for_shell_string() {
+ local FRAG=""
+ if [[ -n "${DOWNLOAD_USER_AGENT:-}" ]]; then
+  FRAG+=" -H \"User-Agent: ${DOWNLOAD_USER_AGENT}\""
+ fi
+ if [[ -n "${DOWNLOAD_REFERER:-}" ]]; then
+  FRAG+=" -H \"Referer: ${DOWNLOAD_REFERER}\""
+ fi
+ printf '%s' "${FRAG}"
+}
 
 # Show help function
 function __show_help() {
