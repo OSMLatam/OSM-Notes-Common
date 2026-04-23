@@ -157,6 +157,54 @@ components:
           nullable: true
           example: 50.0
 
+    InferredUserIdLink:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 12345
+        username:
+          type: string
+          example: test_user
+        first_seen_at:
+          type: string
+          format: date-time
+        last_seen_at:
+          type: string
+          format: date-time
+        comments_count:
+          type: integer
+          example: 42
+        notes_count:
+          type: integer
+          example: 30
+        status:
+          type: string
+          enum: [active, inactive]
+
+    InferredLifecycleEvent:
+      type: object
+      properties:
+        event_type:
+          type: string
+          enum: [first_seen, last_seen, possible_user_id_change]
+        occurred_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+        username:
+          type: string
+        related_user_id:
+          type: integer
+          nullable: true
+        confidence:
+          type: string
+          enum: [low, medium]
+        inferred:
+          type: boolean
+          example: true
+
     CountryProfile:
       type: object
       properties:
@@ -619,6 +667,108 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notes-api/v1/users/by-username/{username}/user-ids:
+    get:
+      summary: Get inferred user IDs associated with a username
+      tags: [Users]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Username to analyze
+      responses:
+        '200':
+          description: Inferred user IDs linked to the username
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      user_ids:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InferredUserIdLink'
+                  count:
+                    type: integer
+                  inferred:
+                    type: boolean
+                    example: true
+        '400':
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notes-api/v1/users/{user_id}/history-inferred:
+    get:
+      summary: Get inferred lifecycle history by user ID
+      tags: [Users]
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+          description: OSM user ID
+      responses:
+        '200':
+          description: Inferred lifecycle events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      history:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InferredLifecycleEvent'
+                  count:
+                    type: integer
+                  inferred:
+                    type: boolean
+                    example: true
         '400':
           description: Invalid user ID
           content:
