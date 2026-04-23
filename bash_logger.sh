@@ -18,7 +18,7 @@
 # - Test-friendly design
 #
 # Author: Andres Gomez (AngocA) - Enhanced version
-# Version: 2025-10-26
+# Version: 2026-03-24
 # Based on: Dushyanth Jyothi's bash-logger
 
 # === CONSTANTS AND CONFIGURATION ===
@@ -469,8 +469,9 @@ __log_start() {
  __logger_function_start_time="${start_time}"
  __logger_start_time_stack+=("${start_time}")
 
- # Only output start/finish messages when log level is DEBUG or TRACE
- if __should_log_message "DEBUG"; then
+ # Output start/finish messages when log level is INFO or above.
+ # Unit tests and existing scripts expect timing visibility at INFO level.
+ if __should_log_message "INFO"; then
   local message="#-- STARTED ${function_name^^} IN ${simplified_script_name^^}"
   local caller_info
   caller_info=$(__get_caller_info)
@@ -520,8 +521,9 @@ __log_finish() {
  local minutes=$(((execution_time % 3600) / 60))
  local seconds=$((execution_time % 60))
 
- # Only output start/finish messages when log level is DEBUG or TRACE
- if __should_log_message "DEBUG"; then
+ # Output start/finish messages when log level is INFO or above.
+ # Unit tests and existing scripts expect timing visibility at INFO level.
+ if __should_log_message "INFO"; then
   local message="|-- FINISHED ${function_name^^} IN ${simplified_script_name^^}"
   local caller_info
   caller_info=$(__get_caller_info)

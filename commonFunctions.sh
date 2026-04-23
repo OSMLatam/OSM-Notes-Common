@@ -4,8 +4,8 @@
 # This file contains functions used across all scripts in the project.
 #
 # Author: Andres Gomez (AngocA)
-# Version: 2025-12-13
-VERSION="2025-12-13"
+# Version: 2026-04-11
+VERSION="2026-04-11"
 
 # shellcheck disable=SC2317,SC2155,SC2034
 
@@ -27,6 +27,42 @@ if [[ -z "${ERROR_GEOJSON_CONVERSION:-}" ]]; then declare -r ERROR_GEOJSON_CONVE
 if [[ -z "${ERROR_INTERNET_ISSUE:-}" ]]; then declare -r ERROR_INTERNET_ISSUE=251; fi
 if [[ -z "${ERROR_DATA_VALIDATION:-}" ]]; then declare -r ERROR_DATA_VALIDATION=252; fi
 if [[ -z "${ERROR_GENERAL:-}" ]]; then declare -r ERROR_GENERAL=255; fi
+
+##
+# Appends User-Agent and optional Referer -H options to a curl option array.
+# Uses DOWNLOAD_USER_AGENT and DOWNLOAD_REFERER from properties when set.
+#
+# Parameters:
+#   $1 - Name of bash array variable (nameref) to append -H options to.
+##
+function __append_curl_download_headers() {
+ # shellcheck disable=SC2178
+ local -n __curl_hdr_opts="${1:?curl option array name required}"
+ if [[ -n "${DOWNLOAD_USER_AGENT:-}" ]]; then
+  __curl_hdr_opts+=(-H "User-Agent: ${DOWNLOAD_USER_AGENT}")
+ fi
+ if [[ -n "${DOWNLOAD_REFERER:-}" ]]; then
+  __curl_hdr_opts+=(-H "Referer: ${DOWNLOAD_REFERER}")
+ fi
+}
+
+##
+# Builds escaped -H fragments for curl inside a string passed to eval or
+# __retry_file_operation. Uses DOWNLOAD_USER_AGENT and DOWNLOAD_REFERER.
+#
+# Returns:
+#   Prints a fragment such as: -H "User-Agent: ..." -H "Referer: ..."
+##
+function __curl_download_headers_for_shell_string() {
+ local FRAG=""
+ if [[ -n "${DOWNLOAD_USER_AGENT:-}" ]]; then
+  FRAG+=" -H \"User-Agent: ${DOWNLOAD_USER_AGENT}\""
+ fi
+ if [[ -n "${DOWNLOAD_REFERER:-}" ]]; then
+  FRAG+=" -H \"Referer: ${DOWNLOAD_REFERER}\""
+ fi
+ printf '%s' "${FRAG}"
+}
 
 # Show help function
 function __show_help() {
@@ -79,6 +115,15 @@ if [[ -z "${SCRIPT_BASE_DIRECTORY:-}" ]]; then
  else
   SCRIPT_BASE_DIRECTORY="$(cd "${CURRENT_DIR}/../.." && pwd)"
  fi
+fi
+
+# Data directory for backups (noteLocation, countries, maritimes). Override via DATA_DIR.
+export DATA_DIR="${DATA_DIR:-${SCRIPT_BASE_DIRECTORY}/data}"
+
+# Load central schema compatibility contracts if present.
+if [[ -f "${SCRIPT_BASE_DIRECTORY}/etc/schema_compatibility.sh" ]]; then
+ # shellcheck source=etc/schema_compatibility.sh
+ source "${SCRIPT_BASE_DIRECTORY}/etc/schema_compatibility.sh"
 fi
 
 # Load bash logger functions - this provides all logging functionality
@@ -168,6 +213,41 @@ function __validation {
 }
 
 ##
+# Validates GNU awk (gawk) is installed and is the GNU implementation.
+# Scripts under awk/extract_*.awk require gawk (e.g. match() with array capture);
+# Debian's default mawk fails on those.
+#
+# Parameters:
+#   None
+#
+# Returns:
+#   Exits with ERROR_MISSING_LIBRARY if gawk is missing or not GNU Awk
+#   Returns 0 on success
+#
+# Related: __checkPrereqsCommands() (calls this when checking CLI tools)
+##
+function __validate_gnu_awk {
+ __logd "Checking GNU awk (gawk)."
+ local GAWK_BIN
+ GAWK_BIN="$(type -P gawk 2> /dev/null || true)"
+ if [[ -z "${GAWK_BIN}" ]]; then
+  __loge "ERROR: GNU awk (gawk) is missing or not in PATH."
+  __loge "Install gawk (e.g. Debian/Ubuntu: sudo apt-get install gawk)."
+  __loge "The default mawk does not support the GNU awk features used in awk/extract_*.awk."
+  # shellcheck disable=SC2154
+  exit "${ERROR_MISSING_LIBRARY}"
+ fi
+ # shellcheck disable=SC2312
+ if ! "${GAWK_BIN}" -W version 2>&1 | head -1 | grep -q "GNU Awk"; then
+  __loge "ERROR: '${GAWK_BIN}' does not appear to be GNU awk (gawk)."
+  __loge "Install gawk and ensure 'type -P gawk' resolves to the GNU binary."
+  # shellcheck disable=SC2154
+  exit "${ERROR_MISSING_LIBRARY}"
+ fi
+ return 0
+}
+
+##
 # Checks that all required system commands are available
 # Validates that essential commands required by the OSM-Notes system are installed
 # and available in PATH. Exits with ERROR_MISSING_LIBRARY if any required command
@@ -206,9 +286,10 @@ function __validation {
 #     - psql: PostgreSQL client
 #     - curl: HTTP client
 #     - grep: Text search
-#     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
 #     - jq: JSON processor
+#     - free, uptime, ulimit, prlimit, bc, timeout: System utilities
 #     - ogr2ogr, gdalinfo: Geospatial tools
+#     - gawk: GNU Awk (see __validate_gnu_awk; not mawk)
 #   Optional (warns only):
 #     - xmllint: XML validator (optional, can skip with SKIP_XML_VALIDATION=true)
 #
@@ -233,7 +314,7 @@ function __checkPrereqsCommands {
  local MISSING_COMMANDS=()
 
  # Check basic commands (required)
- for CMD in psql curl grep; do
+ for CMD in psql curl grep jq; do
   if ! command -v "${CMD}" > /dev/null 2>&1; then
    MISSING_COMMANDS+=("${CMD}")
   fi
@@ -252,11 +333,6 @@ function __checkPrereqsCommands {
   fi
  done
 
- # Check JSON processing commands
- if ! command -v jq > /dev/null 2>&1; then
-  MISSING_COMMANDS+=("jq")
- fi
-
  # Check geospatial processing commands
  for CMD in ogr2ogr gdalinfo; do
   if ! command -v "${CMD}" > /dev/null 2>&1; then
@@ -269,6 +345,8 @@ function __checkPrereqsCommands {
   __loge "ERROR: Missing required commands: ${MISSING_COMMANDS[*]}"
   exit "${ERROR_MISSING_LIBRARY}"
  fi
+
+ __validate_gnu_awk
 
  __logi "All required commands are available."
  __log_finish
@@ -352,6 +430,162 @@ function __checkPrereqs_functions {
  __log_finish
 }
 
+# Compares two semantic versions (MAJOR.MINOR.PATCH).
+# Returns:
+#   0 if versions are equal
+#   1 if first version is greater
+#  -1 if first version is lower
+function __compare_semver {
+ local VERSION_A="${1}"
+ local VERSION_B="${2}"
+ local IFS='.'
+ local -a A B
+ read -r -a A <<< "${VERSION_A}"
+ read -r -a B <<< "${VERSION_B}"
+ local I
+ for I in 0 1 2; do
+  local AV="${A[${I}]:-0}"
+  local BV="${B[${I}]:-0}"
+  if ((AV > BV)); then
+   echo 1
+   return 0
+  fi
+  if ((AV < BV)); then
+   echo -1
+   return 0
+  fi
+ done
+ echo 0
+ return 0
+}
+
+# Converts wildcard max version X.Y.x to an exclusive upper bound X.(Y+1).0.
+# Parameters:
+#   $1: max version expression
+# Returns:
+#   echoes effective max version
+function __effective_max_version {
+ local MAX_VERSION="${1}"
+ if [[ "${MAX_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[xX]$ ]]; then
+  echo "${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+  return 0
+ fi
+ echo "${MAX_VERSION}"
+}
+
+# Validates a consumer contract against a target schema version.
+# Parameters:
+#   $1: consumer id (ingestion, api, wms, monitoring, ...)
+#   $2: target schema version (MAJOR.MINOR.PATCH)
+# Returns:
+#   0 if contract supports the target version; 1 otherwise
+function __validate_schema_contract_target {
+ local CONSUMER="${1}"
+ local TARGET_VERSION="${2}"
+
+ if ! declare -f __set_schema_contract_range > /dev/null 2>&1; then
+  __loge "ERROR: __set_schema_contract_range is not available."
+  return 1
+ fi
+
+ unset SCHEMA_COMPONENT EXPECTED_SCHEMA_MIN EXPECTED_SCHEMA_MAX
+ export SCHEMA_CONSUMER="${CONSUMER}"
+ __set_schema_contract_range "${SCHEMA_CONSUMER}"
+
+ local COMPONENT="${SCHEMA_COMPONENT:-}"
+ local MIN_VERSION="${EXPECTED_SCHEMA_MIN:-}"
+ local MAX_VERSION="${EXPECTED_SCHEMA_MAX:-}"
+
+ if [[ -z "${COMPONENT}" ]] || [[ -z "${MIN_VERSION}" ]]; then
+  __loge "ERROR: Incomplete contract for consumer=${CONSUMER}"
+  return 1
+ fi
+
+ local MIN_COMPARISON
+ MIN_COMPARISON=$(__compare_semver "${TARGET_VERSION}" "${MIN_VERSION}")
+ if [[ "${MIN_COMPARISON}" == "-1" ]]; then
+  __loge "ERROR: ${CONSUMER} requires >= ${MIN_VERSION}, target is ${TARGET_VERSION}"
+  return 1
+ fi
+
+ if [[ -n "${MAX_VERSION}" ]]; then
+  local EFFECTIVE_MAX
+  local MAX_COMPARISON
+  EFFECTIVE_MAX=$(__effective_max_version "${MAX_VERSION}")
+  MAX_COMPARISON=$(__compare_semver "${TARGET_VERSION}" "${EFFECTIVE_MAX}")
+
+  if [[ "${MAX_VERSION}" =~ \.[xX]$ ]]; then
+   if [[ "${MAX_COMPARISON}" != "-1" ]]; then
+    __loge "ERROR: ${CONSUMER} max is ${MAX_VERSION}, target is ${TARGET_VERSION}"
+    return 1
+   fi
+  elif [[ "${MAX_COMPARISON}" == "1" ]]; then
+   __loge "ERROR: ${CONSUMER} max is ${MAX_VERSION}, target is ${TARGET_VERSION}"
+   return 1
+  fi
+ fi
+
+ __logi "OK: ${CONSUMER} (${COMPONENT}) supports ${TARGET_VERSION}"
+ return 0
+}
+
+# Validates database schema version compatibility.
+# Expected configuration:
+#   EXPECTED_SCHEMA_MIN=1.1.0
+#   EXPECTED_SCHEMA_MAX=1.1.x (optional, empty means no upper bound)
+function __assert_schema_compatible {
+ __log_start
+ if declare -f __set_schema_contract_range > /dev/null 2>&1; then
+  __set_schema_contract_range "${SCHEMA_CONSUMER:-ingestion}"
+ fi
+ local SCHEMA_COMPONENT="${SCHEMA_COMPONENT:-core}"
+ local MIN_VERSION="${EXPECTED_SCHEMA_MIN:-1.1.0}"
+ local MAX_VERSION="${EXPECTED_SCHEMA_MAX:-}"
+ local DB_VERSION
+ local EFFECTIVE_MAX_VERSION="${MAX_VERSION}"
+ local MAX_EXCLUSIVE=false
+
+ DB_VERSION=$(psql -d "${DBNAME}" -Atq -c \
+  "SELECT version FROM schema_version WHERE component='${SCHEMA_COMPONENT}'" \
+  2> /dev/null | head -1 || true)
+
+ if [[ -z "${DB_VERSION}" ]]; then
+  __loge "ERROR: Missing schema version for component=${SCHEMA_COMPONENT}"
+  __loge "ERROR: Run base schema setup before executing this script."
+  exit "${ERROR_DATA_VALIDATION}"
+ fi
+
+ local CMP_MIN
+ CMP_MIN=$(__compare_semver "${DB_VERSION}" "${MIN_VERSION}")
+ if [[ "${CMP_MIN}" == "-1" ]]; then
+  __loge "ERROR: Incompatible schema version ${DB_VERSION} < ${MIN_VERSION}"
+  exit "${ERROR_DATA_VALIDATION}"
+ fi
+
+ # Supports wildcard upper bounds:
+ # - 1.1.x means version must be lower than 1.2.0 (exclusive).
+ if [[ "${MAX_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.[xX]$ ]]; then
+  EFFECTIVE_MAX_VERSION="${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+  MAX_EXCLUSIVE=true
+ fi
+
+ if [[ -n "${MAX_VERSION}" ]]; then
+  local CMP_MAX
+  CMP_MAX=$(__compare_semver "${DB_VERSION}" "${EFFECTIVE_MAX_VERSION}")
+  if [[ "${MAX_EXCLUSIVE}" == "true" ]] && [[ "${CMP_MAX}" != "-1" ]]; then
+   __loge "ERROR: Incompatible schema version ${DB_VERSION} >= ${MAX_VERSION}"
+   exit "${ERROR_DATA_VALIDATION}"
+  fi
+  if [[ "${MAX_EXCLUSIVE}" != "true" ]] && [[ "${CMP_MAX}" == "1" ]]; then
+   __loge "ERROR: Incompatible schema version ${DB_VERSION} > ${MAX_VERSION}"
+   exit "${ERROR_DATA_VALIDATION}"
+  fi
+ fi
+
+ __logi "Schema version ${DB_VERSION} is compatible for ${SCHEMA_COMPONENT}"
+ __log_finish
+}
+
 # Drop generic objects
 function __dropGenericObjects {
  __log_start
@@ -410,7 +644,7 @@ function __set_log_file() {
 
  # Set logger file descriptor so __output_log (bash_logger) writes to this file.
  # Without this, __log_fd is never set and log lines may not appear in the log file.
- if declare -p __log_fd &>/dev/null 2>&1; then
+ if declare -p __log_fd &> /dev/null 2>&1; then
   exec {__log_fd}>> "${LOG_FILE}"
  fi
  return 0
