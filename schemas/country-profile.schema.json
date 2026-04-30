@@ -38,7 +38,7 @@
       "description": "Date when first note was solved in country (YYYY-MM-DD format)"
     },
     "first_open_note_id": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "description": "ID of first note opened"
     },
     "first_commented_note_id": {
