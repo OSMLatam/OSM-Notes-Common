@@ -42,13 +42,13 @@ This guide walks you step-by-step through the complete installation of all 8 pro
 
 ```bash
 # PostgreSQL with PostGIS
-sudo apt-get install postgresql postgresql-contrib postgis
+sudo apt-get install postgresql postgis
 
 # Basic tools
 sudo apt-get install curl jq parallel
 
 # Node.js (for API and Viewer)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Java (for GeoServer/WMS)
@@ -299,6 +299,7 @@ docker run -d -p 8080:8080 \
 ```bash
 cp etc/wms.properties.sh.example etc/wms.properties.sh
 nano etc/wms.properties.sh  # Configure database and GeoServer
+# Optional: etc/wms.properties.extras.sh.example -> wms.properties.extras.sh (see OSM-Notes-WMS etc/README.md)
 ```
 
 #### 3.4 Install WMS Components
