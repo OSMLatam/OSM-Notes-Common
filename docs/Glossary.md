@@ -309,7 +309,7 @@ git submodule update --init --recursive
 
 - [OSM Notes Ecosystem Landing Page](https://github.com/OSM-Notes/OSM-Notes)
 - [Data Flow Documentation](./Data_Flow.md)
-- [Installation Guide](./Installation.md)
+- [Ecosystem installation index](./Installation.md)
 
 ---
 

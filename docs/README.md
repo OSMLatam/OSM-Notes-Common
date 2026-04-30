@@ -2,7 +2,7 @@
 title: "OSM-Notes-Common Documentation"
 description: "Index of shared documentation for the OSM Notes ecosystem"
 version: "1.0.0"
-last_updated: "2026-01-25"
+last_updated: "2026-04-30"
 author: "AngocA"
 tags:
   - "documentation"
@@ -22,8 +22,8 @@ This directory contains shared documentation for the entire OSM Notes ecosystem.
 ### [Global Glossary](./Glossary.md)
 Complete glossary of terms used across the OSM Notes ecosystem.
 
-### [Complete Installation Guide](./Installation.md)
-Step-by-step guide to install the complete ecosystem.
+### [Ecosystem installation index](./Installation.md)
+Suggested install order plus links to each repository’s manuals (details live per project).
 
 ### [End-to-End Data Flow](./Data_Flow.md)
 Complete data flow from OSM Planet to Viewer.

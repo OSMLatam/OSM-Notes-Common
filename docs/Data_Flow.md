@@ -538,7 +538,7 @@ curl -H "User-Agent: Test/1.0" http://localhost:3000/health
 
 ## 🔗 Cross References
 
-- [Complete Installation Guide](./Installation.md) - Step-by-step installation
+- [Ecosystem installation index](./Installation.md) - Order and links to per-project guides
 - [Global Glossary](./Glossary.md) - Terms and definitions
 - [OSM-Notes-Ingestion Process API](https://github.com/OSM-Notes/OSM-Notes-Ingestion/blob/main/docs/Process_API.md)
 - [OSM-Notes-Analytics ETL](https://github.com/OSM-Notes/OSM-Notes-Analytics/blob/main/docs/ETL_Enhanced_Features.md)

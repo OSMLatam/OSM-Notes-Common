@@ -331,29 +331,29 @@ graph TB
 
 ### Profile: Data Engineer
 - **You need:** Ingestion + Analytics
-- **Installation:** Complete (see [Installation Guide](./Installation.md))
+- **Installation:** Full stack per linked guides (see [installation index](./Installation.md))
 - **Time:** 2-4 hours
 
 ### Profile: Backend Developer
 - **You need:** Ingestion + Analytics + API
-- **Installation:** Complete + API
+- **Installation:** Stack per [installation index](./Installation.md) + API repo README
 - **Time:** 3-5 hours
 
 ### Profile: Mapper (JOSM/Vespucci)
 - **You need:** Ingestion + WMS
-- **Installation:** Ingestion + WMS
+- **Installation:** Ingestion + WMS (see index + WMS README)
 - **Time:** 1-2 hours
 
 ### Profile: System Administrator
 - **You need:** All projects
-- **Installation:** Complete (see [Installation Guide](./Installation.md))
+- **Installation:** Full stack per [installation index](./Installation.md)
 - **Time:** 4-6 hours
 
 ---
 
 ## 🔗 References
 
-- [Complete Installation Guide](./Installation.md) - Step-by-step installation
+- [Ecosystem installation index](./Installation.md) - Order and links to each project
 - [Data Flow](./Data_Flow.md) - Understand the complete flow
 - [Global Glossary](./Glossary.md) - Terms and definitions
 - [OSM Notes Ecosystem](https://github.com/OSM-Notes/OSM-Notes) - Landing page

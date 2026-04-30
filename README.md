@@ -372,7 +372,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 This repository also contains shared documentation for the entire OSM Notes ecosystem:
 
 - **[Global Glossary](docs/Glossary.md)** - Complete glossary of terms used across the ecosystem
-- **[Complete Installation Guide](docs/Installation.md)** - Step-by-step installation guide for the complete ecosystem
+- **[Ecosystem installation index](docs/Installation.md)** - Order and links to each project’s install docs
 - **[End-to-End Data Flow](docs/Data_Flow.md)** - Complete data flow from OSM Planet to Viewer
 - **[Decision Guide](docs/Decision_Guide.md)** - Help deciding which projects you need
 
