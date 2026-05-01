@@ -295,7 +295,7 @@ flowchart LR
 **Destination:** Web browser
 
 **Process:**
-1. Viewer loads `indexes/users.json` and `indexes/countries.json`
+1. Viewer loads `indexes/users.json` (minimal browse: `user_id`, `username`, open/closed counts) and `indexes/countries.json`
 2. User selects profile
 3. Viewer loads specific JSON: `data/users/.../{user_id}.json`
 4. Renders visualizations in browser
